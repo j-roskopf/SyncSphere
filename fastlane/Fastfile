@@ -1,0 +1,27 @@
+platform :ios do
+
+  lane :lint do
+    swiftlint(
+      mode: :lint,
+      path: "iosApp/iosApp",
+      strict: true,
+      raise_if_swiftlint_error: true
+    )
+  end
+
+  private_lane :build_sync_sphere do |options|
+    build_app(
+      workspace: "iosApp/iosApp.xcworkspace",
+      scheme: options[:scheme],
+      buildlog_path: "build/fastlane-buildlog",
+      skip_package_ipa: true,
+      skip_codesigning: true
+    )
+  end
+
+  lane :build do
+    lint()
+    build_sync_sphere(scheme: "iosApp")
+  end
+
+end

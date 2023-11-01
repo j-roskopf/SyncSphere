@@ -1,0 +1,69 @@
+package com.joetr.sync.sphere.ui.new
+
+import cafe.adriel.voyager.core.model.ScreenModel
+import cafe.adriel.voyager.core.model.coroutineScope
+import com.joetr.sync.sphere.data.RoomRepository
+import com.joetr.sync.sphere.data.model.JoinedRoom
+import com.joetr.sync.sphere.data.model.Room
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
+
+class NewRoomScreenModel(
+    private val dispatcher: CoroutineDispatcher,
+    private val roomRepository: RoomRepository,
+) : ScreenModel {
+
+    var room: Room? = null
+    private var selectedDates = emptyList<String>()
+    lateinit var personId: String
+
+    private val _state = MutableStateFlow<NewRoomState>(NewRoomState.Loading)
+    val state: StateFlow<NewRoomState> = _state
+
+    fun init(joinedRoom: JoinedRoom?, name: String) {
+        coroutineScope.launch(dispatcher) {
+            room = if (joinedRoom != null) {
+                personId = joinedRoom.id
+
+                joinedRoom.room
+            } else {
+                val room = roomRepository.createRoom(name)
+                // if we are creating the room, there is only 1 person in it, store their ID
+                personId = room.people.first().id
+                room
+            }
+
+            val roomCode = room!!.roomCode
+
+            roomRepository.saveRoomCodeLocally(roomCode)
+
+            roomRepository.roomUpdates(
+                roomCode = roomCode,
+            ).collect {
+                _state.value = NewRoomState.Content(
+                    roomCode = it.roomCode,
+                    numberOfPeople = it.numberOfPeople,
+                    dates = selectedDates,
+                    names = it.people.map { person ->
+                        person.name
+                    },
+                )
+            }
+        }
+    }
+
+    fun addDate(date: String) {
+        val state = _state.value
+        if (state is NewRoomState.Content) {
+            if (state.dates.contains(date).not()) {
+                val data = mutableListOf(*state.dates.toTypedArray().plus(date))
+                _state.value = state.copy(
+                    dates = data,
+                )
+                selectedDates = data
+            }
+        }
+    }
+}
