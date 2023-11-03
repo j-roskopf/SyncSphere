@@ -1,39 +1,48 @@
 package com.joetr.sync.sphere.ui.new
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Button
-import androidx.compose.material.Chip
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Text
+import androidx.compose.material3.Button
+import androidx.compose.material3.DatePicker
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SuggestionChip
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.lifecycle.LifecycleEffect
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.getScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.joetr.sync.sphere.common.images.MainResImages
 import com.joetr.sync.sphere.data.model.JoinedRoom
 import com.joetr.sync.sphere.ui.ProgressIndicator
 import com.joetr.sync.sphere.ui.time.TimeSelectionScreen
 import com.joetr.sync.sphere.util.format
-import com.mohamedrejeb.calf.ui.datepicker.AdaptiveDatePicker
-import com.mohamedrejeb.calf.ui.datepicker.rememberAdaptiveDatePickerState
+import io.github.skeptick.libres.compose.painterResource
+import io.github.skeptick.libres.images.Image
+import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -58,7 +67,6 @@ class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
         when (viewState) {
             is NewRoomState.Content -> ContentState(
                 roomCode = viewState.roomCode,
-                numberOfPeople = viewState.numberOfPeople,
                 navigateToTimeSelectionScreen = {
                     navigator.push(
                         TimeSelectionScreen(
@@ -84,12 +92,10 @@ class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
     @Composable
     @OptIn(
         ExperimentalMaterial3Api::class,
-        ExperimentalMaterialApi::class,
         ExperimentalLayoutApi::class,
     )
     private fun ContentState(
         roomCode: String,
-        numberOfPeople: Int,
         names: List<String>,
         navigateToTimeSelectionScreen: (List<String>) -> Unit,
         addDate: (String) -> Unit,
@@ -108,34 +114,42 @@ class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
                 )
                 Divider(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
                 Text(
-                    text = "# of people here right now: $numberOfPeople",
-                    style = MaterialTheme.typography.headlineSmall,
-                )
-                Divider(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
-                Text(
-                    text = "Names: ${names.joinToString(", ").trim()}",
-                    style = MaterialTheme.typography.headlineSmall,
-                )
-                Divider(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
-                Text(
                     text = "You: $name",
                     style = MaterialTheme.typography.headlineSmall,
                 )
                 Divider(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
             }
 
-            val state = rememberAdaptiveDatePickerState()
+            FlowRow(
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                names.forEachIndexed { index, name ->
+                    // todo joer - make images smaller
+                    Column(
+                        modifier = Modifier.padding(8.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Image(
+                            painter = getImageDataForPosition(index).painterResource(),
+                            contentDescription = "Icon",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .clip(CircleShape)
+                                .border(2.dp, MaterialTheme.colorScheme.onBackground, CircleShape)
+                                .padding(8.dp) // padding between border and image
+                                .size(64.dp),
 
-            LaunchedEffect(state.selectedDateMillis) {
-                // Do something with the selected date
+                        )
+                        Text(name)
+                    }
+                }
             }
 
-            AdaptiveDatePicker(
+            val state = rememberDatePickerState(Clock.System.now().toEpochMilliseconds())
+
+            DatePicker(
                 state = state,
-                headline = null,
-                title = {
-                    // for some reason, if it's null, there is a default provided
-                },
+                title = null,
             )
 
             Row {
@@ -175,11 +189,11 @@ class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
             ) {
                 FlowRow {
                     selectedDates.forEach {
-                        Chip(
+                        SuggestionChip(
                             onClick = {
                                 //
                             },
-                            content = {
+                            label = {
                                 Text(it)
                             },
                             modifier = Modifier.padding(4.dp),
@@ -188,6 +202,21 @@ class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
                 }
             }
         }
+    }
+
+    private fun getImageDataForPosition(index: Int): Image {
+        val listOfImages = listOf(
+            MainResImages.dog1,
+            MainResImages.dog2,
+            MainResImages.dog3,
+            MainResImages.cat1,
+            MainResImages.cat2,
+            MainResImages.cat3,
+            MainResImages.dog4,
+            MainResImages.dog5,
+            MainResImages.dog6,
+        )
+        return listOfImages[index % listOfImages.size]
     }
 
     @Composable

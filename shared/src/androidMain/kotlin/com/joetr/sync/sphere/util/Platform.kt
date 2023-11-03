@@ -1,3 +1,3 @@
 package com.joetr.sync.sphere.util
 
-actual fun displayPlatformName() = "Android"
+actual fun displayPlatformName() = "Droid"

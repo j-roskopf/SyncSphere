@@ -1,19 +1,18 @@
 package com.joetr.sync.sphere.ui.results
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.Button
-import androidx.compose.material.Divider
-import androidx.compose.material.Text
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
@@ -64,6 +63,7 @@ class ResultsScreen(
                     screenModel.calculateAvailability(it)
                 },
             )
+
             is ResultsScreenState.Loading -> LoadingState()
         }
     }
@@ -78,7 +78,7 @@ class ResultsScreen(
             horizontalAlignment = Alignment.Start,
         ) {
             LazyColumn(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.weight(1f),
             ) {
                 item {
                     Text(
@@ -91,39 +91,6 @@ class ResultsScreen(
                             vertical = 8.dp,
                         ),
                     )
-                    Text(
-                        text = "# of people here right now: ${room.numberOfPeople}",
-                        style = MaterialTheme.typography.headlineSmall,
-                    )
-                    Divider(
-                        modifier = Modifier.padding(
-                            horizontal = 16.dp,
-                            vertical = 8.dp,
-                        ),
-                    )
-                    Text(
-                        text = "Names: ${
-                            room.people.joinToString(", ") {
-                                it.name
-                            }.trim()}",
-                        style = MaterialTheme.typography.headlineSmall,
-                    )
-                    Divider(
-                        modifier = Modifier.padding(
-                            horizontal = 16.dp,
-                            vertical = 8.dp,
-                        ),
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Button(
-                        onClick = {
-                            calculateAvailability(room.people)
-                        },
-                    ) {
-                        Text("Calculate availability")
-                    }
                 }
                 room.people.forEachIndexed { index, person ->
                     item {
@@ -134,33 +101,62 @@ class ResultsScreen(
                     }
                 }
             }
+
+            Button(
+                modifier = Modifier.fillMaxWidth(),
+                onClick = {
+                    calculateAvailability(room.people)
+                },
+            ) {
+                Text("Calculate availability")
+            }
         }
     }
 
+    @OptIn(ExperimentalLayoutApi::class)
     @Composable
     private fun PersonWithAvailability(person: People) {
-        Row(
+        Column(
             modifier = Modifier.fillMaxWidth().padding(8.dp),
-            horizontalArrangement = Arrangement.Start,
+            horizontalAlignment = Alignment.Start,
         ) {
             Text(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.padding(4.dp),
                 text = person.name,
+                style = MaterialTheme.typography.displaySmall,
             )
 
-            Column(
-                modifier = Modifier.padding(horizontal = 4.dp),
+            LazyRow(
+                modifier = Modifier.padding(horizontal = 8.dp).fillMaxWidth(),
             ) {
                 if (person.availability.isEmpty().not()) {
                     person.availability.forEach {
-                        Row {
-                            Text(it.display)
-                            Text(" - ")
-                            Text(it.time.getDisplayText())
+                        item {
+                            Card(
+                                modifier = Modifier.padding(4.dp),
+                            ) {
+                                Column(
+                                    modifier = Modifier.padding(4.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                ) {
+                                    Text(
+                                        text = it.display,
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        modifier = Modifier.padding(4.dp),
+                                    )
+                                    Text(
+                                        text = it.time.getDisplayText(),
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        modifier = Modifier.padding(4.dp),
+                                    )
+                                }
+                            }
                         }
                     }
                 } else {
-                    Text("No availability submitted (yet)")
+                    item {
+                        Text("No availability submitted (yet)")
+                    }
                 }
             }
         }
@@ -176,7 +172,3 @@ class ResultsScreen(
         }
     }
 }
-
-/*
-when saving last room code, save last user ID so we know who you were
-        policy, error checking (name, time, date etc)*/

@@ -44,7 +44,6 @@ class NewRoomScreenModel(
             ).collect {
                 _state.value = NewRoomState.Content(
                     roomCode = it.roomCode,
-                    numberOfPeople = it.numberOfPeople,
                     dates = selectedDates,
                     names = it.people.map { person ->
                         person.name
@@ -58,7 +57,7 @@ class NewRoomScreenModel(
         val state = _state.value
         if (state is NewRoomState.Content) {
             if (state.dates.contains(date).not()) {
-                val data = mutableListOf(*state.dates.toTypedArray().plus(date))
+                val data = state.dates + listOf(date)
                 _state.value = state.copy(
                     dates = data,
                 )
@@ -67,3 +66,6 @@ class NewRoomScreenModel(
         }
     }
 }
+/**
+ * todo joer migrate all things to version catalog
+ */

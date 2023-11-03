@@ -2,6 +2,7 @@ package com.joetr.sync.sphere.constants
 
 import kotlin.random.Random
 
+@Suppress("LargeClass")
 object DictionaryImpl : Dictionary {
     override fun numberOfRandomWords(number: Int): List<String> {
         val lines = data.lines()

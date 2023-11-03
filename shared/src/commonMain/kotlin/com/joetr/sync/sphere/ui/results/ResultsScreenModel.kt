@@ -51,8 +51,35 @@ class ResultsScreenModel(
                     )
                 }
             }
-            _action.emit(ResultsScreenAction.NavigateToResults(timeRanges))
+            _action.emit(
+                ResultsScreenAction.NavigateToResults(
+                    convertDataToUiModel(timeRanges),
+                ),
+            )
         }
+    }
+
+    private fun convertDataToUiModel(dataModel: Map<String, TimeRange>): Map<String, DayTime> {
+        val toReturn = mutableMapOf<String, DayTime>()
+        val sortedList: List<Map.Entry<String, TimeRange>> = dataModel.entries.toList().sortedBy {
+            it.key
+        }
+        sortedList.forEach {
+            val dayTime = when (it.value) {
+                ALL_DAY -> DayTime.AllDay
+                NONE -> DayTime.NotSelected
+                else -> {
+                    DayTime.Range(
+                        it.value.startTime.hour,
+                        it.value.startTime.minute,
+                        it.value.endTime.hour,
+                        it.value.endTime.minute,
+                    )
+                }
+            }
+            toReturn[it.key] = dayTime
+        }
+        return toReturn
     }
 
     private fun findOverlapTimeForDay(day: String, people: List<People>): TimeRange {
@@ -127,3 +154,11 @@ class ResultsScreenModel(
         }
     }
 }
+
+/*
+todo joer
+rotation change
+no internet
+test flight
+        detekt
+        crash reporting*/

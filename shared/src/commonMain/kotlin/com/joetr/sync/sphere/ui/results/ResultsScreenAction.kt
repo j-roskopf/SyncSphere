@@ -1,7 +1,7 @@
 package com.joetr.sync.sphere.ui.results
 
-import com.joetr.sync.sphere.ui.results.data.TimeRange
+import com.joetr.sync.sphere.ui.time.DayTime
 
 sealed interface ResultsScreenAction {
-    data class NavigateToResults(val timeRanges: Map<String, TimeRange>) : ResultsScreenAction
+    data class NavigateToResults(val timeRanges: Map<String, DayTime>) : ResultsScreenAction
 }

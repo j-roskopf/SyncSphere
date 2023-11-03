@@ -12,6 +12,7 @@ import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.firestore.firestore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.datetime.Clock
 
 private const val ROOMS_COLLECTION = "Rooms"
 private const val ROOM_CODE = "lastRoomCode"
@@ -38,54 +39,15 @@ class RoomRepositoryImpl(val dictionary: Dictionary) : RoomRepository {
 
         val room = Room(
             roomCode = roomCode,
-            numberOfPeople = 9,
+            numberOfPeople = 1,
             people = listOf(
                 People(
-                    name = name.plus("nkajsfchhggffhw"),
-                    availability = listOf(),
-                    id = randomUUID(),
-                ),
-                People(
-                    name = name.plus("nkgfdsfgfdfgfajsfcw"),
-                    availability = listOf(),
-                    id = randomUUID(),
-                ),
-                People(
-                    name = name.plus("awfscegfdfghred"),
-                    availability = listOf(),
-                    id = randomUUID(),
-                ),
-                People(
-                    name = name.plus("gaevsdc"),
-                    availability = listOf(),
-                    id = randomUUID(),
-                ),
-                People(
-                    name = name.plus("tgsdfevac "),
-                    availability = listOf(),
-                    id = randomUUID(),
-                ),
-                People(
-                    name = name.plus("aveasfwaf"),
-                    availability = listOf(),
-                    id = randomUUID(),
-                ),
-                People(
-                    name = name.plus("yenstb"),
-                    availability = listOf(),
-                    id = randomUUID(),
-                ),
-                People(
-                    name = name.plus("2vfqv2q"),
-                    availability = listOf(),
-                    id = randomUUID(),
-                ),
-                People(
-                    name = name.plus("sagasg"),
+                    name = name,
                     availability = listOf(),
                     id = randomUUID(),
                 ),
             ),
+            lastUpdatedTimestamp = Clock.System.now().toEpochMilliseconds(),
         )
 
         firestore.collection(ROOMS_COLLECTION).document(roomCode).set(room)
@@ -98,7 +60,9 @@ class RoomRepositoryImpl(val dictionary: Dictionary) : RoomRepository {
 
     override suspend fun updateRoom(room: Room) {
         firestore.collection(ROOMS_COLLECTION).document(room.roomCode).set(
-            room,
+            room.copy(
+                lastUpdatedTimestamp = Clock.System.now().toEpochMilliseconds(),
+            ),
         )
     }
 
@@ -150,9 +114,8 @@ class RoomRepositoryImpl(val dictionary: Dictionary) : RoomRepository {
                         it
                     }
                 },
+                lastUpdatedTimestamp = Clock.System.now().toEpochMilliseconds(),
             ),
         )
     }
 }
-
-// todo joer how to delete rooms?

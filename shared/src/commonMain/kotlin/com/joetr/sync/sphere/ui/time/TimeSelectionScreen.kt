@@ -12,14 +12,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Button
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TimePicker
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -36,8 +39,6 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import com.joetr.sync.sphere.ui.ProgressIndicator
 import com.joetr.sync.sphere.ui.pre.collectAsEffect
 import com.joetr.sync.sphere.ui.results.ResultsScreen
-import com.mohamedrejeb.calf.ui.timepicker.AdaptiveTimePicker
-import com.mohamedrejeb.calf.ui.timepicker.rememberAdaptiveTimePickerState
 
 class TimeSelectionScreen(
     val times: List<String>,
@@ -117,8 +118,8 @@ class TimeSelectionScreen(
         validateStartTime: (DayTime.Range) -> Unit,
         continueButtonEnabled: Boolean,
     ) {
-        val startTimeState = rememberAdaptiveTimePickerState()
-        val endTimeState = rememberAdaptiveTimePickerState()
+        val startTimeState = rememberTimePickerState()
+        val endTimeState = rememberTimePickerState()
 
         val startTimeHour = remember { mutableStateOf(startTimeState.hour) }
         val startTimeMinute = remember { mutableStateOf(startTimeState.minute) }
@@ -154,9 +155,8 @@ class TimeSelectionScreen(
                     modifier = Modifier.padding(8.dp),
                 )
 
-                AdaptiveTimePicker(
+                TimePicker(
                     state = startTimeState,
-                    modifier = Modifier,
                 )
 
                 LaunchedEffect(endTimeState.hour, endTimeState.minute) {
@@ -179,9 +179,8 @@ class TimeSelectionScreen(
                     modifier = Modifier.padding(8.dp),
                 )
 
-                AdaptiveTimePicker(
+                TimePicker(
                     state = endTimeState,
-                    modifier = Modifier,
                 )
             }
 
@@ -232,9 +231,6 @@ class TimeSelectionScreen(
                                 timeRangeClicked(index)
                             },
                         )
-                        if (index != days.size - 1) {
-                            Divider(modifier = Modifier.padding(horizontal = 8.dp))
-                        }
                     }
                 }
             }
@@ -263,48 +259,53 @@ class TimeSelectionScreen(
     }
 
     @Composable
+    @Suppress("MagicNumber")
     private fun DayTimeItem(
         dayTimeItem: DayTimeItem,
         allDayClicked: () -> Unit,
         timeRangeClicked: () -> Unit,
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically,
+        Card(
+            modifier = Modifier.fillMaxWidth().padding(8.dp),
         ) {
             Row(
-                modifier = Modifier.weight(1f).padding(horizontal = 16.dp),
+                modifier = Modifier.fillMaxWidth().padding(8.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                AnimatedVisibility(
-                    dayTimeItem.dayTime !is DayTime.NotSelected,
+                Column(
+                    modifier = Modifier.weight(1f).padding(horizontal = 16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    Icon(
-                        Icons.Filled.Check,
-                        "check",
-                    )
-                }
+                    AnimatedVisibility(
+                        dayTimeItem.dayTime !is DayTime.NotSelected,
+                    ) {
+                        Icon(
+                            Icons.Filled.Check,
+                            "check",
+                        )
+                    }
 
-                Text(dayTimeItem.display)
-            }
-            Column(
-                modifier = Modifier.weight(1.5f).padding(horizontal = 16.dp),
-            ) {
-                Text(dayTimeItem.dayTime.getDisplayText())
-                Button(
-                    onClick = {
-                        allDayClicked()
-                    },
-                ) {
-                    Text("All Day")
+                    Text(dayTimeItem.display)
                 }
-                Button(
-                    onClick = {
-                        timeRangeClicked()
-                    },
+                Column(
+                    modifier = Modifier.weight(1.5f).padding(horizontal = 16.dp),
                 ) {
-                    Text("Select Time Range")
+                    Text(dayTimeItem.dayTime.getDisplayText())
+                    Button(
+                        onClick = {
+                            allDayClicked()
+                        },
+                    ) {
+                        Text("All Day")
+                    }
+                    Button(
+                        onClick = {
+                            timeRangeClicked()
+                        },
+                    ) {
+                        Text("Select Time Range")
+                    }
                 }
             }
         }

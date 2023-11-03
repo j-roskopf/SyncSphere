@@ -47,5 +47,5 @@ Pod::Spec.new do |spec|
         }
     ]
     spec.exclude_files = ['src/commonMain/resources/MR/**']
-    spec.resources = ['build/compose/ios/shared/compose-resources']
+    spec.resources = ['build/generated/libres/apple/libres-bundles']
 end

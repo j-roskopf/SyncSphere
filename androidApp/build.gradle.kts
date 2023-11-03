@@ -33,17 +33,22 @@ android {
         versionName = "1.0"
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.toVersion(libs.versions.jdk.get())
+        targetCompatibility = JavaVersion.toVersion(libs.versions.jdk.get())
+
+        // Flag to enable support for the new language APIs
+        isCoreLibraryDesugaringEnabled = true
     }
     packaging {
         resources.pickFirsts.add("META-INF/versions/9/previous-compilation-data.bin")
     }
     kotlin {
-        jvmToolchain(17)
+        jvmToolchain(libs.versions.jdk.get().toInt())
     }
 }
 
 dependencies {
+    // todo joer
     implementation("com.google.firebase:firebase-common-ktx:20.3.3")
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:1.0.9")
 }

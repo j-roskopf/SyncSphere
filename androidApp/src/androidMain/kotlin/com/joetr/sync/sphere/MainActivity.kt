@@ -11,9 +11,12 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        Firebase.initialize(this)
+        if (savedInstanceState == null) {
+            // todo joer apply fix to ios
+            Firebase.initialize(this)
 
-        initKoin()
+            initKoin()
+        }
 
         setContent {
             MainView()

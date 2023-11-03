@@ -14,6 +14,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 
+// amount of digits to use for anonymous users
+private const val MAX_RANDOM_NUMBERS = 3
+
 class PreScreenModel(
     private val dispatcher: CoroutineDispatcher,
     private val roomRepository: RoomRepository,
@@ -70,6 +73,10 @@ class PreScreenModel(
     }
 
     internal fun getAnonymousUsername(): String {
-        return "Anonymous".plus(displayPlatformName()).plus(Clock.System.now().toEpochMilliseconds().toString().takeLast(7))
+        return "Anon".plus(displayPlatformName()).plus(
+            Clock.System.now().toEpochMilliseconds().toString().takeLast(
+                MAX_RANDOM_NUMBERS,
+            ),
+        )
     }
 }

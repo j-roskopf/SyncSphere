@@ -29,6 +29,6 @@
     "src/commonMain/resources/MR/**"
   ],
   "resources": [
-    "build/compose/ios/shared/compose-resources"
+    "build/generated/libres/apple/libres-bundles"
   ]
 }

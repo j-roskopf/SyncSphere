@@ -2,8 +2,5 @@
 <SmellBaseline>
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
-    <ID>FunctionNaming:Main.kt$@Suppress("Unused") fun MainViewController(): platform.UIKit.UIViewController</ID>
-    <ID>MagicNumber:build.gradle.kts$17</ID>
-    <ID>MaxLineLength:build.gradle.kts$// fix of Could not find "shared/build/kotlinTransformedMetadataLibraries/commonMain/org.jetbrains.kotlinx-atomicfu-0.17.3-nativeInterop-8G5yng.klib"</ID>
   </CurrentIssues>
 </SmellBaseline>

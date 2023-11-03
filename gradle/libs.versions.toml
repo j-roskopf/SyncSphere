@@ -1,4 +1,11 @@
 [versions]
+appcompat = "1.6.1"
+activityCompose = "1.8.0"
+calfUi = "0.2.0"
+coreKtx = "1.12.0"
+firebaseFirestore = "1.10.3"
+libresCompose = "1.2.0"
+multiplatformSettingsNoArg = "1.1.0"
 spotless = "6.21.0"
 detekt = "1.23.1"
 ktlint = "0.49.1"
@@ -11,15 +18,23 @@ kotlinxDateTime = "0.4.1"
 kotlinxSerializationJson = "1.6.0"
 ktor = "2.3.5"
 compose = "1.5.10"
-mokoResources = "0.22.2"
 turbine = "1.0.0"
 coroutines = "1.7.3"
+jdk = "17"
 
 [plugins]
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 
 [libraries]
+appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
+activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
+calf-ui = { module = "com.mohamedrejeb.calf:calf-ui", version.ref = "calfUi" }
+core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
+firebase-common = { module = "dev.gitlive:firebase-common", version.ref = "firebaseFirestore" }
+firebase-firestore = { module = "dev.gitlive:firebase-firestore", version.ref = "firebaseFirestore" }
+libres-compose = { module = "io.github.skeptick.libres:libres-compose", version.ref = "libresCompose" }
+multiplatform-settings-no-arg = { module = "com.russhwolf:multiplatform-settings-no-arg", version.ref = "multiplatformSettingsNoArg" }
 spotless-gradlePlugin = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless" }
 detekt-gradlePlugins = { module = "io.gitlab.arturbosch.detekt:detekt-gradle-plugin", version.ref = "detekt" }
 android-gradlePlugin = { module = "com.android.tools.build:gradle", version.ref = "agp" }

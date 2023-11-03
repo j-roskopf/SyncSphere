@@ -7,4 +7,5 @@ data class Room(
     val roomCode: String,
     val numberOfPeople: Int,
     val people: List<People>,
+    val lastUpdatedTimestamp: Long,
 )
