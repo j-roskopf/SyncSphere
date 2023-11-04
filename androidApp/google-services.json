@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "678683030552",
+    "project_id": "syncsphere-37dca",
+    "storage_bucket": "syncsphere-37dca.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:678683030552:android:82be3aa0d17b06ba977f6d",
+        "android_client_info": {
+          "package_name": "com.joetr.sync.sphere"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDoGAjCdUOoifruDI9eFKFHdYiYTD5lC1w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
