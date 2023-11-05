@@ -12,7 +12,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         if (savedInstanceState == null) {
-            // todo joer apply fix to ios
             Firebase.initialize(this)
 
             initKoin()

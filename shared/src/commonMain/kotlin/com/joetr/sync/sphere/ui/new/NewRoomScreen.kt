@@ -24,11 +24,15 @@ import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.lifecycle.LifecycleEffect
 import cafe.adriel.voyager.core.screen.Screen
@@ -86,6 +90,45 @@ class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
             )
 
             is NewRoomState.Loading -> LoadingState()
+            is NewRoomState.Error -> {
+                ErrorState(
+                    tryAgain = {
+                        screenModel.init(
+                            joinedRoom = joinedRoom,
+                            name = name,
+                        )
+                    },
+                )
+            }
+        }
+    }
+
+    @Composable
+    private fun ErrorState(
+        tryAgain: () -> Unit,
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center,
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Text(
+                    style = MaterialTheme.typography.displayMedium,
+                    text = "Something went wrong \uD83D\uDE41",
+                    textAlign = TextAlign.Center,
+                )
+
+                Button(
+                    modifier = Modifier.padding(8.dp),
+                    onClick = {
+                        tryAgain()
+                    },
+                ) {
+                    Text("Try Again")
+                }
+            }
         }
     }
 
@@ -120,30 +163,9 @@ class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
                 Divider(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
             }
 
-            FlowRow(
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                names.forEachIndexed { index, name ->
-                    // todo joer - make images smaller
-                    Column(
-                        modifier = Modifier.padding(8.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        Image(
-                            painter = getImageDataForPosition(index).painterResource(),
-                            contentDescription = "Icon",
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .clip(CircleShape)
-                                .border(2.dp, MaterialTheme.colorScheme.onBackground, CircleShape)
-                                .padding(8.dp) // padding between border and image
-                                .size(64.dp),
-
-                        )
-                        Text(name)
-                    }
-                }
-            }
+            ContentStateAvatars(
+                names = names,
+            )
 
             val state = rememberDatePickerState(Clock.System.now().toEpochMilliseconds())
 
@@ -189,16 +211,52 @@ class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
             ) {
                 FlowRow {
                     selectedDates.forEach {
-                        SuggestionChip(
-                            onClick = {
-                                //
-                            },
-                            label = {
-                                Text(it)
-                            },
-                            modifier = Modifier.padding(4.dp),
-                        )
+                        val isVisible = remember { mutableStateOf(false) }
+                        LaunchedEffect(it) {
+                            isVisible.value = true
+                        }
+                        AnimatedVisibility(
+                            visible = isVisible.value,
+                        ) {
+                            SuggestionChip(
+                                onClick = {
+                                    //
+                                },
+                                label = {
+                                    Text(it)
+                                },
+                                modifier = Modifier.padding(4.dp),
+                            )
+                        }
                     }
+                }
+            }
+        }
+    }
+
+    @OptIn(ExperimentalLayoutApi::class)
+    @Composable
+    private fun ContentStateAvatars(names: List<String>) {
+        FlowRow(
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            names.forEachIndexed { index, name ->
+                Column(
+                    modifier = Modifier.padding(8.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Image(
+                        painter = getImageDataForPosition(index).painterResource(),
+                        contentDescription = "Icon",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .border(2.dp, MaterialTheme.colorScheme.onBackground, CircleShape)
+                            .padding(8.dp) // padding between border and image
+                            .size(64.dp),
+
+                    )
+                    Text(name)
                 }
             }
         }

@@ -31,7 +31,7 @@ kotlin {
             baseName = "shared"
             isStatic = true
             // todo joer move to toml
-            // export("com.mohamedrejeb.calf:calf-ui:0.2.0")
+            export("com.mohamedrejeb.calf:calf-ui:0.2.0")
         }
         extraSpecAttributes["exclude_files"] = "['src/commonMain/resources/MR/**']"
     }

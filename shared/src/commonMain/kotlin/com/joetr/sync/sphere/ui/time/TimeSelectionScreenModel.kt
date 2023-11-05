@@ -20,20 +20,25 @@ class TimeSelectionScreenModel(
     private val _action = MutableSharedFlow<TimeSelectionScreenActions>()
     val action: SharedFlow<TimeSelectionScreenActions> = _action
 
+    private var isInitialized = false
     private lateinit var uiData: List<DayTimeItem>
     private lateinit var roomCode: String
 
     fun initializeData(times: List<String>, roomCode: String) {
         this.roomCode = roomCode
 
-        uiData = times.map {
-            DayTimeItem(
-                display = it,
-                dayTime = DayTime.NotSelected,
-            )
+        if (isInitialized.not()) {
+            uiData = times.map {
+                DayTimeItem(
+                    display = it,
+                    dayTime = DayTime.NotSelected,
+                )
+            }
         }
 
         _state.value = TimeSelectionState.Content(uiData)
+
+        isInitialized = true
     }
 
     fun allDayClickedForItem(index: Int) {
@@ -74,13 +79,21 @@ class TimeSelectionScreenModel(
 
     fun submitAvailability(roomCode: String, personId: String) {
         coroutineScope.launch(dispatcher) {
-            roomRepository.submitAvailability(
-                roomCode = roomCode,
-                availability = uiData,
-                personId = personId,
+            _state.value = TimeSelectionState.Loading
+            runCatching {
+                roomRepository.submitAvailability(
+                    roomCode = roomCode,
+                    availability = uiData,
+                    personId = personId,
+                )
+            }.fold(
+                onSuccess = {
+                    _action.emit(TimeSelectionScreenActions.NavigateToResults(roomCode))
+                },
+                onFailure = {
+                    _action.emit(TimeSelectionScreenActions.ErrorOccurred)
+                },
             )
-
-            _action.emit(TimeSelectionScreenActions.NavigateToResults(roomCode))
         }
     }
 }

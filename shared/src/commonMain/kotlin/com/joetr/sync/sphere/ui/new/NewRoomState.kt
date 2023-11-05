@@ -2,6 +2,7 @@ package com.joetr.sync.sphere.ui.new
 
 sealed interface NewRoomState {
     data object Loading : NewRoomState
+    data object Error : NewRoomState
     data class Content(
         val roomCode: String,
         val dates: List<String>,

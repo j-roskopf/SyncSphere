@@ -39,6 +39,7 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import com.joetr.sync.sphere.ui.ProgressIndicator
 import com.joetr.sync.sphere.ui.pre.collectAsEffect
 import com.joetr.sync.sphere.ui.results.ResultsScreen
+import com.mohamedrejeb.calf.ui.dialog.AdaptiveAlertDialog
 
 class TimeSelectionScreen(
     val times: List<String>,
@@ -52,6 +53,7 @@ class TimeSelectionScreen(
         val viewState = screenModel.state.collectAsState().value
         val navigator = LocalNavigator.currentOrThrow
         var continueButtonEnabled = remember { mutableStateOf(false) }
+        var displayErrorDialog = remember { mutableStateOf(false) }
 
         LifecycleEffect(
             onStarted = {
@@ -68,7 +70,27 @@ class TimeSelectionScreen(
                         ),
                     )
                 }
+
+                TimeSelectionScreenActions.ErrorOccurred -> {
+                    displayErrorDialog.value = true
+                }
             }
+        }
+
+        if (displayErrorDialog.value) {
+            ErrorDialog(
+                onDismiss = {
+                    displayErrorDialog.value = false
+                },
+                tryAgain = {
+                    displayErrorDialog.value = false
+
+                    screenModel.submitAvailability(
+                        roomCode = roomCode,
+                        personId = personId,
+                    )
+                },
+            )
         }
 
         when (viewState) {
@@ -108,6 +130,25 @@ class TimeSelectionScreen(
                 continueButtonEnabled = continueButtonEnabled.value,
             )
         }
+    }
+
+    @Composable
+    private fun ErrorDialog(
+        onDismiss: () -> Unit,
+        tryAgain: () -> Unit,
+    ) {
+        AdaptiveAlertDialog(
+            title = "Error",
+            text = "An error occurred",
+            confirmText = "Okay",
+            dismissText = "Try Again",
+            onConfirm = {
+                onDismiss()
+            },
+            onDismiss = {
+                tryAgain()
+            },
+        )
     }
 
     @OptIn(ExperimentalMaterial3Api::class)

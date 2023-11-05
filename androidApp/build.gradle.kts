@@ -8,7 +8,7 @@ plugins {
 }
 
 kotlin {
-    android()
+    androidTarget()
     sourceSets {
         val androidMain by getting {
             dependencies {
@@ -48,7 +48,6 @@ android {
 }
 
 dependencies {
-    // todo joer
-    implementation("com.google.firebase:firebase-common-ktx:20.3.3")
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:1.0.9")
+    implementation(libs.firebase.common.ktx)
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
 }

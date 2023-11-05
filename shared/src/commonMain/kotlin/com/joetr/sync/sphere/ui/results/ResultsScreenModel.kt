@@ -157,8 +157,4 @@ class ResultsScreenModel(
 
 /*
 todo joer
-rotation change
-no internet
-test flight
-        detekt
         crash reporting*/

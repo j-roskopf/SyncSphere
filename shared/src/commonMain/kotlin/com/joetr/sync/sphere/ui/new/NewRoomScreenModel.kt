@@ -24,32 +24,43 @@ class NewRoomScreenModel(
 
     fun init(joinedRoom: JoinedRoom?, name: String) {
         coroutineScope.launch(dispatcher) {
-            room = if (joinedRoom != null) {
-                personId = joinedRoom.id
+            _state.value = NewRoomState.Loading
 
-                joinedRoom.room
-            } else {
-                val room = roomRepository.createRoom(name)
-                // if we are creating the room, there is only 1 person in it, store their ID
-                personId = room.people.first().id
-                room
-            }
+            runCatching {
+                room = if (joinedRoom != null) {
+                    personId = joinedRoom.id
 
-            val roomCode = room!!.roomCode
+                    joinedRoom.room
+                } else {
+                    val room = roomRepository.createRoom(name)
+                    // if we are creating the room, there is only 1 person in it, store their ID
+                    personId = room.people.first().id
+                    room
+                }
 
-            roomRepository.saveRoomCodeLocally(roomCode)
+                val roomCode = room!!.roomCode
 
-            roomRepository.roomUpdates(
-                roomCode = roomCode,
-            ).collect {
-                _state.value = NewRoomState.Content(
-                    roomCode = it.roomCode,
-                    dates = selectedDates,
-                    names = it.people.map { person ->
-                        person.name
-                    },
+                roomRepository.saveRoomCodeLocally(roomCode)
+
+                roomRepository.roomUpdates(
+                    roomCode = roomCode,
                 )
-            }
+            }.fold(
+                onSuccess = { flow ->
+                    flow.collect {
+                        _state.value = NewRoomState.Content(
+                            roomCode = it.roomCode,
+                            dates = selectedDates,
+                            names = it.people.map { person ->
+                                person.name
+                            },
+                        )
+                    }
+                },
+                onFailure = {
+                    _state.value = NewRoomState.Error
+                },
+            )
         }
     }
 
@@ -66,6 +77,3 @@ class NewRoomScreenModel(
         }
     }
 }
-/**
- * todo joer migrate all things to version catalog
- */
