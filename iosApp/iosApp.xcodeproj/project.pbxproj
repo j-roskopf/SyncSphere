@@ -11,6 +11,9 @@
 		058557D9273AAEEB004C7B11 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 058557D8273AAEEB004C7B11 /* Preview Assets.xcassets */; };
 		2152FB042600AC8F00CF470E /* SyncSphereiOSApplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2152FB032600AC8F00CF470E /* SyncSphereiOSApplication.swift */; };
 		7555FF83242A565900829871 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7555FF82242A565900829871 /* ContentView.swift */; };
+		C95AE6B12AF9C16200B592D5 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = C95AE6B02AF9C16200B592D5 /* FirebaseAuth */; };
+		C95AE6B32AF9C16200B592D5 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = C95AE6B22AF9C16200B592D5 /* FirebaseCrashlytics */; };
+		C95AE6B52AF9C16200B592D5 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = C95AE6B42AF9C16200B592D5 /* FirebaseFirestore */; };
 		C977D0672AEAEE3800FDBF6B /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = C977D0662AEAEE3800FDBF6B /* FirebaseFirestore */; };
 		C9CC718D2AF6DF4400DB2C79 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = C9CC718C2AF6DF4400DB2C79 /* GoogleService-Info.plist */; };
 		CFDB58B53BB94DE262B13C24 /* Pods_iosApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6B1049432C0C2B312090ABF6 /* Pods_iosApp.framework */; };
@@ -36,6 +39,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				CFDB58B53BB94DE262B13C24 /* Pods_iosApp.framework in Frameworks */,
+				C95AE6B32AF9C16200B592D5 /* FirebaseCrashlytics in Frameworks */,
+				C95AE6B12AF9C16200B592D5 /* FirebaseAuth in Frameworks */,
+				C95AE6B52AF9C16200B592D5 /* FirebaseFirestore in Frameworks */,
 				C977D0672AEAEE3800FDBF6B /* FirebaseFirestore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -120,6 +126,7 @@
 				7555FF79242A565900829871 /* Resources */,
 				F85CB1118929364A9C6EFABC /* Frameworks */,
 				E9426AEF85E128293DE3B871 /* [CP] Copy Pods Resources */,
+				C95AE6B72AFA908500B592D5 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -128,6 +135,9 @@
 			name = iosApp;
 			packageProductDependencies = (
 				C977D0662AEAEE3800FDBF6B /* FirebaseFirestore */,
+				C95AE6B02AF9C16200B592D5 /* FirebaseAuth */,
+				C95AE6B22AF9C16200B592D5 /* FirebaseCrashlytics */,
+				C95AE6B42AF9C16200B592D5 /* FirebaseFirestore */,
 			);
 			productName = iosApp;
 			productReference = 7555FF7B242A565900829871 /* Sync Sphere.app */;
@@ -204,6 +214,28 @@
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
+		};
+		C95AE6B72AFA908500B592D5 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}",
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${PRODUCT_NAME}",
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Info.plist",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/GoogleService-Info.plist",
+				"$(TARGET_BUILD_DIR)/$(EXECUTABLE_PATH)",
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "echo \"CUSTOM SCRIPT\"\n\n# Store the current directory\noriginal_dir=$(pwd)\n\n# this directory is kind of a hack i think for compose multiplatform\ncd $( dirname \"${SHARED_PRECOMPS_DIR}\")\n\n# Change to the directory where 'run' is located\ncd ../../\n\necho \"CURRENT DIRECTORY $(pwd)\"\n\ncd SourcePackages/checkouts/firebase-ios-sdk/Crashlytics\n\n# Execute the 'run' script\n./run\n\n# navigate back to original\ncd \"$original_dir\"\n";
 		};
 		E9426AEF85E128293DE3B871 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -440,6 +472,18 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		C95AE6B02AF9C16200B592D5 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FirebaseAuth;
+		};
+		C95AE6B22AF9C16200B592D5 /* FirebaseCrashlytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FirebaseCrashlytics;
+		};
+		C95AE6B42AF9C16200B592D5 /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FirebaseFirestore;
+		};
 		C977D0662AEAEE3800FDBF6B /* FirebaseFirestore */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = C977D0652AEAEE3800FDBF6B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;

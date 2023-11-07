@@ -12,9 +12,10 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         if (savedInstanceState == null) {
+            // todo joer move to application
             Firebase.initialize(this)
-
             initKoin()
+            initCrashlytics()
         }
 
         setContent {

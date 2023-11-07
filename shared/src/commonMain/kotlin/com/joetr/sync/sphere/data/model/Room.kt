@@ -1,6 +1,7 @@
 package com.joetr.sync.sphere.data.model
 
 import kotlinx.serialization.Serializable
+import com.joetr.sync.sphere.util.Serializable as JvmSerialization
 
 @Serializable
 data class Room(
@@ -8,4 +9,4 @@ data class Room(
     val numberOfPeople: Int,
     val people: List<People>,
     val lastUpdatedTimestamp: Long,
-)
+) : JvmSerialization

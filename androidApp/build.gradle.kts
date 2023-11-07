@@ -5,6 +5,7 @@ plugins {
     id("com.joetr.sync.sphere.root")
     id("com.joetr.sync.sphere.precommit")
     id("com.google.gms.google-services")
+    id("com.google.firebase.crashlytics")
 }
 
 kotlin {

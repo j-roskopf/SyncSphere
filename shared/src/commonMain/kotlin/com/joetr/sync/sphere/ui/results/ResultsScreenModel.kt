@@ -154,7 +154,3 @@ class ResultsScreenModel(
         }
     }
 }
-
-/*
-todo joer
-        crash reporting*/

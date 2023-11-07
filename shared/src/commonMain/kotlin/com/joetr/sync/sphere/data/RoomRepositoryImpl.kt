@@ -16,18 +16,30 @@ import kotlinx.coroutines.withTimeout
 import kotlinx.datetime.Clock
 
 private const val ROOMS_COLLECTION = "Rooms"
-private const val ROOM_CODE = "lastRoomCode"
-private const val NUMBER_ROOM_WORDS = 3
+private const val ROOM_CODE_KEY = "lastRoomCode"
+private const val USER_ID_KEY = "userId"
 private const val DEFAULT_TIMEOUT_MILLIS = 10_000L
 
-class RoomRepositoryImpl(val dictionary: Dictionary) : RoomRepository {
+// amount of digits to use for anonymous users
+private const val MAX_RANDOM_NUMBERS = 5
+
+@Suppress("TooManyFunctions")
+class RoomRepositoryImpl(
+    val dictionary: Dictionary,
+    val crashReporting: CrashReporting,
+) : RoomRepository {
 
     val settings = Settings()
 
     private val firestore = Firebase.firestore
 
     private fun getRoomCode(): String {
-        return dictionary.numberOfRandomWords(NUMBER_ROOM_WORDS).joinToString(" ").trim()
+        val numberOfWords = 1
+        return dictionary.numberOfRandomWords(numberOfWords).first().plus(
+            Clock.System.now().toEpochMilliseconds().toString().takeLast(
+                MAX_RANDOM_NUMBERS,
+            ),
+        )
     }
 
     override suspend fun createRoom(name: String): Room {
@@ -63,6 +75,7 @@ class RoomRepositoryImpl(val dictionary: Dictionary) : RoomRepository {
                 it
             },
             onFailure = {
+                crashReporting.recordException(it)
                 throw it
             },
         )
@@ -91,11 +104,19 @@ class RoomRepositoryImpl(val dictionary: Dictionary) : RoomRepository {
     }
 
     override fun saveRoomCodeLocally(roomCode: String) {
-        settings.putString(ROOM_CODE, roomCode)
+        settings.putString(ROOM_CODE_KEY, roomCode)
     }
 
     override suspend fun getLocalRoomCode(): String? {
-        return settings[ROOM_CODE]
+        return settings[ROOM_CODE_KEY]
+    }
+
+    override fun saveUserIdLocally(userId: String) {
+        settings.putString(USER_ID_KEY, userId)
+    }
+
+    override suspend fun getUserId(): String? {
+        return settings[USER_ID_KEY]
     }
 
     override suspend fun roomExists(roomCode: String): Boolean {
@@ -114,6 +135,7 @@ class RoomRepositoryImpl(val dictionary: Dictionary) : RoomRepository {
                 it
             },
             onFailure = {
+                crashReporting.recordException(it)
                 throw it
             },
         )
@@ -153,6 +175,7 @@ class RoomRepositoryImpl(val dictionary: Dictionary) : RoomRepository {
                 // nothing to do
             },
             onFailure = {
+                crashReporting.recordException(it)
                 throw it
             },
         )

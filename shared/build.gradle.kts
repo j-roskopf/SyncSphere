@@ -5,6 +5,7 @@ plugins {
     id("org.jetbrains.compose")
     id("com.joetr.sync.sphere.root")
     id("org.jetbrains.kotlin.plugin.serialization")
+    id("co.touchlab.crashkios.crashlyticslink") version "0.8.5"
     id("io.github.skeptick.libres")
 }
 
@@ -59,6 +60,8 @@ kotlin {
                 implementation(libs.ktor.client.logging)
 
                 implementation(libs.firebase.firestore)
+                implementation(libs.firebase.crashlytics)
+                implementation(libs.crashlytics)
                 implementation(libs.firebase.common)
                 // has to be API to export to separate configurations
                 api(libs.calf.ui)

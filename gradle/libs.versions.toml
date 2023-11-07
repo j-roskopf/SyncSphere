@@ -3,9 +3,10 @@ appcompat = "1.6.1"
 activityCompose = "1.8.0"
 calfUi = "0.2.0"
 coreKtx = "1.12.0"
+crashlytics = "0.8.5"
 desugar_jdk_libs = "2.0.4"
 firebaseCommonKtx = "20.4.2"
-firebaseFirestore = "1.10.3"
+firebase = "1.10.3"
 libres = "1.2.1"
 multiplatformSettingsNoArg = "1.1.0"
 spotless = "6.21.0"
@@ -33,10 +34,12 @@ appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat"
 activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
 calf-ui = { module = "com.mohamedrejeb.calf:calf-ui", version.ref = "calfUi" }
 core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
+crashlytics = { module = "co.touchlab.crashkios:crashlytics", version.ref = "crashlytics" }
 desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
-firebase-common = { module = "dev.gitlive:firebase-common", version.ref = "firebaseFirestore" }
 firebase-common-ktx = { module = "com.google.firebase:firebase-common-ktx", version.ref = "firebaseCommonKtx" }
-firebase-firestore = { module = "dev.gitlive:firebase-firestore", version.ref = "firebaseFirestore" }
+firebase-common = { module = "dev.gitlive:firebase-common", version.ref = "firebase" }
+firebase-crashlytics = { module = "dev.gitlive:firebase-crashlytics", version.ref = "firebase" }
+firebase-firestore = { module = "dev.gitlive:firebase-firestore", version.ref = "firebase" }
 gradle-plugin = { module = "io.github.skeptick.libres:gradle-plugin", version.ref = "libres" }
 libres-compose = { module = "io.github.skeptick.libres:libres-compose", version.ref = "libres" }
 multiplatform-settings-no-arg = { module = "com.russhwolf:multiplatform-settings-no-arg", version.ref = "multiplatformSettingsNoArg" }

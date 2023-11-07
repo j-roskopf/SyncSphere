@@ -17,4 +17,7 @@ interface RoomRepository {
     fun roomUpdates(roomCode: String): Flow<Room>
     fun saveRoomCodeLocally(roomCode: String)
     suspend fun getLocalRoomCode(): String?
+
+    fun saveUserIdLocally(userId: String)
+    suspend fun getUserId(): String?
 }

@@ -1,5 +1,7 @@
 package com.joetr.sync.sphere.ui.pre
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,10 +12,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Send
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -25,9 +31,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusEvent
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.lifecycle.LifecycleEffect
 import cafe.adriel.voyager.core.screen.Screen
@@ -38,11 +49,11 @@ import com.joetr.sync.sphere.data.model.JoinedRoom
 import com.joetr.sync.sphere.ui.ProgressIndicator
 import com.joetr.sync.sphere.ui.new.NewRoomScreen
 import com.joetr.sync.sphere.ui.results.ResultsScreen
-import com.mohamedrejeb.calf.ui.dialog.AdaptiveAlertDialog
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
@@ -70,64 +81,65 @@ class PreRoomScreen : Screen {
 
                 is PreScreenActions.RoomExists -> screenModel.joinRoom(it.roomCode, it.name)
                 is PreScreenActions.NavigateToRoom -> {
-                    val name = nameText.value.ifEmpty { screenModel.getAnonymousUsername() }
                     navigator.push(
                         NewRoomScreen(
                             joinedRoom = JoinedRoom(
                                 room = it.room,
                                 id = it.userId,
                             ),
-                            name = name,
+                            name = it.name,
                         ),
                     )
                 }
             }
         }
 
+        if (showRoomDoesNotExistError) {
+            RoomDoesNotExistErrorDialog(
+                onDismiss = {
+                    showRoomDoesNotExistError = false
+                },
+                tryAgain = {
+                    showRoomDoesNotExistError = false
+
+                    val name = nameText.value.ifEmpty { screenModel.getAnonymousUsername() }
+                    screenModel.validateRoomCode(roomCodeText.value, name)
+                },
+            )
+        }
+
         when (val state = screenModel.state.collectAsState().value) {
             is PreScreenViewState.Content -> {
-                when {
-                    showRoomDoesNotExistError -> RoomDoesNotExistErrorDialog(
-                        onDismiss = {
-                            showRoomDoesNotExistError = false
-                        },
-                        tryAgain = {
-                            val name = nameText.value.ifEmpty { screenModel.getAnonymousUsername() }
-                            screenModel.validateRoomCode(roomCodeText.value, name)
-                        },
-                    )
+                ContentState(
+                    goToNewRoomScreen = {
+                        val name = nameText.value.ifEmpty { screenModel.getAnonymousUsername() }
+                        navigator.push(NewRoomScreen(joinedRoom = null, name = name))
+                    },
+                    validateRoomCode = {
+                        val name = nameText.value.ifEmpty { screenModel.getAnonymousUsername() }
 
-                    else -> ContentState(
-                        goToNewRoomScreen = {
-                            val name = nameText.value.ifEmpty { screenModel.getAnonymousUsername() }
-                            navigator.push(NewRoomScreen(joinedRoom = null, name = name))
-                        },
-                        validateRoomCode = {
-                            val name = nameText.value.ifEmpty { screenModel.getAnonymousUsername() }
-
-                            screenModel.validateRoomCode(
-                                roomCode = roomCodeText.value,
-                                name = name,
-                            )
-                        },
-                        roomCodeText = roomCodeText.value,
-                        onRoomCodeTextChange = {
-                            roomCodeText.value = it
-                        },
-                        nameText = nameText.value,
-                        onNameTextChange = {
-                            nameText.value = it
-                        },
-                        lastKnownRoomCode = state.lastKnownRoomCode,
-                        goToResultsForLastKnownRoom = {
-                            navigator.push(
-                                ResultsScreen(
-                                    roomCode = it,
-                                ),
-                            )
-                        },
-                    )
-                }
+                        screenModel.validateRoomCode(
+                            roomCode = roomCodeText.value,
+                            name = name,
+                        )
+                    },
+                    roomCodeText = roomCodeText.value,
+                    onRoomCodeTextChange = {
+                        roomCodeText.value = it
+                    },
+                    nameText = nameText.value,
+                    onNameTextChange = {
+                        nameText.value = it
+                    },
+                    lastKnownRoomCode = state.lastKnownRoomCode,
+                    goToResultsForLastKnownRoom = {
+                        navigator.push(
+                            ResultsScreen(
+                                roomCode = it,
+                            ),
+                        )
+                    },
+                )
             }
 
             is PreScreenViewState.Loading -> LoadingState()
@@ -139,20 +151,34 @@ class PreRoomScreen : Screen {
         onDismiss: () -> Unit,
         tryAgain: () -> Unit,
     ) {
-        AdaptiveAlertDialog(
-            title = "Error",
-            text = "Room does not exist",
-            confirmText = "Okay",
-            dismissText = "Try Again",
-            onConfirm = {
+        AlertDialog(
+            onDismissRequest = {
                 onDismiss()
             },
-            onDismiss = {
-                tryAgain()
+            confirmButton = {
+                Button(onClick = {
+                    tryAgain()
+                }) {
+                    Text("Try Again")
+                }
+            },
+            dismissButton = {
+                Button(onClick = {
+                    onDismiss()
+                }) {
+                    Text("Okay")
+                }
+            },
+            title = {
+                Text("Error")
+            },
+            text = {
+                Text("Room does not exist")
             },
         )
     }
 
+    @OptIn(ExperimentalFoundationApi::class)
     @Composable
     @Suppress("LongParameterList")
     private fun ContentState(
@@ -165,8 +191,22 @@ class PreRoomScreen : Screen {
         onNameTextChange: (String) -> Unit,
         lastKnownRoomCode: String?,
     ) {
+        val focusManager = LocalFocusManager.current
+        val coroutineScope = rememberCoroutineScope()
+        val bringIntoViewRequester = remember { BringIntoViewRequester() }
+
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().onFocusEvent { state ->
+                if (state.hasFocus || state.isFocused) {
+                    coroutineScope.launch {
+                        bringIntoViewRequester.bringIntoView()
+                    }
+                }
+            }.pointerInput(Unit) {
+                detectTapGestures(onTap = {
+                    focusManager.clearFocus()
+                })
+            },
             verticalArrangement = Arrangement.SpaceEvenly,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
@@ -180,6 +220,8 @@ class PreRoomScreen : Screen {
                 },
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                 shape = RoundedCornerShape(12.dp),
+                keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
             )
 
             Button({
@@ -198,7 +240,13 @@ class PreRoomScreen : Screen {
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
             ) {
                 OutlinedTextField(
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(1f).onFocusEvent { state ->
+                        if (state.hasFocus || state.isFocused) {
+                            coroutineScope.launch {
+                                bringIntoViewRequester.bringIntoView()
+                            }
+                        }
+                    },
                     value = roomCodeText,
                     label = {
                         Text("Room Code")
@@ -207,6 +255,8 @@ class PreRoomScreen : Screen {
                         onRoomCodeTextChange(it)
                     },
                     shape = RoundedCornerShape(12.dp),
+                    keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+                    keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
                 )
 
                 IconButton(

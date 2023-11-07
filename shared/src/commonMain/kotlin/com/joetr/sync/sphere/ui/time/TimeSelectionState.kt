@@ -2,6 +2,7 @@ package com.joetr.sync.sphere.ui.time
 
 import com.joetr.sync.sphere.util.formatTime
 import kotlinx.serialization.Serializable
+import com.joetr.sync.sphere.util.Serializable as JvmSerialization
 
 sealed interface TimeSelectionState {
     data object Loading : TimeSelectionState
@@ -17,10 +18,10 @@ data class DayTimeItem(
 @Serializable
 sealed class DayTime {
     @Serializable
-    data object NotSelected : DayTime()
+    data object NotSelected : DayTime(), JvmSerialization
 
     @Serializable
-    data object AllDay : DayTime()
+    data object AllDay : DayTime(), JvmSerialization
 
     @Serializable
     data class Range(
@@ -28,7 +29,7 @@ sealed class DayTime {
         val startTimeMinute: Int,
         val endTimeHour: Int,
         val endTimeMinute: Int,
-    ) : DayTime()
+    ) : DayTime(), JvmSerialization
 }
 
 fun DayTime.getDisplayText(): String {

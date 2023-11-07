@@ -68,7 +68,7 @@ class NewRoomScreenModel(
         val state = _state.value
         if (state is NewRoomState.Content) {
             if (state.dates.contains(date).not()) {
-                val data = state.dates + listOf(date)
+                val data = listOf(date) + state.dates
                 _state.value = state.copy(
                     dates = data,
                 )

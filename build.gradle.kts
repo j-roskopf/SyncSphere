@@ -15,6 +15,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization) apply false
     id("io.gitlab.arturbosch.detekt").version(libs.versions.detektGradlePlugin)
     id("com.google.gms.google-services").version("4.3.14").apply(false)
+    id("com.google.firebase.crashlytics") version "2.9.9" apply false
 }
 
 subprojects {
@@ -23,7 +24,7 @@ subprojects {
 
 tasks {
     /**
-     * The \detektAll tasks enables parallel usage for detekt so if this project
+     * The detektAll tasks enables parallel usage for detekt so if this project
      * expands to multi module support, detekt can continue to run quickly.
      *
      * https://proandroiddev.com/how-to-use-detekt-in-a-multi-module-android-project-6781937fbef2

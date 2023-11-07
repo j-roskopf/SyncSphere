@@ -7,16 +7,20 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerFormatter
+import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -40,16 +44,18 @@ import cafe.adriel.voyager.koin.getScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.joetr.sync.sphere.common.images.MainResImages
+import com.joetr.sync.sphere.data.CrashReporting
 import com.joetr.sync.sphere.data.model.JoinedRoom
 import com.joetr.sync.sphere.ui.ProgressIndicator
 import com.joetr.sync.sphere.ui.time.TimeSelectionScreen
 import com.joetr.sync.sphere.util.format
+import com.joetr.sync.sphere.util.iOS
 import io.github.skeptick.libres.compose.painterResource
 import io.github.skeptick.libres.images.Image
-import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import org.koin.mp.KoinPlatform.getKoin
 
 class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
 
@@ -58,6 +64,7 @@ class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
         val screenModel = getScreenModel<NewRoomScreenModel>()
         val viewState = screenModel.state.collectAsState().value
         val navigator = LocalNavigator.currentOrThrow
+        val crashReporting = getKoin().get<CrashReporting>()
 
         LifecycleEffect(
             onStarted = {
@@ -75,9 +82,14 @@ class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
                     navigator.push(
                         TimeSelectionScreen(
                             times = it,
-                            roomCode = screenModel.room?.roomCode ?: throw IllegalArgumentException(
-                                "Unknown room code",
-                            ),
+                            roomCode = screenModel.room?.roomCode ?: run {
+                                val exception = IllegalArgumentException(
+                                    "Unknown room code",
+                                )
+                                crashReporting.recordException(exception)
+
+                                throw exception
+                            },
                             personId = screenModel.personId,
                         ),
                     )
@@ -167,12 +179,40 @@ class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
                 names = names,
             )
 
-            val state = rememberDatePickerState(Clock.System.now().toEpochMilliseconds())
+            val state = rememberDatePickerState()
 
-            DatePicker(
-                state = state,
-                title = null,
-            )
+            NewRoomDatePicker(state = state)
+
+            LazyRow(
+                modifier = Modifier.fillMaxWidth().padding(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                item {
+                    Text("Selected Dates: ")
+                }
+                selectedDates.forEach {
+                    item {
+                        val isVisible = remember { mutableStateOf(false) }
+                        LaunchedEffect(it) {
+                            isVisible.value = true
+                        }
+
+                        AnimatedVisibility(
+                            visible = isVisible.value,
+                        ) {
+                            SuggestionChip(
+                                onClick = {
+                                    //
+                                },
+                                label = {
+                                    Text(it)
+                                },
+                                modifier = Modifier.padding(4.dp),
+                            )
+                        }
+                    }
+                }
+            }
 
             Row {
                 Button(
@@ -181,10 +221,8 @@ class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
                         val localMillis = state.selectedDateMillis
                         if (localMillis != null) {
                             val date = Instant.fromEpochMilliseconds(localMillis)
-                                .toLocalDateTime(TimeZone.UTC).format("MM-dd-yyyy")
+                                .toLocalDateTime(TimeZone.currentSystemDefault()).format("MM-dd-yyyy")
                             addDate(date)
-                        } else {
-                            // todo joer - what goes here
                         }
                     },
                 ) {
@@ -205,33 +243,39 @@ class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
                     }
                 }
             }
-
-            AnimatedVisibility(
-                visible = selectedDates.isNotEmpty(),
-            ) {
-                FlowRow {
-                    selectedDates.forEach {
-                        val isVisible = remember { mutableStateOf(false) }
-                        LaunchedEffect(it) {
-                            isVisible.value = true
-                        }
-                        AnimatedVisibility(
-                            visible = isVisible.value,
-                        ) {
-                            SuggestionChip(
-                                onClick = {
-                                    //
-                                },
-                                label = {
-                                    Text(it)
-                                },
-                                modifier = Modifier.padding(4.dp),
-                            )
-                        }
-                    }
-                }
-            }
         }
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    private fun NewRoomDatePicker(state: DatePickerState) {
+        DatePicker(
+            dateFormatter = remember {
+                DatePickerFormatter(
+                    // todo joer - display month on iOS too once it's fixed https://github.com/JetBrains/compose-multiplatform/issues/3903#issuecomment-1794017166
+                    yearSelectionSkeleton = if (iOS) "yyyy" else "MMM yyyy",
+                )
+            },
+            state = state,
+            title = null,
+            headline = {
+                // todo joer, hopefully just use default - https://github.com/JetBrains/compose-multiplatform/issues/3903
+
+                val formattedValue = if (state.selectedDateMillis == null) {
+                    "Select a date"
+                } else {
+                    Instant.fromEpochMilliseconds(state.selectedDateMillis!!).toLocalDateTime(TimeZone.UTC)
+                        .format("MMM dd, yyyy")
+                }
+
+                Text(
+                    text = formattedValue,
+                    modifier = Modifier.padding(PaddingValues(start = 24.dp, end = 12.dp, bottom = 12.dp)),
+                    maxLines = 1,
+                )
+            },
+            showModeToggle = false,
+        )
     }
 
     @OptIn(ExperimentalLayoutApi::class)
