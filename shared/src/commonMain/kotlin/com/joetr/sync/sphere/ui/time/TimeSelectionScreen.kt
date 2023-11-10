@@ -110,6 +110,9 @@ class TimeSelectionScreen(
                         personId = personId,
                     )
                 },
+                noPreferenceOnTime = {
+                    screenModel.noPreference()
+                },
             )
 
             is TimeSelectionState.Loading -> LoadingState()
@@ -253,6 +256,7 @@ class TimeSelectionScreen(
         allDayClicked: (Int) -> Unit,
         timeRangeClicked: (Int) -> Unit,
         submitAvailability: () -> Unit,
+        noPreferenceOnTime: () -> Unit,
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -276,24 +280,44 @@ class TimeSelectionScreen(
                 }
             }
 
-            AnimatedVisibility(
-                visible = days.all {
-                    it.dayTime !is DayTime.NotSelected
-                },
-            ) {
-                Column {
-                    Divider(
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                    )
-                }
-                Button(
-                    onClick = {
-                        submitAvailability()
-                    },
-                    modifier = Modifier.fillMaxWidth().padding(8.dp)
-                        .defaultMinSize(minHeight = 48.dp),
+            Column {
+                Divider(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                )
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
                 ) {
-                    Text("Submit Availability")
+                    AnimatedVisibility(
+                        modifier = Modifier.padding(8.dp)
+                            .weight(1f),
+                        visible = days.all {
+                            it.dayTime !is DayTime.NotSelected
+                        },
+                    ) {
+                        Button(
+                            onClick = {
+                                submitAvailability()
+                            },
+                            modifier = Modifier
+                                .defaultMinSize(minHeight = 48.dp),
+                        ) {
+                            Text("Submit Availability")
+                        }
+                    }
+
+                    Button(
+                        onClick = {
+                            noPreferenceOnTime()
+                        },
+                        modifier = Modifier.padding(8.dp)
+                            .weight(1f)
+                            .defaultMinSize(minHeight = 48.dp),
+                    ) {
+                        Text("No Preference")
+                    }
                 }
             }
         }

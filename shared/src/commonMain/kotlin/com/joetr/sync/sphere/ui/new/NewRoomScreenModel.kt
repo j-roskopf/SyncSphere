@@ -9,6 +9,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.datetime.LocalDate
 
 class NewRoomScreenModel(
     private val dispatcher: CoroutineDispatcher,
@@ -16,13 +17,14 @@ class NewRoomScreenModel(
 ) : ScreenModel {
 
     var room: Room? = null
-    private var selectedDates = emptyList<String>()
+    private var selectedDates = emptyList<LocalDate>()
     lateinit var personId: String
 
     private val _state = MutableStateFlow<NewRoomState>(NewRoomState.Loading)
     val state: StateFlow<NewRoomState> = _state
 
     fun init(joinedRoom: JoinedRoom?, name: String) {
+        println(selectedDates)
         coroutineScope.launch(dispatcher) {
             _state.value = NewRoomState.Loading
 
@@ -64,16 +66,13 @@ class NewRoomScreenModel(
         }
     }
 
-    fun addDate(date: String) {
+    fun addDates(dates: List<LocalDate>) {
         val state = _state.value
         if (state is NewRoomState.Content) {
-            if (state.dates.contains(date).not()) {
-                val data = listOf(date) + state.dates
-                _state.value = state.copy(
-                    dates = data,
-                )
-                selectedDates = data
-            }
+            selectedDates = dates
+            _state.value = state.copy(
+                dates = dates,
+            )
         }
     }
 }

@@ -41,6 +41,17 @@ class TimeSelectionScreenModel(
         isInitialized = true
     }
 
+    fun noPreference() {
+        uiData = uiData.map { dayTimeItem ->
+            dayTimeItem.copy(
+                dayTime = DayTime.AllDay,
+            )
+        }
+        _state.value = TimeSelectionState.Content(
+            data = uiData,
+        )
+    }
+
     fun allDayClickedForItem(index: Int) {
         uiData = uiData.mapIndexed { mapIndex, dayTimeItem ->
             if (index == mapIndex) {

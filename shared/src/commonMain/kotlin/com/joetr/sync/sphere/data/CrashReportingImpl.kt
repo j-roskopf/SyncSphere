@@ -5,6 +5,8 @@ import co.touchlab.crashkios.crashlytics.CrashlyticsKotlin
 class CrashReportingImpl : CrashReporting {
 
     // todo joer release ci / cd pipeline
+    // todo joer voyager 1.0
+    // todo compose multiplatform 1.6 alpha
 
     override fun recordException(throwable: Throwable) {
         CrashlyticsKotlin.sendHandledException(

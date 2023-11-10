@@ -1,6 +1,7 @@
 [versions]
 appcompat = "1.6.1"
 activityCompose = "1.8.0"
+calendarComposeDatepicker = "1.0.5"
 calfUi = "0.2.0"
 coreKtx = "1.12.0"
 crashlytics = "0.8.5"
@@ -32,6 +33,7 @@ kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", versi
 [libraries]
 appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
 activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
+calendar-compose-datepicker = { module = "io.github.epicarchitect:calendar-compose-datepicker", version.ref = "calendarComposeDatepicker" }
 calf-ui = { module = "com.mohamedrejeb.calf:calf-ui", version.ref = "calfUi" }
 core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
 crashlytics = { module = "co.touchlab.crashkios:crashlytics", version.ref = "crashlytics" }

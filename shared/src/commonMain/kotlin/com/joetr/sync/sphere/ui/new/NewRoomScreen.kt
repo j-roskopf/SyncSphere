@@ -5,33 +5,26 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerFormatter
-import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.Divider
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,13 +41,15 @@ import com.joetr.sync.sphere.data.CrashReporting
 import com.joetr.sync.sphere.data.model.JoinedRoom
 import com.joetr.sync.sphere.ui.ProgressIndicator
 import com.joetr.sync.sphere.ui.time.TimeSelectionScreen
-import com.joetr.sync.sphere.util.format
-import com.joetr.sync.sphere.util.iOS
+import epicarchitect.calendar.compose.basis.config.rememberBasisEpicCalendarConfig
+import epicarchitect.calendar.compose.datepicker.EpicDatePicker
+import epicarchitect.calendar.compose.datepicker.config.rememberEpicDatePickerConfig
+import epicarchitect.calendar.compose.datepicker.state.EpicDatePickerState
+import epicarchitect.calendar.compose.datepicker.state.rememberEpicDatePickerState
+import epicarchitect.calendar.compose.pager.config.rememberEpicCalendarPagerConfig
 import io.github.skeptick.libres.compose.painterResource
 import io.github.skeptick.libres.images.Image
-import kotlinx.datetime.Instant
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
+import kotlinx.datetime.LocalDate
 import org.koin.mp.KoinPlatform.getKoin
 
 class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
@@ -94,8 +89,8 @@ class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
                         ),
                     )
                 },
-                addDate = {
-                    screenModel.addDate(it)
+                addDates = {
+                    screenModel.addDates(it)
                 },
                 selectedDates = viewState.dates,
                 names = viewState.names,
@@ -145,16 +140,12 @@ class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
     }
 
     @Composable
-    @OptIn(
-        ExperimentalMaterial3Api::class,
-        ExperimentalLayoutApi::class,
-    )
     private fun ContentState(
         roomCode: String,
         names: List<String>,
         navigateToTimeSelectionScreen: (List<String>) -> Unit,
-        addDate: (String) -> Unit,
-        selectedDates: List<String>,
+        addDates: (List<LocalDate>) -> Unit,
+        selectedDates: List<LocalDate>,
     ) {
         Column(
             modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
@@ -179,103 +170,79 @@ class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
                 names = names,
             )
 
-            val state = rememberDatePickerState()
+            Divider(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
 
-            NewRoomDatePicker(state = state)
-
-            LazyRow(
-                modifier = Modifier.fillMaxWidth().padding(8.dp),
-                verticalAlignment = Alignment.CenterVertically,
+            DatePicker(
+                selectedDates = selectedDates,
             ) {
-                item {
-                    Text("Selected Dates: ")
-                }
-                selectedDates.forEach {
-                    item {
-                        val isVisible = remember { mutableStateOf(false) }
-                        LaunchedEffect(it) {
-                            isVisible.value = true
-                        }
-
-                        AnimatedVisibility(
-                            visible = isVisible.value,
-                        ) {
-                            SuggestionChip(
-                                onClick = {
-                                    //
-                                },
-                                label = {
-                                    Text(it)
-                                },
-                                modifier = Modifier.padding(4.dp),
-                            )
-                        }
-                    }
-                }
+                addDates(it)
             }
 
-            Row {
+            AnimatedVisibility(
+                visible = selectedDates.isNotEmpty(),
+            ) {
                 Button(
-                    modifier = Modifier.padding(8.dp),
+                    modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp),
                     onClick = {
-                        val localMillis = state.selectedDateMillis
-                        if (localMillis != null) {
-                            val date = Instant.fromEpochMilliseconds(localMillis)
-                                .toLocalDateTime(TimeZone.currentSystemDefault()).format("MM-dd-yyyy")
-                            addDate(date)
-                        }
+                        // go to time selection screen
+                        navigateToTimeSelectionScreen(
+                            selectedDates.map {
+                                it.toString()
+                            },
+                        )
                     },
                 ) {
-                    Text("Add Date")
-                }
-
-                AnimatedVisibility(
-                    visible = selectedDates.isNotEmpty(),
-                ) {
-                    Button(
-                        modifier = Modifier.padding(8.dp),
-                        onClick = {
-                            // go to time selection screen
-                            navigateToTimeSelectionScreen(selectedDates)
-                        },
-                    ) {
-                        Text("Select Times")
-                    }
+                    Text("Select Times")
                 }
             }
         }
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    private fun NewRoomDatePicker(state: DatePickerState) {
-        DatePicker(
-            dateFormatter = remember {
-                DatePickerFormatter(
-                    // todo joer - display month on iOS too once it's fixed https://github.com/JetBrains/compose-multiplatform/issues/3903#issuecomment-1794017166
-                    yearSelectionSkeleton = if (iOS) "yyyy" else "MMM yyyy",
-                )
-            },
-            state = state,
-            title = null,
-            headline = {
-                // todo joer, hopefully just use default - https://github.com/JetBrains/compose-multiplatform/issues/3903
-
-                val formattedValue = if (state.selectedDateMillis == null) {
-                    "Select a date"
-                } else {
-                    Instant.fromEpochMilliseconds(state.selectedDateMillis!!).toLocalDateTime(TimeZone.UTC)
-                        .format("MMM dd, yyyy")
-                }
-
-                Text(
-                    text = formattedValue,
-                    modifier = Modifier.padding(PaddingValues(start = 24.dp, end = 12.dp, bottom = 12.dp)),
-                    maxLines = 1,
-                )
-            },
-            showModeToggle = false,
+    private fun ColumnScope.DatePicker(
+        selectedDates: List<LocalDate>,
+        onSelectedDates: (List<LocalDate>) -> Unit,
+    ) {
+        val state = rememberEpicDatePickerState(
+            selectionMode = EpicDatePickerState.SelectionMode.Single(maxSize = Int.MAX_VALUE),
+            config = rememberEpicDatePickerConfig(
+                pagerConfig = rememberEpicCalendarPagerConfig(
+                    basisConfig = rememberBasisEpicCalendarConfig(
+                        displayDaysOfAdjacentMonths = false,
+                    ),
+                ),
+                selectionContentColor = MaterialTheme.colorScheme.onPrimary,
+                selectionContainerColor = MaterialTheme.colorScheme.primary,
+            ),
+            selectedDates = selectedDates,
         )
+        Column(
+            modifier = Modifier.padding(top = 8.dp).weight(1f),
+        ) {
+            Row(
+                verticalAlignment = Alignment.Bottom,
+            ) {
+                Text(
+                    modifier = Modifier.padding(horizontal = 4.dp).alignByBaseline(),
+                    text = state.pagerState.currentMonth.month.name,
+                    style = MaterialTheme.typography.displaySmall,
+                )
+                Text(
+                    modifier = Modifier.alignByBaseline(),
+                    text = state.pagerState.currentMonth.year.toString(),
+                    style = MaterialTheme.typography.labelLarge,
+                )
+            }
+
+            EpicDatePicker(
+                state = state,
+            )
+        }
+
+        LaunchedEffect(state.selectedDates) {
+            // dates changed
+            onSelectedDates(state.selectedDates)
+        }
     }
 
     @OptIn(ExperimentalLayoutApi::class)

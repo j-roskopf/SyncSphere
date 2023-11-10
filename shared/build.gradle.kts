@@ -67,6 +67,7 @@ kotlin {
                 api(libs.calf.ui)
                 implementation(libs.multiplatform.settings.no.arg)
                 implementation(libs.libres.compose)
+                implementation(libs.calendar.compose.datepicker)
             }
         }
 
