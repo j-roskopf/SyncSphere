@@ -4,7 +4,6 @@ import co.touchlab.crashkios.crashlytics.CrashlyticsKotlin
 
 class CrashReportingImpl : CrashReporting {
 
-    // todo joer add custom logging framework
     // todo joer release ci / cd pipeline
 
     override fun recordException(throwable: Throwable) {

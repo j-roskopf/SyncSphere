@@ -39,6 +39,7 @@ import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.lifecycle.LifecycleEffect
 import cafe.adriel.voyager.core.screen.Screen
@@ -273,11 +274,18 @@ class PreRoomScreen : Screen {
                 )
             }
 
-            if (lastKnownRoomCode != null) {
-                Button({
-                    goToResultsForLastKnownRoom(lastKnownRoomCode)
-                }) {
-                    Text("View Results From Last Known Room")
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = "Create a room and share the room code with friends to schedule your next get-together!",
+                    modifier = Modifier.padding(16.dp),
+                    textAlign = TextAlign.Center,
+                )
+                if (lastKnownRoomCode != null) {
+                    Button({
+                        goToResultsForLastKnownRoom(lastKnownRoomCode)
+                    }) {
+                        Text("View Results From Last Known Room")
+                    }
                 }
             }
         }
