@@ -118,11 +118,3 @@ class PreScreenModel(
         )
     }
 }
-
-/**
- * todo joer
- *
- * make date on calendar different color as its selected
- *
- * click and hold and pop up day / time selection
- */

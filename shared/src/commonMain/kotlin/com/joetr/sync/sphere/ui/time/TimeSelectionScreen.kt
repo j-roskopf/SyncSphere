@@ -386,6 +386,3 @@ class TimeSelectionScreen(
         }
     }
 }
-/*
-
-       date and time formatting*/
