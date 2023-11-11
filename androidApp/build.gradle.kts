@@ -30,7 +30,7 @@ android {
         applicationId = "com.joetr.sync.sphere"
         minSdk = (findProperty("android.minSdk") as String).toInt()
         targetSdk = (findProperty("android.targetSdk") as String).toInt()
-        versionCode = 2
+        versionCode = (findProperty("android.versionCode") as String).toInt()
         versionName = "1.0"
     }
     compileOptions {
