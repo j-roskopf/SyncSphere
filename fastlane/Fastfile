@@ -16,7 +16,8 @@ platform :ios do
       scheme: options[:scheme],
       buildlog_path: "build/fastlane-buildlog",
       skip_package_ipa: false,
-      skip_codesigning: false
+      skip_codesigning: false,
+      xcargs: "-allowProvisioningUpdates"
     )
   end
 
