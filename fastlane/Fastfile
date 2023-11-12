@@ -11,13 +11,16 @@ platform :ios do
 
   private_lane :build_sync_sphere do |options|
     xcversion(version: "15.0.1")
+    match(
+      app_identifier: ["com.joetr.sync.sphere"],
+      type: options[:type] || "development"
+    )
     build_app(
       workspace: "iosApp/iosApp.xcworkspace",
       scheme: options[:scheme],
       buildlog_path: "build/fastlane-buildlog",
       skip_package_ipa: false,
       skip_codesigning: false,
-      xcargs: "-allowProvisioningUpdates"
     )
   end
 

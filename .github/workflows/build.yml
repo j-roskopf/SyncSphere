@@ -71,7 +71,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: android-build-outputs
-          path: androidApp/release/
+          path: androidApp/build/outputs/apk/
 
   ios:
     runs-on: macos-13
