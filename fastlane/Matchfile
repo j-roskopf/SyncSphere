@@ -1,8 +1,7 @@
-git_url("git@github.com:j-roskopf/ios-certs.git")
+git_url("https://j-roskopf@github.com/j-roskopf/ios-certs.git")
 git_branch("main")
 storage_mode("git")
-clone_branch_directly(true)
-
+git_basic_authorization(Base64.strict_encode64(ENV["MATCH_PASSWORD"]))
 type("development") # The default type, can be: appstore, adhoc, enterprise or development
 
 # app_identifier(["tools.fastlane.app", "tools.fastlane.app2"])
