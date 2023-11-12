@@ -14,8 +14,8 @@ platform :ios do
       workspace: "iosApp/iosApp.xcworkspace",
       scheme: options[:scheme],
       buildlog_path: "build/fastlane-buildlog",
-      skip_package_ipa: true,
-      skip_codesigning: true
+      skip_package_ipa: false,
+      skip_codesigning: false
     )
   end
 
