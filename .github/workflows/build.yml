@@ -71,7 +71,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: android-build-outputs
-          path: android-app/app/release
+          path: android-app/release
 
   ios:
     needs: [code-style]
