@@ -74,8 +74,7 @@ jobs:
           path: androidApp/release/
 
   ios:
-    needs: [code-style]
-    runs-on: macos-latest
+    runs-on: macos-13
     timeout-minutes: 60
     env:
       FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT: 60
