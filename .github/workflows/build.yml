@@ -71,23 +71,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: android-build-outputs
-          path: android-app/app/build/outputs
-
-      - name: Upload reports
-        if: always()
-        uses: actions/upload-artifact@v3
-        with:
-          name: android-reports
-          path: |
-            **/build/reports/*
-
-      - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@v3
-        with:
-          name: android-test-results
-          path: |
-            **/build/test-results/*
+          path: android-app/app/release
 
   ios:
     needs: [code-style]

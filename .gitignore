@@ -32,6 +32,8 @@ google-services.json
 # Android Profiling
 *.hprof
 
+androidApp/release
+
 # Xcode
 #
 ## User settings
