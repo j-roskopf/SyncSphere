@@ -94,7 +94,7 @@ jobs:
 
       - uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: '15.0'
+          xcode-version: '15.0.1'
 
       - uses: ruby/setup-ruby@v1
         with:
