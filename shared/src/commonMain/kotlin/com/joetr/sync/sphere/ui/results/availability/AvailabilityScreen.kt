@@ -11,13 +11,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Divider
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import com.joetr.sync.sphere.common.images.MainResImages
+import com.joetr.sync.sphere.design.toolbar.DefaultToolbar
+import com.joetr.sync.sphere.design.toolbar.backOrNull
 import com.joetr.sync.sphere.ui.time.DayTime
 import com.joetr.sync.sphere.ui.time.getDisplayText
 import io.github.skeptick.libres.compose.painterResource
@@ -28,13 +33,26 @@ class AvailabilityScreen(
 
     @Composable
     override fun Content() {
-        AvailabilityState(
-            data = data,
-        )
+        Scaffold(
+            topBar = {
+                DefaultToolbar(
+                    title = "Availability",
+                    onBack = LocalNavigator.currentOrThrow.backOrNull(),
+                )
+            },
+        ) { paddingValues ->
+            AvailabilityState(
+                modifier = Modifier.padding(paddingValues),
+                data = data,
+            )
+        }
     }
 
     @Composable
-    private fun AvailabilityState(data: Map<String, DayTime>) {
+    private fun AvailabilityState(
+        modifier: Modifier = Modifier,
+        data: Map<String, DayTime>,
+    ) {
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,

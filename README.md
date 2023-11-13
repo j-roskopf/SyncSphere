@@ -15,3 +15,7 @@ Building archive - open iOS workspace via `open iosApp.xcworkspace`
 ## TODO
 
 re-enable ios to require code-style
+ios screenshots
+john's feedback
+    - date feedback
+    - silly situation

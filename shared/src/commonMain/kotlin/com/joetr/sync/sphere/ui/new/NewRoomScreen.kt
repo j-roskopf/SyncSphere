@@ -21,6 +21,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -39,8 +40,11 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import com.joetr.sync.sphere.common.images.MainResImages
 import com.joetr.sync.sphere.data.CrashReporting
 import com.joetr.sync.sphere.data.model.JoinedRoom
+import com.joetr.sync.sphere.design.toolbar.DefaultToolbar
+import com.joetr.sync.sphere.design.toolbar.backOrNull
 import com.joetr.sync.sphere.ui.ProgressIndicator
 import com.joetr.sync.sphere.ui.time.TimeSelectionScreen
+import epicarchitect.calendar.compose.basis.EpicMonth
 import epicarchitect.calendar.compose.basis.config.rememberBasisEpicCalendarConfig
 import epicarchitect.calendar.compose.datepicker.EpicDatePicker
 import epicarchitect.calendar.compose.datepicker.config.rememberEpicDatePickerConfig
@@ -49,10 +53,18 @@ import epicarchitect.calendar.compose.datepicker.state.rememberEpicDatePickerSta
 import epicarchitect.calendar.compose.pager.config.rememberEpicCalendarPagerConfig
 import io.github.skeptick.libres.compose.painterResource
 import io.github.skeptick.libres.images.Image
+import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.Month
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import org.koin.mp.KoinPlatform.getKoin
 
+private const val MAX_YEAR_TO_DISPLAY = 2100
+
 class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
+
+    private val localDateNow = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
 
     @Composable
     override fun Content() {
@@ -70,52 +82,67 @@ class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
             },
         )
 
-        when (viewState) {
-            is NewRoomState.Content -> ContentState(
-                roomCode = viewState.roomCode,
-                navigateToTimeSelectionScreen = {
-                    navigator.push(
-                        TimeSelectionScreen(
-                            times = it,
-                            roomCode = screenModel.room?.roomCode ?: run {
-                                val exception = IllegalArgumentException(
-                                    "Unknown room code",
-                                )
-                                crashReporting.recordException(exception)
+        Scaffold(
+            topBar = {
+                DefaultToolbar(
+                    title = "Room",
+                    onBack = LocalNavigator.currentOrThrow.backOrNull(),
+                )
+            },
+        ) { paddingValues ->
+            when (viewState) {
+                is NewRoomState.Content -> ContentState(
+                    modifier = Modifier.padding(paddingValues),
+                    roomCode = viewState.roomCode,
+                    navigateToTimeSelectionScreen = {
+                        navigator.push(
+                            TimeSelectionScreen(
+                                times = it,
+                                roomCode = screenModel.room?.roomCode ?: run {
+                                    val exception = IllegalArgumentException(
+                                        "Unknown room code",
+                                    )
+                                    crashReporting.recordException(exception)
 
-                                throw exception
-                            },
-                            personId = screenModel.personId,
-                        ),
-                    )
-                },
-                addDates = {
-                    screenModel.addDates(it)
-                },
-                selectedDates = viewState.dates,
-                names = viewState.names,
-            )
-
-            is NewRoomState.Loading -> LoadingState()
-            is NewRoomState.Error -> {
-                ErrorState(
-                    tryAgain = {
-                        screenModel.init(
-                            joinedRoom = joinedRoom,
-                            name = name,
+                                    throw exception
+                                },
+                                personId = screenModel.personId,
+                            ),
                         )
                     },
+                    addDates = {
+                        screenModel.addDates(it)
+                    },
+                    selectedDates = viewState.dates,
+                    names = viewState.names,
                 )
+
+                is NewRoomState.Loading -> LoadingState(
+                    modifier = Modifier.padding(paddingValues),
+                )
+
+                is NewRoomState.Error -> {
+                    ErrorState(
+                        modifier = Modifier.padding(paddingValues),
+                        tryAgain = {
+                            screenModel.init(
+                                joinedRoom = joinedRoom,
+                                name = name,
+                            )
+                        },
+                    )
+                }
             }
         }
     }
 
     @Composable
     private fun ErrorState(
+        modifier: Modifier = Modifier,
         tryAgain: () -> Unit,
     ) {
         Box(
-            modifier = Modifier.fillMaxSize(),
+            modifier = modifier.fillMaxSize(),
             contentAlignment = Alignment.Center,
         ) {
             Column(
@@ -141,6 +168,7 @@ class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
 
     @Composable
     private fun ContentState(
+        modifier: Modifier = Modifier,
         roomCode: String,
         names: List<String>,
         navigateToTimeSelectionScreen: (List<String>) -> Unit,
@@ -148,7 +176,7 @@ class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
         selectedDates: List<LocalDate>,
     ) {
         Column(
-            modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
+            modifier = modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Column(
@@ -205,6 +233,7 @@ class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
     ) {
         val state = rememberEpicDatePickerState(
             selectionMode = EpicDatePickerState.SelectionMode.Single(maxSize = Int.MAX_VALUE),
+            monthRange = monthRange(),
             config = rememberEpicDatePickerConfig(
                 pagerConfig = rememberEpicCalendarPagerConfig(
                     basisConfig = rememberBasisEpicCalendarConfig(
@@ -289,12 +318,15 @@ class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
     }
 
     @Composable
-    private fun LoadingState() {
+    private fun LoadingState(modifier: Modifier = Modifier) {
         Box(
-            modifier = Modifier.fillMaxSize(),
+            modifier = modifier.fillMaxSize(),
             contentAlignment = Alignment.Center,
         ) {
             ProgressIndicator()
         }
     }
+
+    private fun monthRange() =
+        EpicMonth(localDateNow.year, localDateNow.month)..EpicMonth(MAX_YEAR_TO_DISPLAY, Month.DECEMBER)
 }

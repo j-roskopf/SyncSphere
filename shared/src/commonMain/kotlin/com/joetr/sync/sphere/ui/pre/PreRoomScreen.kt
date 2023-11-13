@@ -181,7 +181,7 @@ class PreRoomScreen : Screen {
 
     @OptIn(ExperimentalFoundationApi::class)
     @Composable
-    @Suppress("LongParameterList")
+    @Suppress("LongParameterList", "LongMethod")
     private fun ContentState(
         goToNewRoomScreen: () -> Unit,
         validateRoomCode: () -> Unit,
@@ -211,29 +211,37 @@ class PreRoomScreen : Screen {
             verticalArrangement = Arrangement.SpaceEvenly,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            OutlinedTextField(
-                value = nameText,
-                label = {
-                    Text("Your name (optional)")
-                },
-                onValueChange = {
-                    onNameTextChange(it)
-                },
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-                shape = RoundedCornerShape(12.dp),
-                keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
-                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
-            )
-
-            Button({
-                goToNewRoomScreen()
-            }) {
-                Icon(
-                    Icons.Default.Add,
-                    contentDescription = null,
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                OutlinedTextField(
+                    value = nameText,
+                    label = {
+                        Text("Your name (optional)")
+                    },
+                    onValueChange = {
+                        onNameTextChange(it)
+                    },
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+                    keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
                 )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text("New Room")
+
+                Button(
+                    modifier = Modifier.padding(16.dp),
+                    onClick = {
+                        goToNewRoomScreen()
+                    },
+                ) {
+                    Icon(
+                        Icons.Default.Add,
+                        contentDescription = null,
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("New Room")
+                }
             }
 
             Row(

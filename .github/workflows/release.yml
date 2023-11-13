@@ -1,13 +1,12 @@
-name: CI
+name: Release
 
 on:
   push:
-    branches:
-      - main
     tags:
-      - v*
-  pull_request:
-  workflow_dispatch:
+      - 'release/[0-9]+.[0-9]+.[0-9]+'
+
+permissions:
+  contents: read
 
 jobs:
   code-style:
@@ -74,6 +73,7 @@ jobs:
           path: androidApp/build/outputs/apk/
 
   ios:
+    needs: [ code-style ]
     runs-on: macos-13
     timeout-minutes: 60
     env:
@@ -87,7 +87,7 @@ jobs:
       APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
       APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
       SYNC_SPHERE_BUILD_NUMBER: ${{ github.run_number }}
-      
+
     steps:
       - uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # v4
 
@@ -109,7 +109,7 @@ jobs:
           cache-disabled: true
 
       - name: Build iOS application
-        run: bundle exec fastlane ios build
+        run: bundle exec fastlane ios release
 
       - name: Upload build outputs
         if: always()

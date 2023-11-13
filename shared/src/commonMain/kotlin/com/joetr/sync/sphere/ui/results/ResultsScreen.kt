@@ -2,7 +2,6 @@ package com.joetr.sync.sphere.ui.results
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -12,6 +11,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -25,6 +25,8 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.joetr.sync.sphere.data.model.People
 import com.joetr.sync.sphere.data.model.Room
+import com.joetr.sync.sphere.design.toolbar.DefaultToolbar
+import com.joetr.sync.sphere.design.toolbar.backOrNull
 import com.joetr.sync.sphere.ui.ProgressIndicator
 import com.joetr.sync.sphere.ui.pre.collectAsEffect
 import com.joetr.sync.sphere.ui.results.availability.AvailabilityScreen
@@ -56,25 +58,38 @@ class ResultsScreen(
             }
         }
 
-        when (viewState) {
-            is ResultsScreenState.Content -> ContentState(
-                room = viewState.room,
-                calculateAvailability = {
-                    screenModel.calculateAvailability(it)
-                },
-            )
+        Scaffold(
+            topBar = {
+                DefaultToolbar(
+                    title = "Results",
+                    onBack = LocalNavigator.currentOrThrow.backOrNull(),
+                )
+            },
+        ) { paddingValues ->
+            when (viewState) {
+                is ResultsScreenState.Content -> ContentState(
+                    modifier = Modifier.padding(paddingValues),
+                    room = viewState.room,
+                    calculateAvailability = {
+                        screenModel.calculateAvailability(it)
+                    },
+                )
 
-            is ResultsScreenState.Loading -> LoadingState()
+                is ResultsScreenState.Loading -> LoadingState(
+                    modifier = Modifier.padding(paddingValues),
+                )
+            }
         }
     }
 
     @Composable
     private fun ContentState(
+        modifier: Modifier = Modifier,
         room: Room,
         calculateAvailability: (List<People>) -> Unit,
     ) {
         Column(
-            modifier = Modifier.fillMaxSize().padding(16.dp),
+            modifier = modifier.fillMaxSize().padding(16.dp),
             horizontalAlignment = Alignment.Start,
         ) {
             LazyColumn(
@@ -113,7 +128,6 @@ class ResultsScreen(
         }
     }
 
-    @OptIn(ExperimentalLayoutApi::class)
     @Composable
     private fun PersonWithAvailability(person: People) {
         Column(
@@ -163,9 +177,11 @@ class ResultsScreen(
     }
 
     @Composable
-    private fun LoadingState() {
+    private fun LoadingState(
+        modifier: Modifier = Modifier,
+    ) {
         Box(
-            modifier = Modifier.fillMaxSize(),
+            modifier = modifier.fillMaxSize(),
             contentAlignment = Alignment.Center,
         ) {
             ProgressIndicator()

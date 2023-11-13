@@ -82,6 +82,12 @@ class TimeSelectionScreenModel(
         )
     }
 
+    fun goBackToContentState() {
+        _state.value = TimeSelectionState.Content(
+            data = uiData,
+        )
+    }
+
     fun switchToTimePicking(index: Int) {
         _state.value = TimeSelectionState.TimeSelection(
             index = index,
