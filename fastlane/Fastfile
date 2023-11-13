@@ -9,8 +9,19 @@ platform :ios do
     )
   end
 
-  private_lane :build_sync_sphere do |options|
-    xcversion(version: "15.0.1")
+    private_lane :build_sync_sphere do |options|
+      xcversion(version: "15.0.1")
+      build_app(
+        export_method: "app-store",
+        workspace: "iosApp/iosApp.xcworkspace",
+        scheme: options[:scheme],
+        buildlog_path: "build/fastlane-buildlog",
+        skip_package_ipa: true,
+        skip_codesigning: true,
+      )
+    end
+
+  private_lane :release_sync_sphere do |options|
     setup_ci
     update_code_signing_settings(
       use_automatic_signing: false,
@@ -20,9 +31,7 @@ platform :ios do
       profile_uuid: 'de173048-3d3d-4075-98f2-7e73f292bf86'
     )
     update_code_signing_settings(
-      # Automatic signing seems to be a good thing to have on in dev but will not work in CI
       use_automatic_signing: false,
-      # The default value for this is iOS Development which is not appropriate for release
       code_sign_identity: "Apple Distribution",
       path: 'iosApp/iosApp.xcodeproj'
     )
@@ -35,6 +44,10 @@ platform :ios do
       app_identifier: ["com.joetr.sync.sphere"],
       type: options[:type] || "appstore"
     )
+    increment_build_number(
+      xcodeproj: "iosApp/iosApp.xcodeproj",
+      build_number: ENV['SYNC_SPHERE_BUILD_NUMBER']
+    )
     build_app(
       export_method: "app-store",
       workspace: "iosApp/iosApp.xcworkspace",
@@ -43,11 +56,28 @@ platform :ios do
       skip_package_ipa: false,
       skip_codesigning: false,
     )
+    app_store_connect_api_key(
+      key_id: ENV['APP_STORE_CONNECT_API_KEY_KEY_ID'],
+      issuer_id: ENV['APP_STORE_CONNECT_API_KEY_ISSUER_ID'],
+      key_content: ENV['APP_STORE_CONNECT_API_KEY_KEY'],
+      is_key_content_base64: true,
+      duration: 1200,
+    )
+
+    upload_to_testflight(
+        app_identifier: "com.joetr.sync.sphere",
+        skip_waiting_for_build_processing: true
+    )
   end
 
   lane :build do
     lint()
     build_sync_sphere(scheme: "iosApp")
+  end
+
+  lane :release do
+    lint()
+    release_sync_sphere(scheme: "iosApp")
   end
 
 end

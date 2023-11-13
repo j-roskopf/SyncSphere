@@ -86,7 +86,8 @@ jobs:
       APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY }}
       APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
       APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
-
+      SYNC_SPHERE_BUILD_NUMBER: ${{ github.run_number }}
+      
     steps:
       - uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # v4
 
@@ -108,7 +109,7 @@ jobs:
           cache-disabled: true
 
       - name: Build iOS application
-        run: bundle exec fastlane ios build
+        run: bundle exec fastlane ios release
 
       - name: Upload build outputs
         if: always()
