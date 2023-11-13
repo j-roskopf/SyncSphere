@@ -79,7 +79,7 @@ jobs:
     env:
       FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT: 60
       MATCH_PASSWORD: ${{ secrets.SYNC_SPHERE_PERSONAL_ACCESS_TOKEN }}
-
+      MATCH_AUTH: ${{ secrets.SYNC_SPHERE_GIT_PW }}
 
     steps:
       - uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # v4
