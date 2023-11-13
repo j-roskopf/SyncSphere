@@ -13,9 +13,10 @@ platform :ios do
     xcversion(version: "15.0.1")
     match(
       app_identifier: ["com.joetr.sync.sphere"],
-      type: options[:type] || "development"
+      type: options[:type] || "appstore"
     )
     build_app(
+      export_method: "app-store",
       workspace: "iosApp/iosApp.xcworkspace",
       scheme: options[:scheme],
       buildlog_path: "build/fastlane-buildlog",
