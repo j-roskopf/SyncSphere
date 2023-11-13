@@ -1,4 +1,4 @@
-git_url("https://github.com/j-roskopf/syncSphereIosCerts.git")
+git_url("https://j-roskopf@github.com/j-roskopf/syncSphereIosCerts.git")
 
 storage_mode("git")
 git_branch("main")
