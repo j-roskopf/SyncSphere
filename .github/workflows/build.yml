@@ -74,6 +74,7 @@ jobs:
           path: androidApp/build/outputs/apk/
 
   ios:
+    needs: [ code-style ]
     runs-on: macos-13
     timeout-minutes: 60
     env:
