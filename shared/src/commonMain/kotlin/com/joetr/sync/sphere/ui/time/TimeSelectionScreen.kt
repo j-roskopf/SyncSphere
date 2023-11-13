@@ -1,6 +1,8 @@
 package com.joetr.sync.sphere.ui.time
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,12 +16,14 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.rememberTimePickerState
@@ -30,15 +34,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.lifecycle.LifecycleEffect
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.getScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.joetr.sync.sphere.design.toolbar.DefaultToolbar
 import com.joetr.sync.sphere.ui.ProgressIndicator
 import com.joetr.sync.sphere.ui.pre.collectAsEffect
 import com.joetr.sync.sphere.ui.results.ResultsScreen
+import com.joetr.sync.sphere.util.formatTime
 import com.mohamedrejeb.calf.ui.dialog.AdaptiveAlertDialog
 
 class TimeSelectionScreen(
@@ -48,6 +55,7 @@ class TimeSelectionScreen(
 ) : Screen {
 
     @Composable
+    @Suppress("LongMethod")
     override fun Content() {
         val screenModel = getScreenModel<TimeSelectionScreenModel>()
         val viewState = screenModel.state.collectAsState().value
@@ -93,45 +101,73 @@ class TimeSelectionScreen(
             )
         }
 
-        when (viewState) {
-            is TimeSelectionState.Content -> ContentState(
-                days = viewState.data,
-                allDayClicked = {
-                    screenModel.allDayClickedForItem(
-                        index = it,
+        Scaffold(
+            topBar = {
+                DefaultToolbar(
+                    title = "Time Selection",
+                    onBack = {
+                        if (viewState is TimeSelectionState.TimeSelection) {
+                            screenModel.goBackToContentState()
+                        } else {
+                            // every other state pops back to the other screen
+                            navigator.pop()
+                        }
+                    },
+                )
+            },
+        ) { paddingValues ->
+            AnimatedContent(
+                targetState = viewState,
+                contentKey = {
+                    it.key
+                },
+            ) { targetState ->
+                when (targetState) {
+                    is TimeSelectionState.Content -> ContentState(
+                        modifier = Modifier.padding(paddingValues),
+                        days = targetState.data,
+                        allDayClicked = {
+                            screenModel.allDayClickedForItem(
+                                index = it,
+                            )
+                        },
+                        timeRangeClicked = {
+                            screenModel.switchToTimePicking(it)
+                        },
+                        submitAvailability = {
+                            screenModel.submitAvailability(
+                                roomCode = roomCode,
+                                personId = personId,
+                            )
+                        },
+                        noPreferenceOnTime = {
+                            screenModel.noPreference()
+                        },
                     )
-                },
-                timeRangeClicked = {
-                    screenModel.switchToTimePicking(it)
-                },
-                submitAvailability = {
-                    screenModel.submitAvailability(
-                        roomCode = roomCode,
-                        personId = personId,
-                    )
-                },
-                noPreferenceOnTime = {
-                    screenModel.noPreference()
-                },
-            )
 
-            is TimeSelectionState.Loading -> LoadingState()
-            is TimeSelectionState.TimeSelection -> TimeSelectionState(
-                index = viewState.index,
-                timeSelectedForIndex = { index, range ->
-                    screenModel.rangeClickedForItem(index, range)
-                },
-                validateStartTime = {
-                    continueButtonEnabled.value = if (it.endTimeHour > it.startTimeHour) {
-                        true
-                    } else if (it.startTimeHour == it.endTimeHour) {
-                        it.endTimeMinute > it.startTimeMinute
-                    } else {
-                        false
-                    }
-                },
-                continueButtonEnabled = continueButtonEnabled.value,
-            )
+                    is TimeSelectionState.Loading -> LoadingState(
+                        modifier = Modifier.padding(paddingValues),
+                    )
+
+                    is TimeSelectionState.TimeSelection -> TimeSelectionState(
+                        modifier = Modifier.padding(paddingValues),
+                        index = targetState.index,
+                        timeSelectedForIndex = { index, range ->
+                            screenModel.rangeClickedForItem(index, range)
+                        },
+                        validateStartTime = {
+                            continueButtonEnabled.value = if (it.endTimeHour > it.startTimeHour) {
+                                true
+                            } else if (it.startTimeHour == it.endTimeHour) {
+                                it.endTimeMinute > it.startTimeMinute
+                            } else {
+                                false
+                            }
+                        },
+                        continueButtonEnabled = continueButtonEnabled.value,
+                    )
+                }
+            }
         }
     }
 
@@ -156,12 +192,17 @@ class TimeSelectionScreen(
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
+    @Suppress("LongMethod")
     private fun TimeSelectionState(
+        modifier: Modifier = Modifier,
         index: Int,
         timeSelectedForIndex: (Int, DayTime.Range) -> Unit,
         validateStartTime: (DayTime.Range) -> Unit,
         continueButtonEnabled: Boolean,
     ) {
+        val startTimeVisible = remember { mutableStateOf(true) }
+        val endTimeVisible = remember { mutableStateOf(false) }
+
         val startTimeState = rememberTimePickerState()
         val endTimeState = rememberTimePickerState()
 
@@ -172,11 +213,10 @@ class TimeSelectionScreen(
 
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxSize(),
+            modifier = modifier.fillMaxSize(),
         ) {
             Column(
                 modifier = Modifier.weight(1f).fillMaxSize().verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.SpaceEvenly,
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 LaunchedEffect(startTimeState.hour, startTimeState.minute) {
@@ -193,15 +233,37 @@ class TimeSelectionScreen(
                     )
                 }
 
-                Text(
-                    text = "Start Time",
-                    style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.padding(8.dp),
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth()
+                        .padding(8.dp)
+                        .defaultMinSize(minHeight = 64.dp)
+                        .clickable {
+                            startTimeVisible.value = startTimeVisible.value.not()
+                        },
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    val formattedStartTime = formatTime(startTimeHour.value, startTimeMinute.value)
 
-                TimePicker(
-                    state = startTimeState,
-                )
+                    Text(
+                        text = "Start Time $formattedStartTime",
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.headlineMedium,
+                    )
+
+                    Icon(
+                        Icons.Filled.KeyboardArrowRight,
+                        contentDescription = null,
+                    )
+                }
+
+                AnimatedVisibility(
+                    visible = startTimeVisible.value,
+                ) {
+                    TimePicker(
+                        state = startTimeState,
+                    )
+                }
 
                 LaunchedEffect(endTimeState.hour, endTimeState.minute) {
                     endTimeMinute.value = endTimeState.minute
@@ -217,18 +279,50 @@ class TimeSelectionScreen(
                     )
                 }
 
-                Text(
-                    text = "End Time",
-                    style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.padding(8.dp),
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth()
+                        .padding(8.dp)
+                        .defaultMinSize(minHeight = 64.dp)
+                        .clickable {
+                            endTimeVisible.value = endTimeVisible.value.not()
+                        },
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    val formattedEndTime = formatTime(endTimeHour.value, endTimeMinute.value)
 
-                TimePicker(
-                    state = endTimeState,
-                )
+                    Text(
+                        text = "End Time $formattedEndTime",
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.headlineMedium,
+                    )
+
+                    Icon(
+                        Icons.Filled.KeyboardArrowRight,
+                        contentDescription = null,
+                    )
+                }
+
+                AnimatedVisibility(
+                    visible = endTimeVisible.value,
+                ) {
+                    TimePicker(
+                        state = endTimeState,
+                    )
+                }
             }
 
             Divider(modifier = Modifier.padding(horizontal = 16.dp))
+
+            AnimatedVisibility(
+                visible = !continueButtonEnabled,
+            ) {
+                Text(
+                    modifier = Modifier.padding(8.dp),
+                    text = "Please select an end time after the start time",
+                    color = MaterialTheme.colorScheme.error,
+                )
+            }
 
             Button(
                 enabled = continueButtonEnabled,
@@ -252,6 +346,7 @@ class TimeSelectionScreen(
 
     @Composable
     private fun ContentState(
+        modifier: Modifier = Modifier,
         days: List<DayTimeItem>,
         allDayClicked: (Int) -> Unit,
         timeRangeClicked: (Int) -> Unit,
@@ -259,7 +354,7 @@ class TimeSelectionScreen(
         noPreferenceOnTime: () -> Unit,
     ) {
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             LazyColumn(
@@ -377,9 +472,9 @@ class TimeSelectionScreen(
     }
 
     @Composable
-    private fun LoadingState() {
+    private fun LoadingState(modifier: Modifier = Modifier) {
         Box(
-            modifier = Modifier.fillMaxSize(),
+            modifier = modifier.fillMaxSize(),
             contentAlignment = Alignment.Center,
         ) {
             ProgressIndicator()

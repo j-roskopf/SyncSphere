@@ -5,9 +5,16 @@ import kotlinx.serialization.Serializable
 import com.joetr.sync.sphere.util.Serializable as JvmSerialization
 
 sealed interface TimeSelectionState {
-    data object Loading : TimeSelectionState
-    data class Content(val data: List<DayTimeItem>) : TimeSelectionState
-    data class TimeSelection(val index: Int) : TimeSelectionState
+    // used as animation key
+    val key: Int
+
+    data object Loading : TimeSelectionState {
+        override val key: Int
+            get() = 1
+    }
+
+    data class Content(val data: List<DayTimeItem>, override val key: Int = 1) : TimeSelectionState
+    data class TimeSelection(val index: Int, override val key: Int = 3) : TimeSelectionState
 }
 
 data class DayTimeItem(
