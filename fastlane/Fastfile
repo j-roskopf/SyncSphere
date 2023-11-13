@@ -11,6 +11,12 @@ platform :ios do
 
   private_lane :build_sync_sphere do |options|
     xcversion(version: "15.0.1")
+    setup_ci
+    sync_code_signing(
+      type: "appstore",
+      app_identifier: 'com.joetr.sync.sphere',
+      readonly: true
+    )
     match(
       app_identifier: ["com.joetr.sync.sphere"],
       type: options[:type] || "appstore"
