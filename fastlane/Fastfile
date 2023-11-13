@@ -12,6 +12,20 @@ platform :ios do
   private_lane :build_sync_sphere do |options|
     xcversion(version: "15.0.1")
     setup_ci
+    update_code_signing_settings(
+      use_automatic_signing: false,
+      path: 'iosApp/iosApp.xcodeproj',
+      targets: 'iosApp',
+      profile_name: 'match AppStore com.joetr.sync.sphere',
+      profile_uuid: 'de173048-3d3d-4075-98f2-7e73f292bf86'
+    )
+    update_code_signing_settings(
+      # Automatic signing seems to be a good thing to have on in dev but will not work in CI
+      use_automatic_signing: false,
+      # The default value for this is iOS Development which is not appropriate for release
+      code_sign_identity: "Apple Distribution",
+      path: 'iosApp/iosApp.xcodeproj'
+    )
     sync_code_signing(
       type: "appstore",
       app_identifier: 'com.joetr.sync.sphere',
@@ -44,29 +58,9 @@ platform :ios do
   desc "Get certificates"
   lane :certificates do
     sync_code_signing(
-      type: "development",
-      app_identifier: ['com.joetr.sync.sphere'],
-      force_for_new_devices: true,
-      readonly: true
-    )
-
-    sync_code_signing(
       type: "appstore",
       app_identifier: 'com.joetr.sync.sphere',
       readonly: true
     )
-  end
-
-  desc "Generate new certificates"
-  lane :generate_new_certificates do
-    sync_code_signing(
-      type: "development",
-      app_identifier: ['com.joetr.sync.sphere'],
-      force_for_new_devices: true,
-      readonly: false
-    )
-
-    # You can repeate the sync_code_signing with other types of certificates such as appstore and adhoc
-
   end
 end
