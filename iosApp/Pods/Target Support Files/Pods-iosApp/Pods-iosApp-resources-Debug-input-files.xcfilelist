@@ -1,2 +1,3 @@
 ${PODS_ROOT}/Target Support Files/Pods-iosApp/Pods-iosApp-resources.sh
+${PODS_ROOT}/../../shared/src/commonMain/resources/font
 ${PODS_ROOT}/../../shared/build/generated/libres/apple/libres-bundles

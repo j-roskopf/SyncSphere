@@ -97,9 +97,11 @@ EOM
   esac
 }
 if [[ "$CONFIGURATION" == "Debug" ]]; then
+  install_resource "${PODS_ROOT}/../../shared/src/commonMain/resources/font"
   install_resource "${PODS_ROOT}/../../shared/build/generated/libres/apple/libres-bundles"
 fi
 if [[ "$CONFIGURATION" == "Release" ]]; then
+  install_resource "${PODS_ROOT}/../../shared/src/commonMain/resources/font"
   install_resource "${PODS_ROOT}/../../shared/build/generated/libres/apple/libres-bundles"
 fi
 

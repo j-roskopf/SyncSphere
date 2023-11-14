@@ -36,7 +36,6 @@ class AvailabilityScreen(
         Scaffold(
             topBar = {
                 DefaultToolbar(
-                    title = "Availability",
                     onBack = LocalNavigator.currentOrThrow.backOrNull(),
                 )
             },
@@ -54,7 +53,7 @@ class AvailabilityScreen(
         data: Map<String, DayTime>,
     ) {
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             LazyColumn {

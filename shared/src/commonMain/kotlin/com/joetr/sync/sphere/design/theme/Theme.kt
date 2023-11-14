@@ -86,5 +86,6 @@ fun AppTheme(
     MaterialTheme(
         colorScheme = colors,
         content = content,
+        typography = AppTypography,
     )
 }

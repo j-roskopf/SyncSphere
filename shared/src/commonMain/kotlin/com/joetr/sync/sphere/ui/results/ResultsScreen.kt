@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.lifecycle.LifecycleEffect
 import cafe.adriel.voyager.core.screen.Screen
@@ -61,7 +62,6 @@ class ResultsScreen(
         Scaffold(
             topBar = {
                 DefaultToolbar(
-                    title = "Results",
                     onBack = LocalNavigator.currentOrThrow.backOrNull(),
                 )
             },
@@ -138,6 +138,8 @@ class ResultsScreen(
                 modifier = Modifier.padding(4.dp),
                 text = person.name,
                 style = MaterialTheme.typography.displaySmall,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
             )
 
             LazyRow(

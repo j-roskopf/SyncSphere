@@ -46,6 +46,5 @@ Pod::Spec.new do |spec|
             SCRIPT
         }
     ]
-    spec.exclude_files = ['src/commonMain/resources/MR/**']
-    spec.resources = ['build/generated/libres/apple/libres-bundles']
+    spec.resources = ['src/commonMain/resources/**', 'src/iosMain/resources/**', 'build/generated/libres/apple/libres-bundles']
 end

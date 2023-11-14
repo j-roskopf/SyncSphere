@@ -9,9 +9,11 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -64,8 +66,6 @@ private const val MAX_YEAR_TO_DISPLAY = 2100
 
 class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
 
-    private val localDateNow = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
-
     @Composable
     override fun Content() {
         val screenModel = getScreenModel<NewRoomScreenModel>()
@@ -85,7 +85,6 @@ class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
         Scaffold(
             topBar = {
                 DefaultToolbar(
-                    title = "Room",
                     onBack = LocalNavigator.currentOrThrow.backOrNull(),
                 )
             },
@@ -206,6 +205,8 @@ class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
                 addDates(it)
             }
 
+            Spacer(Modifier.height(16.dp))
+
             AnimatedVisibility(
                 visible = selectedDates.isNotEmpty(),
             ) {
@@ -246,7 +247,7 @@ class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
             selectedDates = selectedDates,
         )
         Column(
-            modifier = Modifier.padding(top = 8.dp).weight(1f),
+            modifier = Modifier.padding(top = 8.dp),
         ) {
             Row(
                 verticalAlignment = Alignment.Bottom,
@@ -327,6 +328,8 @@ class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
         }
     }
 
-    private fun monthRange() =
-        EpicMonth(localDateNow.year, localDateNow.month)..EpicMonth(MAX_YEAR_TO_DISPLAY, Month.DECEMBER)
+    private fun monthRange(): ClosedRange<EpicMonth> {
+        val localDateNow = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+        return EpicMonth(localDateNow.year, localDateNow.month)..EpicMonth(MAX_YEAR_TO_DISPLAY, Month.DECEMBER)
+    }
 }

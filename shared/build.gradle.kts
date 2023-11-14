@@ -34,7 +34,7 @@ kotlin {
             // todo joer move to toml
             export("com.mohamedrejeb.calf:calf-ui:0.2.0")
         }
-        extraSpecAttributes["exclude_files"] = "['src/commonMain/resources/MR/**']"
+        extraSpecAttributes["resources"] = "['src/commonMain/resources/**', 'src/iosMain/resources/**']"
     }
 
     sourceSets {
@@ -121,4 +121,6 @@ android {
     kotlin {
         jvmToolchain(libs.versions.jdk.get().toInt())
     }
+    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
+    sourceSets["main"].res.srcDirs("src/androidMain/res", "src/commonMain/resources")
 }
