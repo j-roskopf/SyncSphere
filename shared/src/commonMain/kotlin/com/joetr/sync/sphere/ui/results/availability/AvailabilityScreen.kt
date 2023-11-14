@@ -1,6 +1,5 @@
 package com.joetr.sync.sphere.ui.results.availability
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,12 +19,10 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.joetr.sync.sphere.common.images.MainResImages
 import com.joetr.sync.sphere.design.toolbar.DefaultToolbar
 import com.joetr.sync.sphere.design.toolbar.backOrNull
 import com.joetr.sync.sphere.ui.time.DayTime
 import com.joetr.sync.sphere.ui.time.getDisplayText
-import io.github.skeptick.libres.compose.painterResource
 
 class AvailabilityScreen(
     val data: Map<String, DayTime>,
@@ -78,16 +75,6 @@ class AvailabilityScreen(
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            val image = when (entry.value) {
-                is DayTime.AllDay -> MainResImages.full_availability
-                is DayTime.NotSelected -> MainResImages.no_availability
-                is DayTime.Range -> MainResImages.partial_availability
-            }
-            Image(
-                painter = image.painterResource(),
-                contentDescription = null,
-                modifier = Modifier.size(32.dp),
-            )
             Spacer(modifier = Modifier.size(8.dp))
             Text(
                 modifier = Modifier.weight(1.5f),

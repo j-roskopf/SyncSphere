@@ -6,13 +6,6 @@ plugins {
     id("com.joetr.sync.sphere.root")
     id("org.jetbrains.kotlin.plugin.serialization")
     id("co.touchlab.crashkios.crashlyticslink") version "0.8.5"
-    id("io.github.skeptick.libres")
-}
-
-libres {
-    generatedClassName = "MainRes" // "Res" by default
-    generateNamedArguments = true // false by default
-    camelCaseNamesForAppleFramework = false // false by default
 }
 
 kotlin {
@@ -34,7 +27,6 @@ kotlin {
             // todo joer move to toml
             export("com.mohamedrejeb.calf:calf-ui:0.2.0")
         }
-        extraSpecAttributes["resources"] = "['src/commonMain/resources/**', 'src/iosMain/resources/**']"
     }
 
     sourceSets {

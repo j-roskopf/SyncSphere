@@ -39,7 +39,6 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.getScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.joetr.sync.sphere.common.images.MainResImages
 import com.joetr.sync.sphere.data.CrashReporting
 import com.joetr.sync.sphere.data.model.JoinedRoom
 import com.joetr.sync.sphere.design.toolbar.DefaultToolbar
@@ -304,17 +303,7 @@ class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
     }
 
     private fun getImageDataForPosition(index: Int): Image {
-        val listOfImages = listOf(
-            MainResImages.dog1,
-            MainResImages.dog2,
-            MainResImages.dog3,
-            MainResImages.cat1,
-            MainResImages.cat2,
-            MainResImages.cat3,
-            MainResImages.dog4,
-            MainResImages.dog5,
-            MainResImages.dog6,
-        )
+        val listOfImages = listOf<Image>()
         return listOfImages[index % listOfImages.size]
     }
 

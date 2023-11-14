@@ -97,12 +97,10 @@ EOM
   esac
 }
 if [[ "$CONFIGURATION" == "Debug" ]]; then
-  install_resource "${PODS_ROOT}/../../shared/src/commonMain/resources/font"
-  install_resource "${PODS_ROOT}/../../shared/build/generated/libres/apple/libres-bundles"
+  install_resource "${PODS_ROOT}/../../shared/build/compose/ios/shared/compose-resources"
 fi
 if [[ "$CONFIGURATION" == "Release" ]]; then
-  install_resource "${PODS_ROOT}/../../shared/src/commonMain/resources/font"
-  install_resource "${PODS_ROOT}/../../shared/build/generated/libres/apple/libres-bundles"
+  install_resource "${PODS_ROOT}/../../shared/build/compose/ios/shared/compose-resources"
 fi
 
 mkdir -p "${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}"
