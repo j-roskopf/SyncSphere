@@ -6,7 +6,6 @@ buildscript {
 
 plugins {
     id("com.joetr.sync.sphere.root")
-
     kotlin("multiplatform").version(libs.versions.kotlin).apply(false)
     id("com.android.application").version(libs.versions.agp).apply(false)
     id("com.android.library").version(libs.versions.agp).apply(false)
