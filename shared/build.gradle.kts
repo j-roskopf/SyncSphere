@@ -1,6 +1,5 @@
 plugins {
     kotlin("multiplatform")
-    kotlin("native.cocoapods")
     id("com.android.library")
     id("org.jetbrains.compose")
     id("com.joetr.sync.sphere.root")
@@ -11,21 +10,18 @@ plugins {
 kotlin {
     androidTarget()
 
-    iosX64()
-    iosArm64()
-    iosSimulatorArm64()
-
-    cocoapods {
-        version = "1.0.0"
-        summary = "Some description for the Shared Module"
-        homepage = "Link to the Shared Module homepage"
-        ios.deploymentTarget = "15.0"
-        podfile = project.file("../iosApp/Podfile")
-        framework {
-            baseName = "shared"
-            isStatic = true
-            // todo joer move to toml
-            export("com.mohamedrejeb.calf:calf-ui:0.2.0")
+    listOf(
+        iosX64(),
+        iosArm64(),
+        iosSimulatorArm64(),
+    ).forEach { iosTarget ->
+        iosTarget.binaries {
+            framework {
+                baseName = "shared"
+                isStatic = true
+                // todo joer move to toml
+                export("com.mohamedrejeb.calf:calf-ui:0.2.0")
+            }
         }
     }
 

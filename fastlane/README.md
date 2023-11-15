@@ -31,6 +31,14 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 
 
+### ios release
+
+```sh
+[bundle exec] fastlane ios release
+```
+
+
+
 ### ios certificates
 
 ```sh
@@ -38,14 +46,6 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 ```
 
 Get certificates
-
-### ios generate_new_certificates
-
-```sh
-[bundle exec] fastlane ios generate_new_certificates
-```
-
-Generate new certificates
 
 ----
 

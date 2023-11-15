@@ -32,13 +32,9 @@ platform :ios do
       app_identifier: ["com.joetr.sync.sphere"],
       type: options[:type] || "appstore"
     )
-    increment_build_number(
-      xcodeproj: "iosApp/iosApp.xcodeproj",
-      build_number: (ENV['SYNC_SPHERE_BUILD_NUMBER'].to_i + 50).to_s
-    )
     build_app(
       export_method: "app-store",
-      workspace: "iosApp/iosApp.xcworkspace",
+      project: "iosApp/iosApp.xcodeproj",
       scheme: options[:scheme],
       buildlog_path: "build/fastlane-buildlog",
       skip_package_ipa: false,
@@ -75,7 +71,7 @@ platform :ios do
     )
     build_app(
       export_method: "app-store",
-      workspace: "iosApp/iosApp.xcworkspace",
+      project: "iosApp/iosApp.xcodeproj",
       scheme: options[:scheme],
       buildlog_path: "build/fastlane-buildlog",
       skip_package_ipa: false,
