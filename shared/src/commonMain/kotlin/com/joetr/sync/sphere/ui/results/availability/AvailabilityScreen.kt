@@ -80,9 +80,9 @@ class AvailabilityScreen(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             val image = when (entry.value) {
-                is DayTime.AllDay -> "images/full_availability_(orig).png"
-                is DayTime.NotSelected -> "images/no_availability_(orig).png"
-                is DayTime.Range -> "images/partial_availability_(orig).png"
+                is DayTime.AllDay -> "full_availability_(orig).png"
+                is DayTime.NotSelected -> "no_availability_(orig).png"
+                is DayTime.Range -> "partial_availability_(orig).png"
             }
 
             Image(

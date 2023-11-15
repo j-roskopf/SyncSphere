@@ -304,15 +304,15 @@ class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
 
     private fun getImageDataForPosition(index: Int): String {
         val listOfImages = listOf(
-            "images/dog1_(orig).png",
-            "images/dog2_(orig).png",
-            "images/dog3_(orig).png",
-            "images/cat1_(orig).png",
-            "images/cat2_(orig).png",
-            "images/cat3_(orig).png",
-            "images/dog4_(orig).png",
-            "images/dog5_(orig).png",
-            "images/dog6_(orig).png",
+            "dog1_(orig).png",
+            "dog2_(orig).png",
+            "dog3_(orig).png",
+            "cat1_(orig).png",
+            "cat2_(orig).png",
+            "cat3_(orig).png",
+            "dog4_(orig).png",
+            "dog5_(orig).png",
+            "dog6_(orig).png",
         )
         return listOfImages[index % listOfImages.size]
     }
