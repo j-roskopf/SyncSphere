@@ -1,14 +1,20 @@
-# Sync Sphere
+<div align="center">
+  <img style="border-radius: 50%" src="./androidApp/src/androidMain/ic_launcher-playstore.png" width="100px">
+  <h1>Sync Sphere</h1>
+</div>
 
-Work In Progress
+Sync Sphere is a work in progress
+
+## Download 📦
+
+Sync Sphere is available for Android and iOS.
+
+<div align="center"><a href="https://apps.apple.com/us/app/sync-sphere/id6471382890"><img src="./assets/app_store_download.svg" width="200px"/></a></div>
+<div align="center"><a href="https://play.google.com/store/apps/details?id=com.joetr.sync.sphere"><img src="https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png" width="230px"/></a></div>
 
 ## Useful
 
 After running `./cleanup` script, regenerate framework files via `./gradlew :shared:generateDummyFramework` and execute `pod install` in iosApp folder
-
-```
-./gradlew clean && ./cleanup.sh && ./gradlew :shared:generateDummyFramework && cd iosApp && pod install && cd .. && ./gradlew :shared:podInstall
-```
 
 Fastlane - `bundle exec fastlane ios build`
 
