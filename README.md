@@ -6,6 +6,10 @@ Work In Progress
 
 After running `./cleanup` script, regenerate framework files via `./gradlew :shared:generateDummyFramework` and execute `pod install` in iosApp folder
 
+```
+./gradlew clean && ./cleanup.sh && ./gradlew :shared:generateDummyFramework && cd iosApp && pod install && cd .. && ./gradlew :shared:podInstall
+```
+
 Fastlane - `bundle exec fastlane ios build`
 
 Building archive - open iOS workspace via `open iosApp.xcworkspace`

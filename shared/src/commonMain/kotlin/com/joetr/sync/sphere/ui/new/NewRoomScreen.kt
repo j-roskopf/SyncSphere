@@ -20,7 +20,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.DatePicker
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -52,13 +51,13 @@ import epicarchitect.calendar.compose.datepicker.config.rememberEpicDatePickerCo
 import epicarchitect.calendar.compose.datepicker.state.EpicDatePickerState
 import epicarchitect.calendar.compose.datepicker.state.rememberEpicDatePickerState
 import epicarchitect.calendar.compose.pager.config.rememberEpicCalendarPagerConfig
-import io.github.skeptick.libres.compose.painterResource
-import io.github.skeptick.libres.images.Image
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.Month
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.painterResource
 import org.koin.mp.KoinPlatform.getKoin
 
 private const val MAX_YEAR_TO_DISPLAY = 2100
@@ -274,7 +273,7 @@ class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
         }
     }
 
-    @OptIn(ExperimentalLayoutApi::class)
+    @OptIn(ExperimentalLayoutApi::class, ExperimentalResourceApi::class)
     @Composable
     private fun ContentStateAvatars(names: List<String>) {
         FlowRow(
@@ -285,8 +284,9 @@ class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
                     modifier = Modifier.padding(8.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
+                    val image = painterResource(getImageDataForPosition(index))
                     Image(
-                        painter = getImageDataForPosition(index).painterResource(),
+                        painter = image,
                         contentDescription = "Icon",
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
@@ -302,8 +302,18 @@ class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
         }
     }
 
-    private fun getImageDataForPosition(index: Int): Image {
-        val listOfImages = listOf<Image>()
+    private fun getImageDataForPosition(index: Int): String {
+        val listOfImages = listOf(
+            "images/dog1_(orig).png",
+            "images/dog2_(orig).png",
+            "images/dog3_(orig).png",
+            "images/cat1_(orig).png",
+            "images/cat2_(orig).png",
+            "images/cat3_(orig).png",
+            "images/dog4_(orig).png",
+            "images/dog5_(orig).png",
+            "images/dog6_(orig).png",
+        )
         return listOfImages[index % listOfImages.size]
     }
 

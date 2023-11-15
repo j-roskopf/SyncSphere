@@ -1,5 +1,6 @@
 package com.joetr.sync.sphere.ui.results.availability
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,6 +24,8 @@ import com.joetr.sync.sphere.design.toolbar.DefaultToolbar
 import com.joetr.sync.sphere.design.toolbar.backOrNull
 import com.joetr.sync.sphere.ui.time.DayTime
 import com.joetr.sync.sphere.ui.time.getDisplayText
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.painterResource
 
 class AvailabilityScreen(
     val data: Map<String, DayTime>,
@@ -67,6 +70,7 @@ class AvailabilityScreen(
         }
     }
 
+    @OptIn(ExperimentalResourceApi::class)
     @Composable
     @Suppress("MagicNumber")
     private fun AvailabilityDayItem(entry: Map.Entry<String, DayTime>) {
@@ -75,7 +79,20 @@ class AvailabilityScreen(
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            val image = when (entry.value) {
+                is DayTime.AllDay -> "images/full_availability_(orig).png"
+                is DayTime.NotSelected -> "images/no_availability_(orig).png"
+                is DayTime.Range -> "images/partial_availability_(orig).png"
+            }
+
+            Image(
+                painter = painterResource(image),
+                contentDescription = null,
+                modifier = Modifier.size(32.dp),
+            )
+
             Spacer(modifier = Modifier.size(8.dp))
+
             Text(
                 modifier = Modifier.weight(1.5f),
                 text = entry.key,
