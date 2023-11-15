@@ -104,7 +104,6 @@ class TimeSelectionScreen(
         Scaffold(
             topBar = {
                 DefaultToolbar(
-                    title = "Time Selection",
                     onBack = {
                         if (viewState is TimeSelectionState.TimeSelection) {
                             screenModel.goBackToContentState()

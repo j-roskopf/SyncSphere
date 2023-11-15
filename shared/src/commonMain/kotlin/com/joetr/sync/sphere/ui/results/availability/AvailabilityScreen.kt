@@ -20,12 +20,12 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.joetr.sync.sphere.common.images.MainResImages
 import com.joetr.sync.sphere.design.toolbar.DefaultToolbar
 import com.joetr.sync.sphere.design.toolbar.backOrNull
 import com.joetr.sync.sphere.ui.time.DayTime
 import com.joetr.sync.sphere.ui.time.getDisplayText
-import io.github.skeptick.libres.compose.painterResource
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.painterResource
 
 class AvailabilityScreen(
     val data: Map<String, DayTime>,
@@ -36,7 +36,6 @@ class AvailabilityScreen(
         Scaffold(
             topBar = {
                 DefaultToolbar(
-                    title = "Availability",
                     onBack = LocalNavigator.currentOrThrow.backOrNull(),
                 )
             },
@@ -54,7 +53,7 @@ class AvailabilityScreen(
         data: Map<String, DayTime>,
     ) {
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             LazyColumn {
@@ -71,6 +70,7 @@ class AvailabilityScreen(
         }
     }
 
+    @OptIn(ExperimentalResourceApi::class)
     @Composable
     @Suppress("MagicNumber")
     private fun AvailabilityDayItem(entry: Map.Entry<String, DayTime>) {
@@ -80,16 +80,19 @@ class AvailabilityScreen(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             val image = when (entry.value) {
-                is DayTime.AllDay -> MainResImages.full_availability
-                is DayTime.NotSelected -> MainResImages.no_availability
-                is DayTime.Range -> MainResImages.partial_availability
+                is DayTime.AllDay -> "full_availability_(orig).png"
+                is DayTime.NotSelected -> "no_availability_(orig).png"
+                is DayTime.Range -> "partial_availability_(orig).png"
             }
+
             Image(
-                painter = image.painterResource(),
+                painter = painterResource(image),
                 contentDescription = null,
                 modifier = Modifier.size(32.dp),
             )
+
             Spacer(modifier = Modifier.size(8.dp))
+
             Text(
                 modifier = Modifier.weight(1.5f),
                 text = entry.key,

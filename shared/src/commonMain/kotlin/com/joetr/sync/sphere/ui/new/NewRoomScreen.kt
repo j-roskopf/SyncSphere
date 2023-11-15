@@ -9,16 +9,17 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.DatePicker
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -37,7 +38,6 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.getScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.joetr.sync.sphere.common.images.MainResImages
 import com.joetr.sync.sphere.data.CrashReporting
 import com.joetr.sync.sphere.data.model.JoinedRoom
 import com.joetr.sync.sphere.design.toolbar.DefaultToolbar
@@ -51,20 +51,18 @@ import epicarchitect.calendar.compose.datepicker.config.rememberEpicDatePickerCo
 import epicarchitect.calendar.compose.datepicker.state.EpicDatePickerState
 import epicarchitect.calendar.compose.datepicker.state.rememberEpicDatePickerState
 import epicarchitect.calendar.compose.pager.config.rememberEpicCalendarPagerConfig
-import io.github.skeptick.libres.compose.painterResource
-import io.github.skeptick.libres.images.Image
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.Month
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.painterResource
 import org.koin.mp.KoinPlatform.getKoin
 
 private const val MAX_YEAR_TO_DISPLAY = 2100
 
 class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
-
-    private val localDateNow = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
 
     @Composable
     override fun Content() {
@@ -85,7 +83,6 @@ class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
         Scaffold(
             topBar = {
                 DefaultToolbar(
-                    title = "Room",
                     onBack = LocalNavigator.currentOrThrow.backOrNull(),
                 )
             },
@@ -206,6 +203,8 @@ class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
                 addDates(it)
             }
 
+            Spacer(Modifier.height(16.dp))
+
             AnimatedVisibility(
                 visible = selectedDates.isNotEmpty(),
             ) {
@@ -246,7 +245,7 @@ class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
             selectedDates = selectedDates,
         )
         Column(
-            modifier = Modifier.padding(top = 8.dp).weight(1f),
+            modifier = Modifier.padding(top = 8.dp),
         ) {
             Row(
                 verticalAlignment = Alignment.Bottom,
@@ -274,7 +273,7 @@ class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
         }
     }
 
-    @OptIn(ExperimentalLayoutApi::class)
+    @OptIn(ExperimentalLayoutApi::class, ExperimentalResourceApi::class)
     @Composable
     private fun ContentStateAvatars(names: List<String>) {
         FlowRow(
@@ -285,8 +284,9 @@ class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
                     modifier = Modifier.padding(8.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
+                    val image = painterResource(getImageDataForPosition(index))
                     Image(
-                        painter = getImageDataForPosition(index).painterResource(),
+                        painter = image,
                         contentDescription = "Icon",
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
@@ -302,17 +302,17 @@ class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
         }
     }
 
-    private fun getImageDataForPosition(index: Int): Image {
+    private fun getImageDataForPosition(index: Int): String {
         val listOfImages = listOf(
-            MainResImages.dog1,
-            MainResImages.dog2,
-            MainResImages.dog3,
-            MainResImages.cat1,
-            MainResImages.cat2,
-            MainResImages.cat3,
-            MainResImages.dog4,
-            MainResImages.dog5,
-            MainResImages.dog6,
+            "dog1_(orig).png",
+            "dog2_(orig).png",
+            "dog3_(orig).png",
+            "cat1_(orig).png",
+            "cat2_(orig).png",
+            "cat3_(orig).png",
+            "dog4_(orig).png",
+            "dog5_(orig).png",
+            "dog6_(orig).png",
         )
         return listOfImages[index % listOfImages.size]
     }
@@ -327,6 +327,8 @@ class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
         }
     }
 
-    private fun monthRange() =
-        EpicMonth(localDateNow.year, localDateNow.month)..EpicMonth(MAX_YEAR_TO_DISPLAY, Month.DECEMBER)
+    private fun monthRange(): ClosedRange<EpicMonth> {
+        val localDateNow = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+        return EpicMonth(localDateNow.year, localDateNow.month)..EpicMonth(MAX_YEAR_TO_DISPLAY, Month.DECEMBER)
+    }
 }
