@@ -26,11 +26,10 @@ compose.desktop {
         mainClass = "MainKt"
 
         nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+            targetFormats(TargetFormat.Dmg, TargetFormat.Pkg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "Sync Sphere"
             packageVersion = "1.1.1"
 
-            // todo joer make platform icons alignec with platforms
             macOS {
                 iconFile.set(project.file("src/jvmMain/resources/icon/desktop_icon.icns"))
             }
