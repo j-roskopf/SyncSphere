@@ -13,6 +13,16 @@ Sync Sphere is available for Android, iOS, and Desktop
 <div align="center"><a href="https://play.google.com/store/apps/details?id=com.joetr.sync.sphere"><img src="https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png" width="230px"/></a></div>
 <div align="center">Desktop coming soon!</div>
 
+## Publishing
+
+### iOS
+iOS is published on release via fastlane by creating a tag (release/x.y.z)
+
+### Android
+Android is currently manually built and uploaded to the Play Store.
+
+### Mac Desktop
+Mac desktop is currently not published
 
 ## Useful
 
