@@ -32,6 +32,8 @@ class PreScreenModel(
 
     fun init() {
         coroutineScope.launch(dispatcher) {
+            roomRepository.signInAnonymouslyIfNeeded()
+
             lastKnownRoomCode = roomRepository.getLocalRoomCode()
 
             _state.emit(PreScreenViewState.Content(lastKnownRoomCode))

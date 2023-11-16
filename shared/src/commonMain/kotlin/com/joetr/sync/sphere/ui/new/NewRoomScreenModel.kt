@@ -24,7 +24,6 @@ class NewRoomScreenModel(
     val state: StateFlow<NewRoomState> = _state
 
     fun init(joinedRoom: JoinedRoom?, name: String) {
-        println(selectedDates)
         coroutineScope.launch(Dispatchers.IO) {
             _state.value = NewRoomState.Loading
 

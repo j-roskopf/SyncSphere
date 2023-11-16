@@ -4,7 +4,9 @@ import com.joetr.sync.sphere.data.model.Room
 import com.joetr.sync.sphere.ui.time.DayTimeItem
 import kotlinx.coroutines.flow.Flow
 
+@Suppress("TooManyFunctions")
 interface RoomRepository {
+    suspend fun signInAnonymouslyIfNeeded()
     suspend fun createRoom(name: String): Room
     suspend fun getRoom(roomCode: String): Room
     suspend fun updateRoom(room: Room)

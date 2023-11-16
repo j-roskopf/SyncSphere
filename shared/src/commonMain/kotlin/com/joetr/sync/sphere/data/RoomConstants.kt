@@ -1,7 +1,7 @@
 package com.joetr.sync.sphere.data
 
 object RoomConstants {
-    const val ROOM_COLLECTION = "Rooms"
+    const val ROOM_COLLECTION = "RoomsAuthenticated"
 
     // amount of digits to use for anonymous users
     const val MAX_RANDOM_NUMBERS = 5
