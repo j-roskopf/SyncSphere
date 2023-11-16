@@ -151,27 +151,11 @@ jobs:
           cache-disabled: true
 
       - name: Build Desktop App
-        run: ./gradlew :desktopApp:packageDistributionForCurrentOS
+        run: ./gradlew :desktopApp:packageDmg
 
       - name: Upload build outputs
         if: always()
         uses: actions/upload-artifact@v3
         with:
           name: desktop-build-binaries
-          path: desktop-app/build/compose/binaries
-
-      - name: Upload reports
-        if: always()
-        uses: actions/upload-artifact@v3
-        with:
-          name: desktop-reports
-          path: |
-            **/build/reports/*
-
-      - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@v3
-        with:
-          name: desktop-test-results
-          path: |
-            **/build/test-results/*
+          path: desktopApp/build/compose/binaries

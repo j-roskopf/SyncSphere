@@ -9,9 +9,12 @@ import com.joetr.sync.sphere.data.model.Room
 import com.joetr.sync.sphere.ui.time.DayTimeItem
 import com.russhwolf.settings.Settings
 import com.russhwolf.settings.get
+import com.russhwolf.settings.set
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.datetime.Clock
+
+private const val ID_TOKEN_KEY = "idToken"
 
 @Suppress("TooManyFunctions", "RethrowCaughtException")
 actual class RoomRepositoryImpl actual constructor(
@@ -25,6 +28,14 @@ actual class RoomRepositoryImpl actual constructor(
 
     private val settings = Settings()
 
+    private val jwtParser = JwtParser()
+
+    private var idToken: String
+
+    init {
+        idToken = settings[ID_TOKEN_KEY] ?: ""
+    }
+
     private fun getRoomCode(): String {
         val numberOfWords = 1
         return dictionary.numberOfRandomWords(numberOfWords).first().plus(
@@ -32,6 +43,13 @@ actual class RoomRepositoryImpl actual constructor(
                 MAX_RANDOM_NUMBERS,
             ),
         )
+    }
+
+    override suspend fun signInAnonymouslyIfNeeded() {
+        if (jwtParser.isTokenExpired(idToken)) {
+            idToken = firebaseApi.signInAnonymously()
+            settings[ID_TOKEN_KEY] = idToken
+        }
     }
 
     override suspend fun createRoom(name: String): Room {
@@ -42,12 +60,12 @@ actual class RoomRepositoryImpl actual constructor(
             }
         }
 
-        return firebaseApi.createRoom(name, roomCode)
+        return firebaseApi.createRoom(name, roomCode, idToken)
     }
 
     override suspend fun getRoom(roomCode: String): Room {
         try {
-            return firebaseApi.getRoom(roomCode)
+            return firebaseApi.getRoom(roomCode, idToken)
         } catch (throwable: Throwable) {
             throw throwable
         }
@@ -55,17 +73,16 @@ actual class RoomRepositoryImpl actual constructor(
 
     override suspend fun updateRoom(room: Room) {
         try {
-            return firebaseApi.updateRoom(room)
+            return firebaseApi.updateRoom(room, idToken)
         } catch (throwable: Throwable) {
             throw throwable
         }
     }
 
     override fun roomUpdates(roomCode: String): Flow<Room> {
-        println(roomCode)
         return flow {
             emit(
-                firebaseApi.getRoom(roomCode),
+                firebaseApi.getRoom(roomCode, idToken),
             )
         }
     }
@@ -87,7 +104,7 @@ actual class RoomRepositoryImpl actual constructor(
     }
 
     override suspend fun roomExists(roomCode: String): Boolean {
-        return firebaseApi.roomExists(roomCode)
+        return firebaseApi.roomExists(roomCode, idToken)
     }
 
     override suspend fun submitAvailability(
@@ -96,7 +113,7 @@ actual class RoomRepositoryImpl actual constructor(
         personId: String,
     ) {
         try {
-            val room = firebaseApi.getRoom(roomCode)
+            val room = firebaseApi.getRoom(roomCode, idToken)
             val updatedRoom = room.copy(
                 people = room.people.map {
                     if (it.id == personId) {
@@ -114,7 +131,7 @@ actual class RoomRepositoryImpl actual constructor(
                 },
                 lastUpdatedTimestamp = Clock.System.now().toEpochMilliseconds(),
             )
-            firebaseApi.updateRoom(updatedRoom)
+            firebaseApi.updateRoom(updatedRoom, idToken)
         } catch (throwable: Throwable) {
             throw throwable
         }

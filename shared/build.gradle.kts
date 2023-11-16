@@ -102,6 +102,7 @@ kotlin {
                 dependsOn(commonMain)
 
                 implementation(libs.firebase.firestore)
+                implementation(libs.firebase.auth)
                 implementation(libs.firebase.crashlytics)
                 implementation(libs.crashlytics)
                 implementation(libs.firebase.common)

@@ -12,6 +12,7 @@ import com.joetr.sync.sphere.data.models.AvailabilityTimeFieldsValue
 import com.joetr.sync.sphere.data.models.AvailabilityTimeMapValue
 import com.joetr.sync.sphere.data.models.AvailabilityTimeModel
 import com.joetr.sync.sphere.data.models.AvailabilityValues
+import com.joetr.sync.sphere.data.models.FirebaseSignIn
 import com.joetr.sync.sphere.data.models.IntegerModel
 import com.joetr.sync.sphere.data.models.PeopleArrayModel
 import com.joetr.sync.sphere.data.models.PeopleMapValueFields
@@ -30,6 +31,7 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.get
+import io.ktor.client.request.header
 import io.ktor.client.request.patch
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -41,6 +43,8 @@ import kotlinx.serialization.json.Json
 
 private const val BASE_URL =
     "https://firestore.googleapis.com/v1/projects/syncsphere-37dca/databases/(default)/documents/"
+
+private const val IOS_FIREBASE_API_KEY = "AIzaSyCPlNmTVYxBOG7kTriSr74pKqK8cyvVJLo"
 
 @Suppress("RethrowCaughtException")
 class GoogleFirebaseApi {
@@ -66,7 +70,7 @@ class GoogleFirebaseApi {
         }
     }
 
-    suspend fun updateRoom(localRoom: Room) {
+    suspend fun updateRoom(localRoom: Room, idToken: String) {
         val room = localRoom.toRoomField()
         val roomDocumentField = RoomDocumentField(
             fields = room,
@@ -74,6 +78,7 @@ class GoogleFirebaseApi {
 
         try {
             client.patch("$ROOM_COLLECTION/${room.roomCode.stringValue}") {
+                header("Authorization", "Bearer $idToken")
                 contentType(ContentType.Application.Json)
                 setBody(
                     roomDocumentField,
@@ -84,7 +89,7 @@ class GoogleFirebaseApi {
         }
     }
 
-    suspend fun createRoom(name: String, roomCode: String): Room {
+    suspend fun createRoom(name: String, roomCode: String, idToken: String): Room {
         val room = RoomField(
             numberOfPeople = IntegerModel("1"),
             lastUpdatedTimestamp = IntegerModel(
@@ -123,6 +128,7 @@ class GoogleFirebaseApi {
 
         try {
             client.post("$ROOM_COLLECTION?documentId=$roomCode") {
+                header("Authorization", "Bearer $idToken")
                 contentType(ContentType.Application.Json)
                 setBody(
                     roomDocumentField,
@@ -135,9 +141,11 @@ class GoogleFirebaseApi {
         }
     }
 
-    suspend fun getRoom(roomCode: String): Room {
+    suspend fun getRoom(roomCode: String, idToken: String): Room {
         return try {
-            val response: RoomDocument = client.get("$ROOM_COLLECTION/$roomCode").body()
+            val response: RoomDocument = client.get("$ROOM_COLLECTION/$roomCode") {
+                header("Authorization", "Bearer $idToken")
+            }.body()
             response.fields.toRoom()
         } catch (throwable: Throwable) {
             throw throwable
@@ -145,9 +153,11 @@ class GoogleFirebaseApi {
     }
 
     @Suppress("SwallowedException")
-    suspend fun roomExists(roomCode: String): Boolean {
+    suspend fun roomExists(roomCode: String, idToken: String): Boolean {
         return try {
-            val response: RoomDocument = client.get("$ROOM_COLLECTION/$roomCode").body()
+            val response: RoomDocument = client.get("$ROOM_COLLECTION/$roomCode") {
+                header("Authorization", "Bearer $idToken")
+            }.body()
             response.error == null
         } catch (e: Throwable) {
             return false
@@ -273,5 +283,15 @@ class GoogleFirebaseApi {
             },
             lastUpdatedTimestamp = this.lastUpdatedTimestamp.integerValue.toLong(),
         )
+    }
+
+    suspend fun signInAnonymously(): String {
+        val url = "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=$IOS_FIREBASE_API_KEY"
+        try {
+            val response: FirebaseSignIn = client.post(url).body()
+            return response.idToken
+        } catch (throwable: Throwable) {
+            throw throwable
+        }
     }
 }

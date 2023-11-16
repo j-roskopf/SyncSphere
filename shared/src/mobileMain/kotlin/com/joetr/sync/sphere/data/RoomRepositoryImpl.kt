@@ -12,6 +12,7 @@ import com.joetr.sync.sphere.util.randomUUID
 import com.russhwolf.settings.Settings
 import com.russhwolf.settings.get
 import dev.gitlive.firebase.Firebase
+import dev.gitlive.firebase.auth.auth
 import dev.gitlive.firebase.firestore.firestore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -30,6 +31,8 @@ actual class RoomRepositoryImpl actual constructor(
 
     private val firestore = Firebase.firestore
 
+    private val auth = Firebase.auth
+
     private fun getRoomCode(): String {
         val numberOfWords = 1
         return dictionary.numberOfRandomWords(numberOfWords).first().plus(
@@ -37,6 +40,17 @@ actual class RoomRepositoryImpl actual constructor(
                 RoomConstants.MAX_RANDOM_NUMBERS,
             ),
         )
+    }
+
+    override suspend fun signInAnonymouslyIfNeeded() {
+        if (auth.currentUser == null) {
+            val user = auth.signInAnonymously().user
+            if (user == null) {
+                crashReporting.recordException(
+                    Throwable("Error - after signing in anonymously, there was no user present"),
+                )
+            }
+        }
     }
 
     override suspend fun createRoom(name: String): Room {
