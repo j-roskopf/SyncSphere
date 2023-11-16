@@ -1,3 +1,5 @@
+// ktlint-disable filename
+
 import androidx.compose.material3.Surface
 import androidx.compose.ui.uikit.OnFocusBehavior
 import androidx.compose.ui.window.ComposeUIViewController
@@ -7,19 +9,17 @@ import com.joetr.sync.sphere.Main
 import com.joetr.sync.sphere.design.theme.AppTheme
 import com.joetr.sync.sphere.initKoin
 
-@Suppress("Unused", "FunctionNaming")
-fun MainViewController(): platform.UIKit.UIViewController {
+@Suppress("Unused", "FunctionName")
+fun MainViewController() = ComposeUIViewController(
+    configure = {
+        onFocusBehavior = OnFocusBehavior.DoNothing
+    },
+) {
     initCrashlyticsApple()
     initKoin()
-    return ComposeUIViewController(
-        configure = {
-            onFocusBehavior = OnFocusBehavior.DoNothing
-        },
-    ) {
-        AppTheme {
-            Surface {
-                Main()
-            }
+    AppTheme {
+        Surface {
+            Main()
         }
     }
 }

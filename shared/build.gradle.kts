@@ -10,6 +10,8 @@ plugins {
 kotlin {
     androidTarget()
 
+    jvm("desktop")
+
     listOf(
         iosX64(),
         iosArm64(),
@@ -19,8 +21,14 @@ kotlin {
             framework {
                 baseName = "shared"
                 isStatic = true
-                // todo joer move to toml
-                export("com.mohamedrejeb.calf:calf-ui:0.2.0")
+            }
+        }
+    }
+
+    targets.configureEach {
+        compilations.configureEach {
+            compilerOptions.configure {
+                freeCompilerArgs.add("-Xexpect-actual-classes")
             }
         }
     }
@@ -47,16 +55,9 @@ kotlin {
                 implementation(libs.ktor.serialization.kotlinx)
                 implementation(libs.ktor.client.logging)
 
-                implementation(libs.firebase.firestore)
-                implementation(libs.firebase.crashlytics)
-                implementation(libs.crashlytics)
-                implementation(libs.firebase.common)
-                // has to be API to export to separate configurations
-                api(libs.calf.ui)
                 implementation(libs.multiplatform.settings.no.arg)
-                implementation(libs.libres.compose)
-
                 implementation(libs.calendar.compose.datepicker)
+                implementation(libs.kotlinx.coroutines.core)
             }
         }
 
@@ -81,12 +82,29 @@ kotlin {
         val iosArm64Main by getting
         val iosSimulatorArm64Main by getting
         val iosMain by creating {
-            dependsOn(commonMain)
             iosX64Main.dependsOn(this)
             iosArm64Main.dependsOn(this)
             iosSimulatorArm64Main.dependsOn(this)
             dependencies {
                 implementation(libs.ktor.client.darwin)
+            }
+        }
+        val desktopMain by getting {
+            dependencies {
+                implementation(compose.desktop.common)
+                implementation(libs.ktor.client.okhttp)
+            }
+        }
+        val mobileMain by creating {
+            androidMain.dependsOn(this)
+            iosMain.dependsOn(this)
+            dependencies {
+                dependsOn(commonMain)
+
+                implementation(libs.firebase.firestore)
+                implementation(libs.firebase.crashlytics)
+                implementation(libs.crashlytics)
+                implementation(libs.firebase.common)
             }
         }
     }

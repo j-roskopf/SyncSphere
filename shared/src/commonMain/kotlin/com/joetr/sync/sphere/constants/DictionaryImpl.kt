@@ -67336,10 +67336,6 @@ object DictionaryImpl : Dictionary {
         sughed
         sughing
         sughs
-        suicidal
-        suicide
-        suicided
-        suicides
         suing
         suint
         suints

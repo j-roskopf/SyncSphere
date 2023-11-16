@@ -1,9 +1,3 @@
-buildscript {
-    dependencies {
-        classpath(libs.gradle.plugin)
-    }
-}
-
 plugins {
     id("com.joetr.sync.sphere.root")
     kotlin("multiplatform").version(libs.versions.kotlin).apply(false)

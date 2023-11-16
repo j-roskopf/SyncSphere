@@ -24,6 +24,7 @@ data class DayTimeItem(
 
 @Serializable
 sealed class DayTime {
+
     @Serializable
     data object NotSelected : DayTime(), JvmSerialization
 

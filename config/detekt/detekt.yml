@@ -83,7 +83,7 @@ complexity:
     threshold: 10
     includeStaticDeclarations: false
     includePrivateDeclarations: false
-  ComplexMethod:
+  CyclomaticComplexMethod:
     active: true
     threshold: 15
     ignoreSingleWhenExpression: false
@@ -134,7 +134,6 @@ complexity:
     thresholdInEnums: 11
     ignoreDeprecated: false
     ignorePrivate: false
-    ignoreOverridden: false
 
 coroutines:
   active: true
@@ -166,7 +165,6 @@ empty-blocks:
     active: true
   EmptyFunctionBlock:
     active: true
-    ignoreOverridden: false
   EmptyIfBlock:
     active: true
   EmptyInitBlock:
@@ -255,7 +253,6 @@ naming:
     parameterPattern: '[a-z][A-Za-z0-9]*'
     privateParameterPattern: '[a-z][A-Za-z0-9]*'
     excludeClassPattern: '$^'
-    ignoreOverridden: true
   EnumNaming:
     active: true
     excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**']
@@ -277,14 +274,12 @@ naming:
     excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**']
     functionPattern: '([a-z][a-zA-Z0-9]*)|(`.*`)'
     excludeClassPattern: '$^'
-    ignoreOverridden: true
     ignoreAnnotated: ['Composable']
   FunctionParameterNaming:
     active: true
     excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**']
     parameterPattern: '[a-z][A-Za-z0-9]*'
     excludeClassPattern: '$^'
-    ignoreOverridden: true
   InvalidPackageDeclaration:
     active: false
     excludes: ['*.kts']
@@ -295,7 +290,6 @@ naming:
     excludes: ['**/androidMain/**', '**/iosMain/**']
   MemberNameEqualsClassName:
     active: true
-    ignoreOverridden: true
   NoNameShadowing:
     active: false
   NonBooleanPropertyPrefixedWithIs:
@@ -331,7 +325,6 @@ naming:
     variablePattern: '[a-z][A-Za-z0-9]*'
     privateVariablePattern: '(_)?[a-z][A-Za-z0-9]*'
     excludeClassPattern: '$^'
-    ignoreOverridden: true
 
 performance:
   active: true
@@ -356,8 +349,6 @@ potential-bugs:
     active: false
   DoubleMutabilityForCollection:
     active: false
-  DuplicateCaseInWhenExpression:
-    active: true
   EqualsAlwaysReturnsTrueOrFalse:
     active: true
   EqualsWithHashCodeExist:
@@ -370,7 +361,7 @@ potential-bugs:
     active: false
   IgnoredReturnValue:
     active: false
-    restrictToAnnotatedMethods: true
+    restrictToConfig: true
     returnValueAnnotations: ['*.CheckReturnValue', '*.CheckResult']
   ImplicitDefaultLocale:
     active: true
@@ -386,17 +377,12 @@ potential-bugs:
   LateinitUsage:
     active: false
     excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**']
-    excludeAnnotatedProperties: []
+    ignoreAnnotated:  []
     ignoreOnClassesPattern: ''
   MapGetWithNotNullAssertionOperator:
     active: false
-  MissingWhenCase:
-    active: true
-    allowElseExpression: true
   NullableToStringCall:
     active: false
-  RedundantElseInWhen:
-    active: true
   UnconditionalJumpStatementInLoop:
     active: false
   UnnecessaryNotNullOperator:
@@ -426,7 +412,8 @@ style:
     active: false
   DataClassContainsFunctions:
     active: false
-    conversionFunctionPrefix: 'to'
+    conversionFunctionPrefix:
+      - 'to'
   DataClassShouldBeImmutable:
     active: false
   DestructuringDeclarationWithTooManyEntries:
@@ -445,35 +432,29 @@ style:
     includeLineWrapping: false
   ForbiddenComment:
     active: true
-    values: ['TODO:', 'FIXME:', 'STOPSHIP:']
+    comments: ['TODO:', 'FIXME:', 'STOPSHIP:']
     allowedPatterns: ''
   ForbiddenImport:
     active: false
     imports: []
     forbiddenPatterns: ''
   ForbiddenMethodCall:
-    active: false
-    methods: ['kotlin.io.println', 'kotlin.io.print']
-  ForbiddenPublicDataClass:
     active: true
-    excludes: ['**']
-    ignorePackages: ['*.internal', '*.internal.*']
+    methods:
+      - reason: 'print does not allow you to configure the output stream. Use a logger instead.'
+        value: 'kotlin.io.print'
+      - reason: 'println does not allow you to configure the output stream. Use a logger instead.'
+        value: 'kotlin.io.println'
   ForbiddenVoid:
     active: false
-    ignoreOverridden: false
     ignoreUsageInGenerics: false
   FunctionOnlyReturningConstant:
     active: true
     ignoreOverridableFunction: true
     ignoreActualFunction: true
-    excludedFunctions: 'describeContents'
-    excludeAnnotatedFunction: ['dagger.Provides']
-  LibraryCodeMustSpecifyReturnType:
-    active: true
-    excludes: ['**']
-  LibraryEntitiesShouldNotBePublic:
-    active: true
-    excludes: ['**']
+    excludedFunctions:
+      - 'describeContents'
+    ignoreAnnotated: ['dagger.Provides']
   LoopWithTooManyJumpStatements:
     active: true
     maxJumpCount: 1
@@ -492,7 +473,7 @@ style:
     ignoreRanges: false
     ignoreExtensionFunctions: true
     ignoreAnnotated: ['Preview']
-  MandatoryBracesIfStatements:
+  BracesOnIfStatements:
     active: false
   MandatoryBracesLoops:
     active: false
@@ -521,8 +502,6 @@ style:
     active: true
   OptionalUnit:
     active: false
-  OptionalWhenBraces:
-    active: false
   PreferToOverPairSyntax:
     active: false
   ProtectedMemberInFinalClass:
@@ -535,8 +514,9 @@ style:
     active: false
   ReturnCount:
     active: true
-    max: 2
-    excludedFunctions: 'equals'
+    max: 3
+    excludedFunctions:
+      - 'equals'
     excludeLabeled: false
     excludeReturnFromLambda: true
     excludeGuardClauses: false
@@ -553,10 +533,10 @@ style:
     active: false
   UnderscoresInNumericLiterals:
     active: false
-    acceptableDecimalLength: 5
+    acceptableLength: 5
   UnnecessaryAbstractClass:
     active: true
-    excludeAnnotatedClasses: ['dagger.Module']
+    ignoreAnnotated:  ['dagger.Module']
   UnnecessaryAnnotationUseSiteTarget:
     active: false
   UnnecessaryApply:
@@ -587,7 +567,7 @@ style:
     active: false
   UseDataClass:
     active: false
-    excludeAnnotatedClasses: []
+    ignoreAnnotated: []
     allowVars: false
   UseEmptyCounterpart:
     active: false
