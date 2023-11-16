@@ -1,6 +1,5 @@
 package com.joetr.sync.sphere
 
-import co.touchlab.crashkios.crashlytics.enableCrashlytics
 import com.joetr.sync.sphere.constants.Dictionary
 import com.joetr.sync.sphere.constants.DictionaryImpl
 import com.joetr.sync.sphere.coroutineextensions.IoDispatcher
@@ -14,26 +13,18 @@ import com.joetr.sync.sphere.ui.pre.PreScreenModel
 import com.joetr.sync.sphere.ui.results.ResultsScreenModel
 import com.joetr.sync.sphere.ui.time.TimeSelectionScreenModel
 import org.koin.core.context.startKoin
-import org.koin.dsl.KoinAppDeclaration
 import org.koin.dsl.module
 
 val appModule = module {
-    single<Dictionary> { DictionaryImpl }
+    factory { PreScreenModel(get(IoDispatcher), get()) }
+    factory { ResultsScreenModel(get()) }
+    factory { NewRoomScreenModel(get()) }
+    factory { TimeSelectionScreenModel(get()) }
     single<RoomRepository> { RoomRepositoryImpl(get(), get()) }
+    single<Dictionary> { DictionaryImpl }
     single<CrashReporting> { CrashReportingImpl() }
-    factory { PreScreenModel(get(IoDispatcher), get(), get()) }
-    factory { ResultsScreenModel(get(IoDispatcher), get()) }
-    factory { NewRoomScreenModel(get(IoDispatcher), get()) }
-    factory { TimeSelectionScreenModel(get(IoDispatcher), get()) }
 }
 
-fun initKoin(appDeclaration: KoinAppDeclaration = {}) = startKoin {
-    appDeclaration()
+fun initKoin() = startKoin {
     modules(appModule, dispatcherModule)
-}
-
-fun initKoin() = initKoin {}
-
-fun initCrashlytics() {
-    enableCrashlytics()
 }

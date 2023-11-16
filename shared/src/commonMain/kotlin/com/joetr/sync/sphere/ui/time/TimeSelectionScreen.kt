@@ -17,6 +17,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
@@ -46,7 +47,6 @@ import com.joetr.sync.sphere.ui.ProgressIndicator
 import com.joetr.sync.sphere.ui.pre.collectAsEffect
 import com.joetr.sync.sphere.ui.results.ResultsScreen
 import com.joetr.sync.sphere.util.formatTime
-import com.mohamedrejeb.calf.ui.dialog.AdaptiveAlertDialog
 
 class TimeSelectionScreen(
     val times: List<String>,
@@ -175,16 +175,27 @@ class TimeSelectionScreen(
         onDismiss: () -> Unit,
         tryAgain: () -> Unit,
     ) {
-        AdaptiveAlertDialog(
-            title = "Error",
-            text = "An error occurred",
-            confirmText = "Okay",
-            dismissText = "Try Again",
-            onConfirm = {
+        AlertDialog(
+            onDismissRequest = {
                 onDismiss()
             },
-            onDismiss = {
-                tryAgain()
+            confirmButton = {
+                Button(
+                    onClick = {
+                        onDismiss()
+                    },
+                ) {
+                    Text("Okay")
+                }
+            },
+            dismissButton = {
+                Button(
+                    onClick = {
+                        tryAgain()
+                    },
+                ) {
+                    Text("Try Again")
+                }
             },
         )
     }

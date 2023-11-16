@@ -2,6 +2,7 @@ rootProject.name = "Sync Sphere"
 
 include(":androidApp")
 include(":shared")
+include(":desktopApp")
 
 pluginManagement {
     includeBuild("gradle/build-logic")

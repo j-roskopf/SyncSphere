@@ -2,7 +2,6 @@ package com.joetr.sync.sphere.ui.pre
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.coroutineScope
-import com.joetr.sync.sphere.data.CrashReporting
 import com.joetr.sync.sphere.data.RoomRepository
 import com.joetr.sync.sphere.data.model.People
 import com.joetr.sync.sphere.util.displayPlatformName
@@ -21,7 +20,6 @@ private const val MAX_RANDOM_NUMBERS = 3
 class PreScreenModel(
     private val dispatcher: CoroutineDispatcher,
     private val roomRepository: RoomRepository,
-    private val crashReporting: CrashReporting,
 ) : ScreenModel {
 
     private val _state = MutableStateFlow<PreScreenViewState>(PreScreenViewState.Loading)
