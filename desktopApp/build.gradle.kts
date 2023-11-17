@@ -28,7 +28,7 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Pkg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "Sync Sphere"
-            packageVersion = "1.1.12"
+            packageVersion = "1.1.13"
 
             macOS {
                 iconFile.set(project.file("src/jvmMain/resources/icon/desktop_icon.icns"))
