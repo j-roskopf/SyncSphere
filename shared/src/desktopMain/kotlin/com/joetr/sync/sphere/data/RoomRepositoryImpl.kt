@@ -79,7 +79,7 @@ actual class RoomRepositoryImpl actual constructor(
         }
     }
 
-    override fun roomUpdates(roomCode: String): Flow<Room> {
+    override suspend fun roomUpdates(roomCode: String): Flow<Room> {
         return flow {
             emit(
                 firebaseApi.getRoom(roomCode, idToken),
@@ -105,6 +105,10 @@ actual class RoomRepositoryImpl actual constructor(
 
     override suspend fun roomExists(roomCode: String): Boolean {
         return firebaseApi.roomExists(roomCode, idToken)
+    }
+
+    override suspend fun oldRoomExists(roomCode: String): Boolean {
+        return firebaseApi.oldRoomExists(roomCode, idToken)
     }
 
     override suspend fun submitAvailability(

@@ -1,6 +1,7 @@
 package com.joetr.sync.sphere.data
 
 import com.joetr.sync.sphere.constants.Dictionary
+import com.joetr.sync.sphere.data.RoomConstants.OLD_ROOM_COLLECTION
 import com.joetr.sync.sphere.data.RoomConstants.ROOM_CODE_KEY
 import com.joetr.sync.sphere.data.RoomConstants.ROOM_COLLECTION
 import com.joetr.sync.sphere.data.RoomConstants.USER_ID_KEY
@@ -104,14 +105,26 @@ actual class RoomRepositoryImpl actual constructor(
         )
     }
 
-    override fun roomUpdates(roomCode: String): Flow<Room> {
-        return firestore
-            .collection(ROOM_COLLECTION)
-            .document(roomCode)
-            .snapshots
-            .map {
-                it.data() as Room
-            }
+    override suspend fun roomUpdates(roomCode: String): Flow<Room> {
+        return if (roomExists(roomCode)) {
+            firestore
+                .collection(ROOM_COLLECTION)
+                .document(roomCode)
+                .snapshots
+                .map {
+                    it.data() as Room
+                }
+        } else if (oldRoomExists(roomCode)) {
+            firestore
+                .collection(OLD_ROOM_COLLECTION)
+                .document(roomCode)
+                .snapshots
+                .map {
+                    it.data() as Room
+                }
+        } else {
+            throw IllegalArgumentException("Room not found")
+        }
     }
 
     override fun saveRoomCodeLocally(roomCode: String) {
@@ -135,8 +148,28 @@ actual class RoomRepositoryImpl actual constructor(
             withTimeout(
                 DEFAULT_TIMEOUT_MILLIS,
             ) {
-                firestore.collection(ROOM_COLLECTION).get()
                 val roomCollection = firestore.collection(ROOM_COLLECTION).get()
+                roomCollection.documents.any {
+                    it.id == roomCode
+                }
+            }
+        }.fold(
+            onSuccess = {
+                it
+            },
+            onFailure = {
+                crashReporting.recordException(it)
+                throw it
+            },
+        )
+    }
+
+    override suspend fun oldRoomExists(roomCode: String): Boolean {
+        return runCatching {
+            withTimeout(
+                DEFAULT_TIMEOUT_MILLIS,
+            ) {
+                val roomCollection = firestore.collection(OLD_ROOM_COLLECTION).get()
                 roomCollection.documents.any {
                     it.id == roomCode
                 }

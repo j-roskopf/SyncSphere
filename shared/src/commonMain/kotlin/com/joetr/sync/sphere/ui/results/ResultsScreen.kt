@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.lifecycle.LifecycleEffect
@@ -77,6 +78,30 @@ class ResultsScreen(
 
                 is ResultsScreenState.Loading -> LoadingState(
                     modifier = Modifier.padding(paddingValues),
+                )
+
+                is ResultsScreenState.Error -> ErrorState(
+                    modifier = Modifier.padding(paddingValues),
+                )
+            }
+        }
+    }
+
+    @Composable
+    private fun ErrorState(
+        modifier: Modifier = Modifier,
+    ) {
+        Box(
+            modifier = modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center,
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Text(
+                    style = MaterialTheme.typography.displayMedium,
+                    text = "Something went wrong \uD83D\uDE41",
+                    textAlign = TextAlign.Center,
                 )
             }
         }
