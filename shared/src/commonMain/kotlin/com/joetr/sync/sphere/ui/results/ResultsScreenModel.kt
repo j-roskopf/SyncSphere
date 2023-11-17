@@ -2,6 +2,7 @@ package com.joetr.sync.sphere.ui.results
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.coroutineScope
+import com.joetr.sync.sphere.data.CrashReporting
 import com.joetr.sync.sphere.data.RoomRepository
 import com.joetr.sync.sphere.data.model.People
 import com.joetr.sync.sphere.ui.results.data.ALL_DAY
@@ -19,6 +20,7 @@ import kotlinx.coroutines.launch
 
 class ResultsScreenModel(
     private val roomRepository: RoomRepository,
+    private val crashReporting: CrashReporting,
 ) : ScreenModel {
 
     private val _state = MutableStateFlow<ResultsScreenState>(ResultsScreenState.Loading)
@@ -29,13 +31,23 @@ class ResultsScreenModel(
 
     fun initializeData(roomCode: String) {
         coroutineScope.launch(Dispatchers.IO) {
-            roomRepository.roomUpdates(
-                roomCode = roomCode,
-            ).collect {
-                _state.value = ResultsScreenState.Content(
-                    room = it,
+            runCatching {
+                roomRepository.roomUpdates(
+                    roomCode = roomCode,
                 )
-            }
+            }.fold(
+                onSuccess = {
+                    it.collect {
+                        _state.value = ResultsScreenState.Content(
+                            room = it,
+                        )
+                    }
+                },
+                onFailure = {
+                    crashReporting.recordException(it)
+                    _state.value = ResultsScreenState.Error
+                },
+            )
         }
     }
 

@@ -11,12 +11,13 @@ interface RoomRepository {
     suspend fun getRoom(roomCode: String): Room
     suspend fun updateRoom(room: Room)
     suspend fun roomExists(roomCode: String): Boolean
+    suspend fun oldRoomExists(roomCode: String): Boolean
     suspend fun submitAvailability(
         roomCode: String,
         availability: List<DayTimeItem>,
         personId: String,
     )
-    fun roomUpdates(roomCode: String): Flow<Room>
+    suspend fun roomUpdates(roomCode: String): Flow<Room>
     fun saveRoomCodeLocally(roomCode: String)
     suspend fun getLocalRoomCode(): String?
 

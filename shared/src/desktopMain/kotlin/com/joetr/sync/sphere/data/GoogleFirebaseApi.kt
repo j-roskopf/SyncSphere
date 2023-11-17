@@ -1,5 +1,6 @@
 package com.joetr.sync.sphere.data
 
+import com.joetr.sync.sphere.data.RoomConstants.OLD_ROOM_COLLECTION
 import com.joetr.sync.sphere.data.RoomConstants.ROOM_COLLECTION
 import com.joetr.sync.sphere.data.model.Availability
 import com.joetr.sync.sphere.data.model.People
@@ -156,6 +157,18 @@ class GoogleFirebaseApi {
     suspend fun roomExists(roomCode: String, idToken: String): Boolean {
         return try {
             val response: RoomDocument = client.get("$ROOM_COLLECTION/$roomCode") {
+                header("Authorization", "Bearer $idToken")
+            }.body()
+            response.error == null
+        } catch (e: Throwable) {
+            return false
+        }
+    }
+
+    @Suppress("SwallowedException")
+    suspend fun oldRoomExists(roomCode: String, idToken: String): Boolean {
+        return try {
+            val response: RoomDocument = client.get("$OLD_ROOM_COLLECTION/$roomCode") {
                 header("Authorization", "Bearer $idToken")
             }.body()
             response.error == null
