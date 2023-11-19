@@ -1,6 +1,7 @@
 package com.joetr.sync.sphere.ui.pre
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,8 +12,10 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -35,8 +38,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
@@ -55,6 +60,8 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.painterResource
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
@@ -66,7 +73,8 @@ class PreRoomScreen : Screen {
         val screenModel = getScreenModel<PreScreenModel>()
         var showRoomDoesNotExistError by remember { mutableStateOf(false) }
         val roomCodeText = remember { mutableStateOf("") }
-        val nameText = remember { mutableStateOf("") }
+
+        val state = screenModel.state.collectAsState().value
 
         LifecycleEffect(
             onStarted = {
@@ -80,7 +88,11 @@ class PreRoomScreen : Screen {
                     showRoomDoesNotExistError = true
                 }
 
-                is PreScreenActions.RoomExists -> screenModel.joinRoom(it.roomCode, it.name)
+                is PreScreenActions.RoomExists -> screenModel.joinRoom(
+                    it.roomCode,
+                    it.name,
+                )
+
                 is PreScreenActions.NavigateToRoom -> {
                     navigator.push(
                         NewRoomScreen(
@@ -102,22 +114,40 @@ class PreRoomScreen : Screen {
                 },
                 tryAgain = {
                     showRoomDoesNotExistError = false
-
-                    val name = nameText.value.ifEmpty { screenModel.getAnonymousUsername() }
-                    screenModel.validateRoomCode(roomCodeText.value, name)
+                    screenModel.tryAgain(
+                        roomCode = roomCodeText.value,
+                    )
                 },
             )
         }
 
-        when (val state = screenModel.state.collectAsState().value) {
+        when (state) {
             is PreScreenViewState.Content -> {
+                val nameText = remember {
+                    mutableStateOf(
+                        state.lastKnownName,
+                    )
+                }
                 ContentState(
                     goToNewRoomScreen = {
-                        val name = nameText.value.ifEmpty { screenModel.getAnonymousUsername() }
-                        navigator.push(NewRoomScreen(joinedRoom = null, name = name))
+                        var isAnonymous = false
+                        val name = nameText.value.ifEmpty {
+                            isAnonymous = true
+                            screenModel.getAnonymousUsername()
+                        }
+                        navigator.push(
+                            NewRoomScreen(
+                                joinedRoom = null,
+                                name = name,
+                            ),
+                        )
                     },
                     validateRoomCode = {
-                        val name = nameText.value.ifEmpty { screenModel.getAnonymousUsername() }
+                        val (name, isAnonymous) = if (nameText.value.isNotEmpty()) {
+                            Pair(nameText.value, false)
+                        } else {
+                            Pair(screenModel.getAnonymousUsername(), true)
+                        }
 
                         screenModel.validateRoomCode(
                             roomCode = roomCodeText.value,
@@ -179,7 +209,7 @@ class PreRoomScreen : Screen {
         )
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
+    @OptIn(ExperimentalFoundationApi::class, ExperimentalResourceApi::class)
     @Composable
     @Suppress("LongParameterList", "LongMethod")
     private fun ContentState(
@@ -211,6 +241,15 @@ class PreRoomScreen : Screen {
             verticalArrangement = Arrangement.SpaceEvenly,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
+            Image(
+                painter = painterResource("desktop_icon.png"),
+                contentDescription = "Icon",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .size(128.dp),
+
+            )
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,

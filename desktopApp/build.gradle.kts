@@ -26,6 +26,8 @@ compose.desktop {
         mainClass = "MainKt"
 
         nativeDistributions {
+            modules("java.naming")
+
             targetFormats(TargetFormat.Dmg, TargetFormat.Pkg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "Sync Sphere"
             packageVersion = "1.1.13"

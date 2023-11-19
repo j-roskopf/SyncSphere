@@ -2,6 +2,7 @@ package com.joetr.sync.sphere.data
 
 import com.joetr.sync.sphere.constants.Dictionary
 import com.joetr.sync.sphere.data.RoomConstants.MAX_RANDOM_NUMBERS
+import com.joetr.sync.sphere.data.RoomConstants.NAME_KEY
 import com.joetr.sync.sphere.data.RoomConstants.ROOM_CODE_KEY
 import com.joetr.sync.sphere.data.RoomConstants.USER_ID_KEY
 import com.joetr.sync.sphere.data.model.Availability
@@ -89,6 +90,14 @@ actual class RoomRepositoryImpl actual constructor(
 
     override fun saveRoomCodeLocally(roomCode: String) {
         settings.putString(ROOM_CODE_KEY, roomCode)
+    }
+
+    override fun saveNameLocally(name: String) {
+        settings.putString(NAME_KEY, name)
+    }
+
+    override fun getLocalName(): String {
+        return settings[NAME_KEY] ?: ""
     }
 
     override suspend fun getLocalRoomCode(): String? {

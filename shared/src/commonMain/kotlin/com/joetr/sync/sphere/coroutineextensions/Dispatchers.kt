@@ -1,7 +1,7 @@
 package com.joetr.sync.sphere.coroutineextensions
 
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
@@ -11,8 +11,8 @@ val MainDispatcher = named("MainDispatcher")
 val MainImmediateDispatcher = named("MainImmediateDispatcher")
 
 val dispatcherModule = module {
-    single<CoroutineDispatcher>(qualifier = DefaultDispatcher) { Dispatchers.Unconfined }
-    single<CoroutineDispatcher>(qualifier = IoDispatcher) { Dispatchers.Unconfined }
-    single<CoroutineDispatcher>(qualifier = MainDispatcher) { Dispatchers.Unconfined }
-    single<CoroutineDispatcher>(qualifier = MainImmediateDispatcher) { Dispatchers.Unconfined }
+    single(qualifier = DefaultDispatcher) { Dispatchers.Default }
+    single(qualifier = IoDispatcher) { Dispatchers.IO }
+    single(qualifier = MainDispatcher) { Dispatchers.Main }
+    single(qualifier = MainImmediateDispatcher) { Dispatchers.Main.immediate }
 }

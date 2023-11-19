@@ -95,6 +95,7 @@ kotlin {
                 implementation(libs.ktor.client.okhttp)
             }
         }
+
         val mobileMain by creating {
             androidMain.dependsOn(this)
             iosMain.dependsOn(this)

@@ -17,9 +17,9 @@ import org.koin.dsl.module
 
 val appModule = module {
     factory { PreScreenModel(get(IoDispatcher), get()) }
-    factory { ResultsScreenModel(get(), get()) }
-    factory { NewRoomScreenModel(get()) }
-    factory { TimeSelectionScreenModel(get()) }
+    factory { ResultsScreenModel(get(), get(), get(IoDispatcher)) }
+    factory { NewRoomScreenModel(get(), get(IoDispatcher)) }
+    factory { TimeSelectionScreenModel(get(), get(IoDispatcher)) }
     single<RoomRepository> { RoomRepositoryImpl(get(), get()) }
     single<Dictionary> { DictionaryImpl }
     single<CrashReporting> { CrashReportingImpl() }

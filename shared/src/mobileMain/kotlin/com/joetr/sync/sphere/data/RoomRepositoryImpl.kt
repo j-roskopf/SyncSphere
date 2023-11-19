@@ -1,6 +1,7 @@
 package com.joetr.sync.sphere.data
 
 import com.joetr.sync.sphere.constants.Dictionary
+import com.joetr.sync.sphere.data.RoomConstants.NAME_KEY
 import com.joetr.sync.sphere.data.RoomConstants.OLD_ROOM_COLLECTION
 import com.joetr.sync.sphere.data.RoomConstants.ROOM_CODE_KEY
 import com.joetr.sync.sphere.data.RoomConstants.ROOM_COLLECTION
@@ -12,6 +13,7 @@ import com.joetr.sync.sphere.ui.time.DayTimeItem
 import com.joetr.sync.sphere.util.randomUUID
 import com.russhwolf.settings.Settings
 import com.russhwolf.settings.get
+import com.russhwolf.settings.set
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
 import dev.gitlive.firebase.firestore.firestore
@@ -133,6 +135,14 @@ actual class RoomRepositoryImpl actual constructor(
 
     override suspend fun getLocalRoomCode(): String? {
         return settings[ROOM_CODE_KEY]
+    }
+
+    override fun saveNameLocally(name: String) {
+        settings[NAME_KEY] = name
+    }
+
+    override fun getLocalName(): String {
+        return settings[NAME_KEY] ?: ""
     }
 
     override fun saveUserIdLocally(userId: String) {

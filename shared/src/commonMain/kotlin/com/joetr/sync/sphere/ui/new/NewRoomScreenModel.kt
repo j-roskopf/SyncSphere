@@ -5,8 +5,7 @@ import cafe.adriel.voyager.core.model.coroutineScope
 import com.joetr.sync.sphere.data.RoomRepository
 import com.joetr.sync.sphere.data.model.JoinedRoom
 import com.joetr.sync.sphere.data.model.Room
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -14,6 +13,7 @@ import kotlinx.datetime.LocalDate
 
 class NewRoomScreenModel(
     private val roomRepository: RoomRepository,
+    private val coroutineDispatcher: CoroutineDispatcher,
 ) : ScreenModel {
 
     var room: Room? = null
@@ -24,7 +24,7 @@ class NewRoomScreenModel(
     val state: StateFlow<NewRoomState> = _state
 
     fun init(joinedRoom: JoinedRoom?, name: String) {
-        coroutineScope.launch(Dispatchers.IO) {
+        coroutineScope.launch(coroutineDispatcher) {
             _state.value = NewRoomState.Loading
 
             runCatching {
@@ -42,6 +42,8 @@ class NewRoomScreenModel(
                 val roomCode = room!!.roomCode
 
                 roomRepository.saveRoomCodeLocally(roomCode)
+
+                roomRepository.saveNameLocally(name)
 
                 roomRepository.roomUpdates(
                     roomCode = roomCode,
