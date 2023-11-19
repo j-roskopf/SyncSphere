@@ -1,16 +1,31 @@
 package com.joetr.sync.sphere.data
 
-object RoomConstants {
-    const val OLD_ROOM_COLLECTION = "Rooms"
+private const val DEBUG_ROOM_COLLECTION = "RoomsTesting"
+private const val ROOM_COLLECTION = "RoomsAuthenticated"
 
-    // todo joer it would be nice to get this setup so it's automatic
-    // const val ROOM_COLLECTION = "RoomsTesting"
-    const val ROOM_COLLECTION = "RoomsAuthenticated"
+class RoomConstants(private val buildConfig: BuildConfig) {
 
-    // amount of digits to use for anonymous users
-    const val MAX_RANDOM_NUMBERS = 5
+    companion object {
+        const val OLD_ROOM_COLLECTION = "Rooms"
 
-    const val ROOM_CODE_KEY = "lastRoomCode"
-    const val NAME_KEY = "name"
-    const val USER_ID_KEY = "userId"
+        // amount of digits to use for anonymous users
+        const val MAX_RANDOM_NUMBERS = 5
+
+        const val ROOM_CODE_KEY = "lastRoomCode"
+        const val NAME_KEY = "name"
+        const val USER_ID_KEY = "userId"
+    }
+
+    fun roomCollection(): String {
+        return if (buildConfig.isDebug()) {
+            DEBUG_ROOM_COLLECTION
+        } else {
+            ROOM_COLLECTION
+        }
+    }
 }
+interface BuildConfig {
+    fun isDebug(): Boolean
+}
+
+expect class BuildConfigImpl : BuildConfig

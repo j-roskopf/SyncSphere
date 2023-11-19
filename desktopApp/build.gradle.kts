@@ -44,3 +44,7 @@ compose.desktop {
         }
     }
 }
+
+tasks.withType<JavaExec>().configureEach {
+    systemProperty("syncSphereDebug", System.getProperty("syncSphereDebug"))
+}

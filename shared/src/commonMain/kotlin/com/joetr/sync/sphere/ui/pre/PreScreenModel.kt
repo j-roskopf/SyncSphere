@@ -65,12 +65,12 @@ class PreScreenModel(
         coroutineScope.launch(dispatcher) {
             val room = roomRepository.getRoom(roomCode = roomCode)
             // check if the user is already in the room
-            val localUserId = roomRepository.getUserId()
+            var localUserId = roomRepository.getUserId()
             val userId = if (localUserId == null) {
                 // this user isn't in the room already or has cleared their data
-                val userId = randomUUID()
-                roomRepository.saveUserIdLocally(userId)
-                userId
+                val tempId = randomUUID()
+                roomRepository.saveUserIdLocally(tempId)
+                tempId
             } else {
                 localUserId
             }

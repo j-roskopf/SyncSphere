@@ -130,11 +130,10 @@ class PreRoomScreen : Screen {
                 }
                 ContentState(
                     goToNewRoomScreen = {
-                        var isAnonymous = false
                         val name = nameText.value.ifEmpty {
-                            isAnonymous = true
                             screenModel.getAnonymousUsername()
                         }
+
                         navigator.push(
                             NewRoomScreen(
                                 joinedRoom = null,

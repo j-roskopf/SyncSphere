@@ -6,7 +6,24 @@ import kotlin.test.assertEquals
 class RoomConstantsTest {
 
     @Test
-    fun `make sure I do not change the collections accidentally`() {
-        assertEquals("RoomsAuthenticated", RoomConstants.ROOM_COLLECTION)
+    fun `debug environment gives debug room collection`() {
+        val debugBuildConfig = object : BuildConfig {
+            override fun isDebug() = true
+        }
+        val roomConstants = RoomConstants(
+            buildConfig = debugBuildConfig,
+        )
+        assertEquals("RoomsTesting", roomConstants.roomCollection())
+    }
+
+    @Test
+    fun `prod environment gives prod room collection`() {
+        val debugBuildConfig = object : BuildConfig {
+            override fun isDebug() = false
+        }
+        val roomConstants = RoomConstants(
+            buildConfig = debugBuildConfig,
+        )
+        assertEquals("RoomsAuthenticated", roomConstants.roomCollection())
     }
 }
