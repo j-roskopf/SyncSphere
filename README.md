@@ -33,3 +33,10 @@ Fastlane - `bundle exec fastlane ios build`
 ```
 ./gradlew clean spotlessApply detektAll :androidApp:build :desktopApp:packageDistributionForCurrentOS && bundle exec fastlane ios build
 ```
+
+Add this to your home `gradle.properties` (~/.gradle/gradle.properties) for a debug environment on Desktop.
+iOS and Android are already configured for debug.
+
+```groovy
+systemProp.syncSphereDebug=true
+```

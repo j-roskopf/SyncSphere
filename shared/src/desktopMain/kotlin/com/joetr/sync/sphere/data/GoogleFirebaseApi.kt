@@ -1,7 +1,6 @@
 package com.joetr.sync.sphere.data
 
-import com.joetr.sync.sphere.data.RoomConstants.OLD_ROOM_COLLECTION
-import com.joetr.sync.sphere.data.RoomConstants.ROOM_COLLECTION
+import com.joetr.sync.sphere.data.RoomConstants.Companion.OLD_ROOM_COLLECTION
 import com.joetr.sync.sphere.data.model.Availability
 import com.joetr.sync.sphere.data.model.People
 import com.joetr.sync.sphere.data.model.Room
@@ -25,7 +24,6 @@ import com.joetr.sync.sphere.data.models.RoomDocumentField
 import com.joetr.sync.sphere.data.models.RoomField
 import com.joetr.sync.sphere.data.models.StringModel
 import com.joetr.sync.sphere.ui.time.DayTime
-import com.joetr.sync.sphere.util.randomUUID
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -71,14 +69,14 @@ class GoogleFirebaseApi {
         }
     }
 
-    suspend fun updateRoom(localRoom: Room, idToken: String) {
+    suspend fun updateRoom(localRoom: Room, idToken: String, roomCollection: String) {
         val room = localRoom.toRoomField()
         val roomDocumentField = RoomDocumentField(
             fields = room,
         )
 
         try {
-            client.patch("$ROOM_COLLECTION/${room.roomCode.stringValue}") {
+            client.patch("$roomCollection/${room.roomCode.stringValue}") {
                 header("Authorization", "Bearer $idToken")
                 contentType(ContentType.Application.Json)
                 setBody(
@@ -90,7 +88,13 @@ class GoogleFirebaseApi {
         }
     }
 
-    suspend fun createRoom(name: String, roomCode: String, idToken: String): Room {
+    suspend fun createRoom(
+        name: String,
+        roomCode: String,
+        idToken: String,
+        roomCollection: String,
+        localUserId: String,
+    ): Room {
         val room = RoomField(
             numberOfPeople = IntegerModel("1"),
             lastUpdatedTimestamp = IntegerModel(
@@ -109,7 +113,7 @@ class GoogleFirebaseApi {
                                         name,
                                     ),
                                     id = StringModel(
-                                        randomUUID(),
+                                        localUserId,
                                     ),
                                     availability = RemoteAvailability(
                                         values = AvailabilityArrayValues(
@@ -128,7 +132,7 @@ class GoogleFirebaseApi {
         )
 
         try {
-            client.post("$ROOM_COLLECTION?documentId=$roomCode") {
+            client.post("$roomCollection?documentId=$roomCode") {
                 header("Authorization", "Bearer $idToken")
                 contentType(ContentType.Application.Json)
                 setBody(
@@ -142,9 +146,9 @@ class GoogleFirebaseApi {
         }
     }
 
-    suspend fun getRoom(roomCode: String, idToken: String): Room {
+    suspend fun getRoom(roomCode: String, idToken: String, roomCollection: String): Room {
         return try {
-            val response: RoomDocument = client.get("$ROOM_COLLECTION/$roomCode") {
+            val response: RoomDocument = client.get("$roomCollection/$roomCode") {
                 header("Authorization", "Bearer $idToken")
             }.body()
             response.fields.toRoom()
@@ -154,9 +158,9 @@ class GoogleFirebaseApi {
     }
 
     @Suppress("SwallowedException")
-    suspend fun roomExists(roomCode: String, idToken: String): Boolean {
+    suspend fun roomExists(roomCode: String, idToken: String, roomCollection: String): Boolean {
         return try {
-            val response: RoomDocument = client.get("$ROOM_COLLECTION/$roomCode") {
+            val response: RoomDocument = client.get("$roomCollection/$roomCode") {
                 header("Authorization", "Bearer $idToken")
             }.body()
             response.error == null

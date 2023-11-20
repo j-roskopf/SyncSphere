@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 
 // amount of digits to use for anonymous users
-private const val MAX_RANDOM_NUMBERS = 3
+private const val MAX_ANONYMOUS_USERNAME_RANDOM_NUMBERS = 3
 
 class PreScreenModel(
     private val dispatcher: CoroutineDispatcher,
@@ -29,6 +29,7 @@ class PreScreenModel(
     val action: SharedFlow<PreScreenActions> = _action
 
     private var lastKnownRoomCode: String? = null
+    private lateinit var lastKnownName: String
 
     fun init() {
         coroutineScope.launch(dispatcher) {
@@ -36,7 +37,14 @@ class PreScreenModel(
 
             lastKnownRoomCode = roomRepository.getLocalRoomCode()
 
-            _state.emit(PreScreenViewState.Content(lastKnownRoomCode))
+            lastKnownName = roomRepository.getLocalName()
+
+            _state.emit(
+                PreScreenViewState.Content(
+                    lastKnownRoomCode = lastKnownRoomCode,
+                    lastKnownName = lastKnownName,
+                ),
+            )
         }
     }
 
@@ -47,7 +55,7 @@ class PreScreenModel(
             if (roomExists) {
                 _action.emit(PreScreenActions.RoomExists(roomCode = roomCode, name = name))
             } else {
-                _state.value = PreScreenViewState.Content(lastKnownRoomCode)
+                _state.value = PreScreenViewState.Content(lastKnownRoomCode, lastKnownName)
                 _action.emit(PreScreenActions.RoomDoesNotExist)
             }
         }
@@ -57,12 +65,12 @@ class PreScreenModel(
         coroutineScope.launch(dispatcher) {
             val room = roomRepository.getRoom(roomCode = roomCode)
             // check if the user is already in the room
-            val localUserId = roomRepository.getUserId()
+            var localUserId = roomRepository.getUserId()
             val userId = if (localUserId == null) {
                 // this user isn't in the room already or has cleared their data
-                val userId = randomUUID()
-                roomRepository.saveUserIdLocally(userId)
-                userId
+                val tempId = randomUUID()
+                roomRepository.saveUserIdLocally(tempId)
+                tempId
             } else {
                 localUserId
             }
@@ -110,10 +118,23 @@ class PreScreenModel(
         }
     }
 
+    internal fun tryAgain(roomCode: String) {
+        val lastState = state.value
+        if (lastState is PreScreenViewState.Content) {
+            validateRoomCode(
+                roomCode = roomCode,
+                name = lastState.lastKnownName,
+            )
+        } else {
+            // fall back to default state
+            init()
+        }
+    }
+
     internal fun getAnonymousUsername(): String {
         return "Anon".plus(displayPlatformName()).plus(
             Clock.System.now().toEpochMilliseconds().toString().takeLast(
-                MAX_RANDOM_NUMBERS,
+                MAX_ANONYMOUS_USERNAME_RANDOM_NUMBERS,
             ),
         )
     }

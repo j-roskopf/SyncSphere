@@ -47,6 +47,7 @@ import com.joetr.sync.sphere.ui.ProgressIndicator
 import com.joetr.sync.sphere.ui.pre.collectAsEffect
 import com.joetr.sync.sphere.ui.results.ResultsScreen
 import com.joetr.sync.sphere.util.formatTime
+import androidx.compose.animation.AnimatedVisibility as ColumnAnimatedVisibility
 
 class TimeSelectionScreen(
     val times: List<String>,
@@ -267,7 +268,7 @@ class TimeSelectionScreen(
                     )
                 }
 
-                AnimatedVisibility(
+                ColumnAnimatedVisibility(
                     visible = startTimeVisible.value,
                 ) {
                     TimePicker(
@@ -313,7 +314,7 @@ class TimeSelectionScreen(
                     )
                 }
 
-                AnimatedVisibility(
+                ColumnAnimatedVisibility(
                     visible = endTimeVisible.value,
                 ) {
                     TimePicker(
@@ -324,7 +325,7 @@ class TimeSelectionScreen(
 
             Divider(modifier = Modifier.padding(horizontal = 16.dp))
 
-            AnimatedVisibility(
+            ColumnAnimatedVisibility(
                 visible = !continueButtonEnabled,
             ) {
                 Text(
@@ -390,40 +391,11 @@ class TimeSelectionScreen(
                     modifier = Modifier.padding(horizontal = 16.dp),
                 )
 
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                ) {
-                    AnimatedVisibility(
-                        modifier = Modifier.padding(8.dp)
-                            .weight(1f),
-                        visible = days.all {
-                            it.dayTime !is DayTime.NotSelected
-                        },
-                    ) {
-                        Button(
-                            onClick = {
-                                submitAvailability()
-                            },
-                            modifier = Modifier
-                                .defaultMinSize(minHeight = 48.dp),
-                        ) {
-                            Text("Submit Availability")
-                        }
-                    }
-
-                    Button(
-                        onClick = {
-                            noPreferenceOnTime()
-                        },
-                        modifier = Modifier.padding(8.dp)
-                            .weight(1f)
-                            .defaultMinSize(minHeight = 48.dp),
-                    ) {
-                        Text("No Preference")
-                    }
-                }
+                TimeSelectionButtons(
+                    days = days,
+                    submitAvailability = submitAvailability,
+                    noPreferenceOnTime = noPreferenceOnTime,
+                )
             }
         }
     }

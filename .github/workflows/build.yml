@@ -39,6 +39,9 @@ jobs:
       - name: Check code style with Detekt
         run: ./gradlew detektAll
 
+      - name: Run tests
+        run: ./gradlew test
+
   android:
     needs: [code-style]
     runs-on: ubuntu-latest

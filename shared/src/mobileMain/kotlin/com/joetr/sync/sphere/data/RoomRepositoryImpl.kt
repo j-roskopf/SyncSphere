@@ -1,10 +1,6 @@
 package com.joetr.sync.sphere.data
 
 import com.joetr.sync.sphere.constants.Dictionary
-import com.joetr.sync.sphere.data.RoomConstants.OLD_ROOM_COLLECTION
-import com.joetr.sync.sphere.data.RoomConstants.ROOM_CODE_KEY
-import com.joetr.sync.sphere.data.RoomConstants.ROOM_COLLECTION
-import com.joetr.sync.sphere.data.RoomConstants.USER_ID_KEY
 import com.joetr.sync.sphere.data.model.Availability
 import com.joetr.sync.sphere.data.model.People
 import com.joetr.sync.sphere.data.model.Room
@@ -12,6 +8,7 @@ import com.joetr.sync.sphere.ui.time.DayTimeItem
 import com.joetr.sync.sphere.util.randomUUID
 import com.russhwolf.settings.Settings
 import com.russhwolf.settings.get
+import com.russhwolf.settings.set
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
 import dev.gitlive.firebase.firestore.firestore
@@ -26,6 +23,7 @@ private const val DEFAULT_TIMEOUT_MILLIS = 10_000L
 actual class RoomRepositoryImpl actual constructor(
     private val dictionary: Dictionary,
     private val crashReporting: CrashReporting,
+    private val roomConstants: RoomConstants,
 ) : RoomRepository {
 
     private val settings = Settings()
@@ -66,6 +64,12 @@ actual class RoomRepositoryImpl actual constructor(
                     }
                 }
 
+                var localUserId = getUserId()
+                if (localUserId == null) {
+                    localUserId = randomUUID()
+                    saveUserIdLocally(localUserId)
+                }
+
                 val room = Room(
                     roomCode = roomCode,
                     numberOfPeople = 1,
@@ -73,13 +77,13 @@ actual class RoomRepositoryImpl actual constructor(
                         People(
                             name = name,
                             availability = listOf(),
-                            id = randomUUID(),
+                            id = localUserId,
                         ),
                     ),
                     lastUpdatedTimestamp = Clock.System.now().toEpochMilliseconds(),
                 )
 
-                firestore.collection(RoomConstants.ROOM_COLLECTION).document(roomCode).set(room)
+                firestore.collection(roomConstants.roomCollection()).document(roomCode).set(room)
                 room
             }
         }.fold(
@@ -94,11 +98,11 @@ actual class RoomRepositoryImpl actual constructor(
     }
 
     override suspend fun getRoom(roomCode: String): Room {
-        return firestore.collection(ROOM_COLLECTION).document(roomCode).get().data()
+        return firestore.collection(roomConstants.roomCollection()).document(roomCode).get().data()
     }
 
     override suspend fun updateRoom(room: Room) {
-        firestore.collection(ROOM_COLLECTION).document(room.roomCode).set(
+        firestore.collection(roomConstants.roomCollection()).document(room.roomCode).set(
             room.copy(
                 lastUpdatedTimestamp = Clock.System.now().toEpochMilliseconds(),
             ),
@@ -108,7 +112,7 @@ actual class RoomRepositoryImpl actual constructor(
     override suspend fun roomUpdates(roomCode: String): Flow<Room> {
         return if (roomExists(roomCode)) {
             firestore
-                .collection(ROOM_COLLECTION)
+                .collection(roomConstants.roomCollection())
                 .document(roomCode)
                 .snapshots
                 .map {
@@ -116,7 +120,7 @@ actual class RoomRepositoryImpl actual constructor(
                 }
         } else if (oldRoomExists(roomCode)) {
             firestore
-                .collection(OLD_ROOM_COLLECTION)
+                .collection(RoomConstants.OLD_ROOM_COLLECTION)
                 .document(roomCode)
                 .snapshots
                 .map {
@@ -128,19 +132,27 @@ actual class RoomRepositoryImpl actual constructor(
     }
 
     override fun saveRoomCodeLocally(roomCode: String) {
-        settings.putString(ROOM_CODE_KEY, roomCode)
+        settings.putString(RoomConstants.ROOM_CODE_KEY, roomCode)
     }
 
     override suspend fun getLocalRoomCode(): String? {
-        return settings[ROOM_CODE_KEY]
+        return settings[RoomConstants.ROOM_CODE_KEY]
+    }
+
+    override fun saveNameLocally(name: String) {
+        settings[RoomConstants.NAME_KEY] = name
+    }
+
+    override fun getLocalName(): String {
+        return settings[RoomConstants.NAME_KEY] ?: ""
     }
 
     override fun saveUserIdLocally(userId: String) {
-        settings.putString(USER_ID_KEY, userId)
+        settings.putString(RoomConstants.USER_ID_KEY, userId)
     }
 
     override suspend fun getUserId(): String? {
-        return settings[USER_ID_KEY]
+        return settings[RoomConstants.USER_ID_KEY]
     }
 
     override suspend fun roomExists(roomCode: String): Boolean {
@@ -148,7 +160,7 @@ actual class RoomRepositoryImpl actual constructor(
             withTimeout(
                 DEFAULT_TIMEOUT_MILLIS,
             ) {
-                val roomCollection = firestore.collection(ROOM_COLLECTION).get()
+                val roomCollection = firestore.collection(roomConstants.roomCollection()).get()
                 roomCollection.documents.any {
                     it.id == roomCode
                 }
@@ -169,7 +181,7 @@ actual class RoomRepositoryImpl actual constructor(
             withTimeout(
                 DEFAULT_TIMEOUT_MILLIS,
             ) {
-                val roomCollection = firestore.collection(OLD_ROOM_COLLECTION).get()
+                val roomCollection = firestore.collection(RoomConstants.OLD_ROOM_COLLECTION).get()
                 roomCollection.documents.any {
                     it.id == roomCode
                 }
@@ -193,9 +205,9 @@ actual class RoomRepositoryImpl actual constructor(
         runCatching {
             withTimeout(DEFAULT_TIMEOUT_MILLIS) {
                 val room =
-                    firestore.collection(ROOM_COLLECTION).document(roomCode).get().data<Room>()
+                    firestore.collection(roomConstants.roomCollection()).document(roomCode).get().data<Room>()
 
-                firestore.collection(ROOM_COLLECTION).document(room.roomCode).set(
+                firestore.collection(roomConstants.roomCollection()).document(room.roomCode).set(
                     room.copy(
                         people = room.people.map {
                             if (it.id == personId) {

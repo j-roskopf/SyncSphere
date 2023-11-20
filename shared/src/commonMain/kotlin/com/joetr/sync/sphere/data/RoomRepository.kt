@@ -18,8 +18,12 @@ interface RoomRepository {
         personId: String,
     )
     suspend fun roomUpdates(roomCode: String): Flow<Room>
+
     fun saveRoomCodeLocally(roomCode: String)
     suspend fun getLocalRoomCode(): String?
+
+    fun saveNameLocally(name: String)
+    fun getLocalName(): String
 
     fun saveUserIdLocally(userId: String)
     suspend fun getUserId(): String?

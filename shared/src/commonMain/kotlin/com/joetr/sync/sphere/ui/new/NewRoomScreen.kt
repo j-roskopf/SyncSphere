@@ -1,5 +1,6 @@
 package com.joetr.sync.sphere.ui.new
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -87,47 +88,54 @@ class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
                 )
             },
         ) { paddingValues ->
-            when (viewState) {
-                is NewRoomState.Content -> ContentState(
-                    modifier = Modifier.padding(paddingValues),
-                    roomCode = viewState.roomCode,
-                    navigateToTimeSelectionScreen = {
-                        navigator.push(
-                            TimeSelectionScreen(
-                                times = it,
-                                roomCode = screenModel.room?.roomCode ?: run {
-                                    val exception = IllegalArgumentException(
-                                        "Unknown room code",
-                                    )
-                                    crashReporting.recordException(exception)
-
-                                    throw exception
-                                },
-                                personId = screenModel.personId,
-                            ),
-                        )
-                    },
-                    addDates = {
-                        screenModel.addDates(it)
-                    },
-                    selectedDates = viewState.dates,
-                    names = viewState.names,
-                )
-
-                is NewRoomState.Loading -> LoadingState(
-                    modifier = Modifier.padding(paddingValues),
-                )
-
-                is NewRoomState.Error -> {
-                    ErrorState(
+            AnimatedContent(
+                targetState = viewState,
+                contentKey = {
+                    it.key
+                },
+            ) { targetState ->
+                when (targetState) {
+                    is NewRoomState.Content -> ContentState(
                         modifier = Modifier.padding(paddingValues),
-                        tryAgain = {
-                            screenModel.init(
-                                joinedRoom = joinedRoom,
-                                name = name,
+                        roomCode = targetState.roomCode,
+                        navigateToTimeSelectionScreen = {
+                            navigator.push(
+                                TimeSelectionScreen(
+                                    times = it,
+                                    roomCode = screenModel.room?.roomCode ?: run {
+                                        val exception = IllegalArgumentException(
+                                            "Unknown room code",
+                                        )
+                                        crashReporting.recordException(exception)
+
+                                        throw exception
+                                    },
+                                    personId = screenModel.personId,
+                                ),
                             )
                         },
+                        addDates = {
+                            screenModel.addDates(it)
+                        },
+                        selectedDates = targetState.dates,
+                        names = targetState.names,
                     )
+
+                    is NewRoomState.Loading -> LoadingState(
+                        modifier = Modifier.padding(paddingValues),
+                    )
+
+                    is NewRoomState.Error -> {
+                        ErrorState(
+                            modifier = Modifier.padding(paddingValues),
+                            tryAgain = {
+                                screenModel.init(
+                                    joinedRoom = joinedRoom,
+                                    name = name,
+                                )
+                            },
+                        )
+                    }
                 }
             }
         }

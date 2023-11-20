@@ -3,8 +3,7 @@ package com.joetr.sync.sphere.ui.time
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.coroutineScope
 import com.joetr.sync.sphere.data.RoomRepository
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -13,6 +12,7 @@ import kotlinx.coroutines.launch
 
 class TimeSelectionScreenModel(
     private val roomRepository: RoomRepository,
+    private val coroutineDispatcher: CoroutineDispatcher,
 ) : ScreenModel {
     private val _state = MutableStateFlow<TimeSelectionState>(TimeSelectionState.Loading)
     val state: StateFlow<TimeSelectionState> = _state
@@ -95,7 +95,7 @@ class TimeSelectionScreenModel(
     }
 
     fun submitAvailability(roomCode: String, personId: String) {
-        coroutineScope.launch(Dispatchers.IO) {
+        coroutineScope.launch(coroutineDispatcher) {
             _state.value = TimeSelectionState.Loading
             runCatching {
                 roomRepository.submitAvailability(

@@ -47,9 +47,13 @@ android {
     kotlin {
         jvmToolchain(libs.versions.jdk.get().toInt())
     }
+    buildFeatures {
+        buildConfig = false
+    }
 }
 
 dependencies {
     implementation(libs.firebase.common.ktx)
+    implementation(libs.koin.android)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
 }

@@ -1,12 +1,14 @@
 package com.joetr.sync.sphere.data
 
 import com.joetr.sync.sphere.constants.Dictionary
-import com.joetr.sync.sphere.data.RoomConstants.MAX_RANDOM_NUMBERS
-import com.joetr.sync.sphere.data.RoomConstants.ROOM_CODE_KEY
-import com.joetr.sync.sphere.data.RoomConstants.USER_ID_KEY
+import com.joetr.sync.sphere.data.RoomConstants.Companion.MAX_RANDOM_NUMBERS
+import com.joetr.sync.sphere.data.RoomConstants.Companion.NAME_KEY
+import com.joetr.sync.sphere.data.RoomConstants.Companion.ROOM_CODE_KEY
+import com.joetr.sync.sphere.data.RoomConstants.Companion.USER_ID_KEY
 import com.joetr.sync.sphere.data.model.Availability
 import com.joetr.sync.sphere.data.model.Room
 import com.joetr.sync.sphere.ui.time.DayTimeItem
+import com.joetr.sync.sphere.util.randomUUID
 import com.russhwolf.settings.Settings
 import com.russhwolf.settings.get
 import com.russhwolf.settings.set
@@ -20,6 +22,7 @@ private const val ID_TOKEN_KEY = "idToken"
 actual class RoomRepositoryImpl actual constructor(
     dictionary: Dictionary,
     crashReporting: CrashReporting,
+    private val roomConstants: RoomConstants,
 ) : RoomRepository {
 
     private val dictionary = dictionary
@@ -60,12 +63,28 @@ actual class RoomRepositoryImpl actual constructor(
             }
         }
 
-        return firebaseApi.createRoom(name, roomCode, idToken)
+        var localUserId = getUserId()
+        if (localUserId == null) {
+            localUserId = randomUUID()
+            saveUserIdLocally(localUserId)
+        }
+
+        return firebaseApi.createRoom(
+            name = name,
+            roomCode = roomCode,
+            idToken = idToken,
+            roomCollection = roomConstants.roomCollection(),
+            localUserId = localUserId,
+        )
     }
 
     override suspend fun getRoom(roomCode: String): Room {
         try {
-            return firebaseApi.getRoom(roomCode, idToken)
+            return firebaseApi.getRoom(
+                roomCode = roomCode,
+                idToken = idToken,
+                roomCollection = roomConstants.roomCollection(),
+            )
         } catch (throwable: Throwable) {
             throw throwable
         }
@@ -73,7 +92,11 @@ actual class RoomRepositoryImpl actual constructor(
 
     override suspend fun updateRoom(room: Room) {
         try {
-            return firebaseApi.updateRoom(room, idToken)
+            return firebaseApi.updateRoom(
+                localRoom = room,
+                idToken = idToken,
+                roomCollection = roomConstants.roomCollection(),
+            )
         } catch (throwable: Throwable) {
             throw throwable
         }
@@ -82,13 +105,25 @@ actual class RoomRepositoryImpl actual constructor(
     override suspend fun roomUpdates(roomCode: String): Flow<Room> {
         return flow {
             emit(
-                firebaseApi.getRoom(roomCode, idToken),
+                firebaseApi.getRoom(
+                    roomCode = roomCode,
+                    idToken = idToken,
+                    roomCollection = roomConstants.roomCollection(),
+                ),
             )
         }
     }
 
     override fun saveRoomCodeLocally(roomCode: String) {
         settings.putString(ROOM_CODE_KEY, roomCode)
+    }
+
+    override fun saveNameLocally(name: String) {
+        settings.putString(NAME_KEY, name)
+    }
+
+    override fun getLocalName(): String {
+        return settings[NAME_KEY] ?: ""
     }
 
     override suspend fun getLocalRoomCode(): String? {
@@ -104,7 +139,11 @@ actual class RoomRepositoryImpl actual constructor(
     }
 
     override suspend fun roomExists(roomCode: String): Boolean {
-        return firebaseApi.roomExists(roomCode, idToken)
+        return firebaseApi.roomExists(
+            roomCode = roomCode,
+            idToken = idToken,
+            roomCollection = roomConstants.roomCollection(),
+        )
     }
 
     override suspend fun oldRoomExists(roomCode: String): Boolean {
@@ -117,7 +156,11 @@ actual class RoomRepositoryImpl actual constructor(
         personId: String,
     ) {
         try {
-            val room = firebaseApi.getRoom(roomCode, idToken)
+            val room = firebaseApi.getRoom(
+                roomCode = roomCode,
+                idToken = idToken,
+                roomCollection = roomConstants.roomCollection(),
+            )
             val updatedRoom = room.copy(
                 people = room.people.map {
                     if (it.id == personId) {
@@ -135,7 +178,11 @@ actual class RoomRepositoryImpl actual constructor(
                 },
                 lastUpdatedTimestamp = Clock.System.now().toEpochMilliseconds(),
             )
-            firebaseApi.updateRoom(updatedRoom, idToken)
+            firebaseApi.updateRoom(
+                localRoom = updatedRoom,
+                idToken = idToken,
+                roomCollection = roomConstants.roomCollection(),
+            )
         } catch (throwable: Throwable) {
             throw throwable
         }

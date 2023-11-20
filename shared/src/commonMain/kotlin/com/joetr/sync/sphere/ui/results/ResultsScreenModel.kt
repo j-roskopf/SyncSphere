@@ -10,8 +10,7 @@ import com.joetr.sync.sphere.ui.results.data.NONE
 import com.joetr.sync.sphere.ui.results.data.Time
 import com.joetr.sync.sphere.ui.results.data.TimeRange
 import com.joetr.sync.sphere.ui.time.DayTime
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -21,6 +20,7 @@ import kotlinx.coroutines.launch
 class ResultsScreenModel(
     private val roomRepository: RoomRepository,
     private val crashReporting: CrashReporting,
+    private val coroutineDispatcher: CoroutineDispatcher,
 ) : ScreenModel {
 
     private val _state = MutableStateFlow<ResultsScreenState>(ResultsScreenState.Loading)
@@ -30,7 +30,7 @@ class ResultsScreenModel(
     val action: SharedFlow<ResultsScreenAction> = _action
 
     fun initializeData(roomCode: String) {
-        coroutineScope.launch(Dispatchers.IO) {
+        coroutineScope.launch(coroutineDispatcher) {
             runCatching {
                 roomRepository.roomUpdates(
                     roomCode = roomCode,
@@ -52,7 +52,7 @@ class ResultsScreenModel(
     }
 
     fun calculateAvailability(people: List<People>) {
-        coroutineScope.launch(Dispatchers.IO) {
+        coroutineScope.launch(coroutineDispatcher) {
             _state.emit(ResultsScreenState.Loading)
             val timeRanges = mutableMapOf<String, TimeRange>()
             people.forEach { currentPerson ->
