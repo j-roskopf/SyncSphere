@@ -24,6 +24,7 @@ class RoomConstants(private val buildConfig: BuildConfig) {
         }
     }
 }
+
 interface BuildConfig {
     fun isDebug(): Boolean
 }

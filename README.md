@@ -28,7 +28,12 @@ Mac desktop is currently not published
 
 Fastlane - `bundle exec fastlane ios build`
 
+iOS -
 [Fastlane](https://medium.com/revelo-tech/setting-up-automatic-ios-release-with-fastlane-and-match-on-ci-cd-server-16c3f1d79bc5)
+
+Android -
+[Fastlane](https://docs.fastlane.tools/actions/upload_to_play_store/)
+[CI](https://proandroiddev.com/how-to-securely-build-and-sign-your-android-app-with-github-actions-ad5323452ce)
 
 ```
 ./gradlew clean spotlessApply detektAll :androidApp:build :desktopApp:packageDistributionForCurrentOS && bundle exec fastlane ios build
@@ -40,3 +45,7 @@ iOS and Android are already configured for debug.
 ```groovy
 systemProp.syncSphereDebug=true
 ```
+
+## TODO
+- android publishing on CI
+- last visited rooms UI
