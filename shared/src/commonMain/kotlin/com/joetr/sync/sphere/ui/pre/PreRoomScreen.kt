@@ -142,10 +142,8 @@ class PreRoomScreen : Screen {
                         )
                     },
                     validateRoomCode = {
-                        val (name, isAnonymous) = if (nameText.value.isNotEmpty()) {
-                            Pair(nameText.value, false)
-                        } else {
-                            Pair(screenModel.getAnonymousUsername(), true)
+                        val name = nameText.value.ifEmpty {
+                            screenModel.getAnonymousUsername()
                         }
 
                         screenModel.validateRoomCode(

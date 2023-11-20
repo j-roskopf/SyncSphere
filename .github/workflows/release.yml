@@ -38,10 +38,15 @@ jobs:
       - name: Check code style with Detekt
         run: ./gradlew detektAll
 
+      - name: Run tests
+        run: ./gradlew test
+
   android:
-    needs: [code-style]
+    needs: [ code-style ]
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    env:
+      GOOGLE_PLAY_API_CREDENTIALS: ${{ secrets.GOOGLE_PLAY_API_CREDENTIALS }}
 
     steps:
       - uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # v4
@@ -55,22 +60,51 @@ jobs:
           distribution: 'zulu'
           java-version: 17
 
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
       - uses: gradle/gradle-build-action@v2
         with:
           cache-disabled: true
 
-      - name: Build Android App
+      - name: Generate android keystore
+        id: android_keystore
+        uses: timheuer/base64-to-file@v1.0.4
+        with:
+          fileName: keystore.jks
+          encodedString: ${{ secrets.KEYSTORE }}
+
+      - name: Create key.properties
         run: |
-          ./gradlew \
-            :androidApp:bundle \
-            :androidApp:build
+          echo "storeFile=${{ steps.android_keystore.outputs.filePath }}" > androidApp/key.properties
+          echo "storePassword=${{ secrets.ANDROID_SIGNING_STORE_PASSWORD }}" >> androidApp/key.properties
+          echo "keyPassword=${{ secrets.ANDROID_SIGNING_KEY_PASSWORD }}" >> androidApp/key.properties
+          echo "keyAlias=${{ secrets.ANDROID_SIGNING_KEY_ALIAS }}" >> androidApp/key.properties
+
+      - name: build prod
+        run: ./gradlew :androidApp:bundleRelease
+        env:
+          SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
+          SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
+          SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
+          
+      - name: create-json
+        id: create-json
+        uses: jsdaniell/create-json@v1.2.2
+        with:
+          name: "sync_sphere_google_play_api_credentials.json"
+          json: ${{ secrets.GOOGLE_PLAY_API_CREDENTIALS }}
+
+      - name: upload to play store
+        run: bundle exec fastlane supply --aab androidApp/build/outputs/bundle/release/androidApp-release.aab
 
       - name: Upload build outputs
         if: always()
         uses: actions/upload-artifact@v3
         with:
           name: android-build-outputs
-          path: androidApp/build/outputs/apk/
+          path: androidApp/build/outputs/
 
   ios:
     needs: [ code-style ]

@@ -2,3 +2,6 @@ team_name "Joseph Roskopf"
 team_id "LVCF4PVSY3"
 itc_team_id "126727947"
 itc_team_name "Joseph Roskopf"
+
+json_key_file("sync_sphere_google_play_api_credentials.json")
+package_name("com.joetr.sync.sphere")

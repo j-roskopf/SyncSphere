@@ -1,3 +1,6 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     kotlin("multiplatform")
     id("com.android.application")
@@ -20,6 +23,12 @@ kotlin {
     }
 }
 
+val keyProperties = Properties()
+val keyPropertiesFile = rootProject.file("androidApp/key.properties")
+if (keyPropertiesFile.exists()) {
+    keyProperties.load(FileInputStream(keyPropertiesFile))
+}
+
 android {
     compileSdk = (findProperty("android.compileSdk") as String).toInt()
     namespace = "com.joetr.sync.sphere"
@@ -32,6 +41,21 @@ android {
         targetSdk = (findProperty("android.targetSdk") as String).toInt()
         versionCode = (findProperty("android.versionCode") as String).toInt()
         versionName = findProperty("android.versionName") as String
+    }
+
+    signingConfigs {
+        create("release") {
+            keyAlias = keyProperties.getProperty("keyAlias")
+            keyPassword = keyProperties.getProperty("keyPassword")
+            storeFile = file(keyProperties.getProperty("storeFile") ?: "empty/file")
+            storePassword = keyProperties.getProperty("storePassword")
+        }
+    }
+
+    buildTypes {
+        getByName("release") {
+            signingConfig = signingConfigs.getByName("release")
+        }
     }
 
     compileOptions {
@@ -56,4 +80,10 @@ dependencies {
     implementation(libs.firebase.common.ktx)
     implementation(libs.koin.android)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
+}
+
+tasks.withType<JavaExec>().configureEach {
+    systemProperty("SIGNING_KEY_PASSWORD", System.getProperty("SIGNING_KEY_PASSWORD"))
+    systemProperty("SIGNING_KEY_ALIAS", System.getProperty("SIGNING_KEY_ALIAS"))
+    systemProperty("SIGNING_STORE_PASSWORD", System.getProperty("SIGNING_STORE_PASSWORD"))
 }
