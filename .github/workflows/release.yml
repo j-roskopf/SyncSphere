@@ -42,7 +42,6 @@ jobs:
         run: ./gradlew test
 
   android:
-    needs: [ code-style ]
     runs-on: ubuntu-latest
     timeout-minutes: 60
     env:
@@ -97,7 +96,7 @@ jobs:
           json: ${{ secrets.GOOGLE_PLAY_API_CREDENTIALS }}
 
       - name: upload to play store
-        run: bundle exec fastlane supply --apk androidApp/build/outputs/bundle/release/androidApp-release.aab --track beta
+        run: bundle exec fastlane supply --aab androidApp/build/outputs/bundle/release/androidApp-release.aab --track beta
 
       - name: Upload build outputs
         if: always()
@@ -107,7 +106,6 @@ jobs:
           path: androidApp/build/outputs/
 
   ios:
-    needs: [ code-style ]
     runs-on: macos-13
     timeout-minutes: 60
     env:
