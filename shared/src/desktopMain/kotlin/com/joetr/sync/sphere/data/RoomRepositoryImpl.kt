@@ -28,13 +28,12 @@ actual class RoomRepositoryImpl actual constructor(
     crashReporting: CrashReporting,
     private val roomConstants: RoomConstants,
     private val syncSphereRoomDatabase: SyncSphereRoomDatabase,
+    private val settings: Settings,
 ) : RoomRepository {
 
     private val dictionary = dictionary
 
     private val firebaseApi = GoogleFirebaseApi()
-
-    private val settings = Settings()
 
     private val jwtParser = JwtParser()
 

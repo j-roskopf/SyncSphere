@@ -1,4 +1,4 @@
-CREATE TABLE Room (
+CREATE TABLE IF NOT EXISTS Room (
   roomCode TEXT NOT NULL,
   userName TEXT NOT NULL,
   userId TEXT NOT NULL,

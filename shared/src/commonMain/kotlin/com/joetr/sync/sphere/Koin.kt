@@ -15,6 +15,7 @@ import com.joetr.sync.sphere.ui.pre.PreScreenModel
 import com.joetr.sync.sphere.ui.previous.PreviousScreenModel
 import com.joetr.sync.sphere.ui.results.ResultsScreenModel
 import com.joetr.sync.sphere.ui.time.TimeSelectionScreenModel
+import com.russhwolf.settings.Settings
 import org.koin.core.KoinApplication
 import org.koin.core.context.startKoin
 import org.koin.core.module.Module
@@ -27,7 +28,8 @@ val appModule = module {
     factory { NewRoomScreenModel(get(), get(IoDispatcher)) }
     factory { PreviousScreenModel(get(IoDispatcher), get(), get()) }
     factory { TimeSelectionScreenModel(get(), get(IoDispatcher)) }
-    single<RoomRepository> { RoomRepositoryImpl(get(), get(), get(), get()) }
+    factory { Settings() }
+    single<RoomRepository> { RoomRepositoryImpl(get(), get(), get(), get(), get()) }
     single<Dictionary> { DictionaryImpl }
     single<CrashReporting> { CrashReportingImpl() }
     single { RoomConstants(get()) }
