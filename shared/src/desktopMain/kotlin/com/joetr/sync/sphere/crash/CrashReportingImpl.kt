@@ -1,4 +1,4 @@
-package com.joetr.sync.sphere.data
+package com.joetr.sync.sphere.crash
 
 actual class CrashReportingImpl : CrashReporting {
     override fun recordException(throwable: Throwable) {

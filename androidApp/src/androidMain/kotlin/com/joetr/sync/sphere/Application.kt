@@ -5,13 +5,19 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.ktx.initialize
 import com.joetr.sync.sphere.data.BuildConfig
 import com.joetr.sync.sphere.data.BuildConfigImpl
+import com.joetr.sync.sphere.data.local.DriverFactory
 import initCrashlytics
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
 class Application : Application() {
+
     private val buildConfigModule = module {
         single<BuildConfig> { BuildConfigImpl(get()) }
+    }
+
+    private val sqlDriverModule = module {
+        single { DriverFactory(get()).createDriver() }
     }
 
     override fun onCreate() {
@@ -22,7 +28,7 @@ class Application : Application() {
             block = {
                 androidContext(this@Application)
             },
-            modules = listOf(buildConfigModule),
+            modules = listOf(buildConfigModule, sqlDriverModule),
         )
         initCrashlytics()
     }

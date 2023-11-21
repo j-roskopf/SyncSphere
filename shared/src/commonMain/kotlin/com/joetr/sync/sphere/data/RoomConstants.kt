@@ -13,7 +13,9 @@ class RoomConstants(private val buildConfig: BuildConfig) {
 
         const val ROOM_CODE_KEY = "lastRoomCode"
         const val NAME_KEY = "name"
+        const val ICON_KEY = "icon"
         const val USER_ID_KEY = "userId"
+        const val DATABASE_NAME = "sync_sphere.db"
     }
 
     fun roomCollection(): String {

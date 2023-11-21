@@ -1,4 +1,4 @@
-package com.joetr.sync.sphere.data
+package com.joetr.sync.sphere.crash
 
 interface CrashReporting {
     fun recordException(

@@ -6,14 +6,13 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.joetr.sync.sphere.design.button.PrimaryButton
 
 @Composable
 fun TimeSelectionButtons(
@@ -35,17 +34,16 @@ fun TimeSelectionButtons(
                 it.dayTime !is DayTime.NotSelected
             }.not(),
         ) {
-            Button(
+            PrimaryButton(
                 onClick = {
                     noPreferenceOnTime()
                 },
                 modifier = Modifier
                     .padding(16.dp)
-                    .defaultMinSize(minHeight = 48.dp)
                     .fillMaxWidth(),
             ) {
                 Text(
-                    text = "No Preference",
+                    text = "No Preference For All Days",
                 )
             }
         }
@@ -60,18 +58,16 @@ fun TimeSelectionButtons(
                 it.dayTime !is DayTime.NotSelected
             },
         ) {
-            Button(
+            PrimaryButton(
                 onClick = {
                     submitAvailability()
                 },
                 modifier = Modifier
                     .padding(16.dp)
-                    .defaultMinSize(minHeight = 48.dp)
                     .fillMaxWidth(),
             ) {
                 Text(
                     "Submit Availability",
-                    maxLines = 1,
                 )
             }
         }
