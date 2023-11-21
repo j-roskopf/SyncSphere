@@ -17,6 +17,7 @@ class NewRoomScreenModel(
 ) : ScreenModel {
 
     var room: Room? = null
+    var userPreferenceIcon: String? = null
     private var selectedDates = emptyList<LocalDate>()
     lateinit var personId: String
 
@@ -45,6 +46,8 @@ class NewRoomScreenModel(
 
                 roomRepository.saveNameLocally(name)
 
+                userPreferenceIcon = roomRepository.getLocalIcon()
+
                 roomRepository.roomUpdates(
                     roomCode = roomCode,
                 )
@@ -57,6 +60,7 @@ class NewRoomScreenModel(
                             names = it.people.map { person ->
                                 person.name
                             },
+                            userPreferenceIcon = userPreferenceIcon,
                         )
                     }
                 },

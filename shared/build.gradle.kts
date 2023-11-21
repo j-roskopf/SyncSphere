@@ -4,7 +4,8 @@ plugins {
     id("org.jetbrains.compose")
     id("com.joetr.sync.sphere.root")
     id("org.jetbrains.kotlin.plugin.serialization")
-    id("co.touchlab.crashkios.crashlyticslink") version "0.8.5"
+    id("co.touchlab.crashkios.crashlyticslink") version libs.versions.crashlytics.get()
+    id("app.cash.sqldelight") version libs.versions.sqlDelight.get()
 }
 
 kotlin {
@@ -58,6 +59,7 @@ kotlin {
                 implementation(libs.multiplatform.settings.no.arg)
                 implementation(libs.calendar.compose.datepicker)
                 implementation(libs.kotlinx.coroutines.core)
+                implementation(libs.bundles.sqldelight.common)
             }
         }
 
@@ -75,6 +77,7 @@ kotlin {
                 api(libs.appcompat)
                 api(libs.core.ktx)
                 implementation(libs.ktor.client.okhttp)
+                implementation(libs.sqldelight.driver.android)
             }
         }
 
@@ -87,12 +90,22 @@ kotlin {
             iosSimulatorArm64Main.dependsOn(this)
             dependencies {
                 implementation(libs.ktor.client.darwin)
+                implementation(libs.sqldelight.driver.ios)
             }
         }
+
+        targets.withType<org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget> {
+            val main by compilations.getting
+            binaries.withType<org.jetbrains.kotlin.gradle.plugin.mpp.Framework> {
+                linkerOpts += "-lsqlite3"
+            }
+        }
+
         val desktopMain by getting {
             dependencies {
                 implementation(compose.desktop.common)
                 implementation(libs.ktor.client.okhttp)
+                implementation(libs.sqldelight.driver.jvm)
             }
         }
 
@@ -132,4 +145,13 @@ android {
     }
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     sourceSets["main"].res.srcDirs("src/androidMain/res", "src/commonMain/resources")
+}
+
+sqldelight {
+    databases {
+        create("SyncSphereRoomDatabase") {
+            packageName.set("com.joetr.sync.sphere")
+        }
+        linkSqlite.set(true)
+    }
 }

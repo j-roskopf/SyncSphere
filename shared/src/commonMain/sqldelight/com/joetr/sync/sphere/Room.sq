@@ -1,0 +1,13 @@
+CREATE TABLE Room (
+  roomCode TEXT NOT NULL,
+  userName TEXT NOT NULL,
+  userId TEXT NOT NULL,
+  UNIQUE(roomCode)
+);
+
+SelectAll:
+SELECT * FROM Room;
+
+InsertRoom:
+INSERT OR REPLACE INTO Room(roomCode, userName, userId)
+VALUES (?, ?, ?);

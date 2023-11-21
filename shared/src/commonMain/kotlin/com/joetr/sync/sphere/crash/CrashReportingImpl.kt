@@ -1,3 +1,3 @@
-package com.joetr.sync.sphere.data
+package com.joetr.sync.sphere.crash
 
 expect class CrashReportingImpl() : CrashReporting

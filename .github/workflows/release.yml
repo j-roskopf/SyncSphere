@@ -97,7 +97,7 @@ jobs:
           json: ${{ secrets.GOOGLE_PLAY_API_CREDENTIALS }}
 
       - name: upload to play store
-        run: bundle exec fastlane supply --aab androidApp/build/outputs/bundle/release/androidApp-release.aab
+        run: bundle exec fastlane supply --apk androidApp/build/outputs/bundle/release/androidApp-release.aab --track beta
 
       - name: Upload build outputs
         if: always()
@@ -114,9 +114,6 @@ jobs:
       FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT: 60
       MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.SYNC_SPHERE_PERSONAL_ACCESS_TOKEN }}
       MATCH_PASSWORD: ${{ secrets.SYNC_SPHERE_GIT_PW }}
-      FASTLANE_USER: ${{ secrets.FASTLANE_USER }}
-      FASTLANE_PASSWORD: ${{ secrets.FASTLANE_PASSWORD }}
-      FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD: ${{ secrets.FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD }}
       APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY }}
       APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
       APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}

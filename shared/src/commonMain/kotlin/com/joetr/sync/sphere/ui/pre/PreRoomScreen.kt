@@ -2,6 +2,7 @@ package com.joetr.sync.sphere.ui.pre
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,15 +16,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -52,9 +54,12 @@ import cafe.adriel.voyager.koin.getScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.joetr.sync.sphere.data.model.JoinedRoom
+import com.joetr.sync.sphere.design.button.PrimaryButton
+import com.joetr.sync.sphere.design.theme.conditional
 import com.joetr.sync.sphere.ui.ProgressIndicator
+import com.joetr.sync.sphere.ui.icon.IconSelectionScreen
 import com.joetr.sync.sphere.ui.new.NewRoomScreen
-import com.joetr.sync.sphere.ui.results.ResultsScreen
+import com.joetr.sync.sphere.ui.previous.PreviousRoomScreen
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.launchIn
@@ -159,14 +164,17 @@ class PreRoomScreen : Screen {
                     onNameTextChange = {
                         nameText.value = it
                     },
-                    lastKnownRoomCode = state.lastKnownRoomCode,
-                    goToResultsForLastKnownRoom = {
+                    goToPreviousRoomsScreen = {
                         navigator.push(
-                            ResultsScreen(
-                                roomCode = it,
-                            ),
+                            PreviousRoomScreen(),
                         )
                     },
+                    goToIconSelectionScreen = {
+                        navigator.push(
+                            IconSelectionScreen(),
+                        )
+                    },
+                    userPreferenceIcon = state.userIconPreference,
                 )
             }
 
@@ -184,14 +192,14 @@ class PreRoomScreen : Screen {
                 onDismiss()
             },
             confirmButton = {
-                Button(onClick = {
+                PrimaryButton(onClick = {
                     tryAgain()
                 }) {
                     Text("Try Again")
                 }
             },
             dismissButton = {
-                Button(onClick = {
+                PrimaryButton(onClick = {
                     onDismiss()
                 }) {
                     Text("Okay")
@@ -211,13 +219,14 @@ class PreRoomScreen : Screen {
     @Suppress("LongParameterList", "LongMethod")
     private fun ContentState(
         goToNewRoomScreen: () -> Unit,
+        goToPreviousRoomsScreen: () -> Unit,
         validateRoomCode: () -> Unit,
-        goToResultsForLastKnownRoom: (String) -> Unit,
         roomCodeText: String,
         onRoomCodeTextChange: (String) -> Unit,
         nameText: String,
         onNameTextChange: (String) -> Unit,
-        lastKnownRoomCode: String?,
+        goToIconSelectionScreen: () -> Unit,
+        userPreferenceIcon: String?,
     ) {
         val focusManager = LocalFocusManager.current
         val coroutineScope = rememberCoroutineScope()
@@ -234,19 +243,36 @@ class PreRoomScreen : Screen {
                 detectTapGestures(onTap = {
                     focusManager.clearFocus()
                 })
-            },
+            }
+                .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.SpaceEvenly,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Image(
-                painter = painterResource("desktop_icon.png"),
-                contentDescription = "Icon",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .clip(CircleShape)
-                    .size(128.dp),
-
-            )
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.clickable {
+                    goToIconSelectionScreen()
+                },
+            ) {
+                Image(
+                    painter = painterResource(
+                        userPreferenceIcon ?: "desktop_icon.png",
+                    ),
+                    contentDescription = "Icon",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .conditional(userPreferenceIcon == null, {
+                            clip(CircleShape)
+                        })
+                        .size(128.dp),
+                )
+                if (userPreferenceIcon == null) {
+                    Text(
+                        modifier = Modifier.padding(top = 8.dp),
+                        text = "Change Avatar",
+                    )
+                }
+            }
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -265,7 +291,7 @@ class PreRoomScreen : Screen {
                     keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
                 )
 
-                Button(
+                PrimaryButton(
                     modifier = Modifier.padding(16.dp),
                     onClick = {
                         goToNewRoomScreen()
@@ -324,12 +350,13 @@ class PreRoomScreen : Screen {
                     modifier = Modifier.padding(16.dp),
                     textAlign = TextAlign.Center,
                 )
-                if (lastKnownRoomCode != null) {
-                    Button({
-                        goToResultsForLastKnownRoom(lastKnownRoomCode)
-                    }) {
-                        Text("View Results From Last Known Room")
-                    }
+                PrimaryButton(
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp).fillMaxWidth(),
+                    onClick = {
+                        goToPreviousRoomsScreen()
+                    },
+                ) {
+                    Text("View All Previous Rooms")
                 }
             }
         }

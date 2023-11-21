@@ -28,21 +28,21 @@ class PreScreenModel(
     private val _action = MutableSharedFlow<PreScreenActions>()
     val action: SharedFlow<PreScreenActions> = _action
 
-    private var lastKnownRoomCode: String? = null
+    private var userIconPreference: String? = null
     private lateinit var lastKnownName: String
 
     fun init() {
         coroutineScope.launch(dispatcher) {
             roomRepository.signInAnonymouslyIfNeeded()
 
-            lastKnownRoomCode = roomRepository.getLocalRoomCode()
+            userIconPreference = roomRepository.getLocalIcon()
 
             lastKnownName = roomRepository.getLocalName()
 
             _state.emit(
                 PreScreenViewState.Content(
-                    lastKnownRoomCode = lastKnownRoomCode,
                     lastKnownName = lastKnownName,
+                    userIconPreference = userIconPreference,
                 ),
             )
         }
@@ -55,7 +55,7 @@ class PreScreenModel(
             if (roomExists) {
                 _action.emit(PreScreenActions.RoomExists(roomCode = roomCode, name = name))
             } else {
-                _state.value = PreScreenViewState.Content(lastKnownRoomCode, lastKnownName)
+                _state.value = PreScreenViewState.Content(lastKnownName, userIconPreference)
                 _action.emit(PreScreenActions.RoomDoesNotExist)
             }
         }
@@ -113,6 +113,9 @@ class PreScreenModel(
             )
             roomRepository.updateRoom(
                 room = newRoom,
+                userName = name,
+                userId = userId,
+
             )
             _action.emit(PreScreenActions.NavigateToRoom(newRoom, userId, name))
         }

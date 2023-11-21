@@ -2,7 +2,7 @@ package com.joetr.sync.sphere.ui.results
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.coroutineScope
-import com.joetr.sync.sphere.data.CrashReporting
+import com.joetr.sync.sphere.crash.CrashReporting
 import com.joetr.sync.sphere.data.RoomRepository
 import com.joetr.sync.sphere.data.model.People
 import com.joetr.sync.sphere.ui.results.data.ALL_DAY
@@ -15,6 +15,8 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.launch
 
 class ResultsScreenModel(
@@ -32,14 +34,19 @@ class ResultsScreenModel(
     fun initializeData(roomCode: String) {
         coroutineScope.launch(coroutineDispatcher) {
             runCatching {
-                roomRepository.roomUpdates(
-                    roomCode = roomCode,
-                )
+                flowOf(hasUserSubmittedAvailabilityForRoomCode(roomCode)).zip(
+                    roomRepository.roomUpdates(
+                        roomCode = roomCode,
+                    ),
+                ) { hasUserSubmittedAvailability, room ->
+                    Pair(hasUserSubmittedAvailability, room)
+                }
             }.fold(
                 onSuccess = {
-                    it.collect {
+                    it.collect { pair ->
                         _state.value = ResultsScreenState.Content(
-                            room = it,
+                            room = pair.second,
+                            hasUserSubmittedAvailability = pair.first,
                         )
                     }
                 },
@@ -48,6 +55,23 @@ class ResultsScreenModel(
                     _state.value = ResultsScreenState.Error
                 },
             )
+        }
+    }
+
+    private suspend fun hasUserSubmittedAvailabilityForRoomCode(roomCode: String): Boolean {
+        // default to true if we have no user ID
+        val userId = roomRepository.getUserId() ?: return true
+        val room = roomRepository.getRoom(roomCode)
+        val person = room.people.firstOrNull {
+            it.id == userId
+        } ?: return true
+
+        return if (person.availability.isEmpty()) {
+            false
+        } else {
+            person.availability.all {
+                it.time != DayTime.NotSelected
+            }
         }
     }
 

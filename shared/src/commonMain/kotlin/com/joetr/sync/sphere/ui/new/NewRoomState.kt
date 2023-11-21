@@ -20,6 +20,7 @@ sealed interface NewRoomState {
         val roomCode: String,
         val dates: List<LocalDate>,
         val names: List<String>,
+        val userPreferenceIcon: String?,
         override val key: Int = 3,
     ) : NewRoomState
 }

@@ -1,12 +1,16 @@
 package com.joetr.sync.sphere.data
 
+import com.joetr.sync.sphere.SyncSphereRoomDatabase
 import com.joetr.sync.sphere.constants.Dictionary
+import com.joetr.sync.sphere.crash.CrashReporting
+import com.joetr.sync.sphere.data.RoomConstants.Companion.ICON_KEY
 import com.joetr.sync.sphere.data.RoomConstants.Companion.MAX_RANDOM_NUMBERS
 import com.joetr.sync.sphere.data.RoomConstants.Companion.NAME_KEY
 import com.joetr.sync.sphere.data.RoomConstants.Companion.ROOM_CODE_KEY
 import com.joetr.sync.sphere.data.RoomConstants.Companion.USER_ID_KEY
 import com.joetr.sync.sphere.data.model.Availability
 import com.joetr.sync.sphere.data.model.Room
+import com.joetr.sync.sphere.ui.previous.data.PreviousRoom
 import com.joetr.sync.sphere.ui.time.DayTimeItem
 import com.joetr.sync.sphere.util.randomUUID
 import com.russhwolf.settings.Settings
@@ -23,6 +27,7 @@ actual class RoomRepositoryImpl actual constructor(
     dictionary: Dictionary,
     crashReporting: CrashReporting,
     private val roomConstants: RoomConstants,
+    private val syncSphereRoomDatabase: SyncSphereRoomDatabase,
 ) : RoomRepository {
 
     private val dictionary = dictionary
@@ -69,6 +74,9 @@ actual class RoomRepositoryImpl actual constructor(
             saveUserIdLocally(localUserId)
         }
 
+        // insert room locally so it can be viewed later
+        insertRoomIfNecessary(roomCode = roomCode, userId = localUserId, userName = name)
+
         return firebaseApi.createRoom(
             name = name,
             roomCode = roomCode,
@@ -90,8 +98,11 @@ actual class RoomRepositoryImpl actual constructor(
         }
     }
 
-    override suspend fun updateRoom(room: Room) {
+    override suspend fun updateRoom(room: Room, userName: String, userId: String) {
         try {
+            // insert room locally so it can be viewed later
+            insertRoomIfNecessary(roomCode = room.roomCode, userName = userName, userId = userId)
+
             return firebaseApi.updateRoom(
                 localRoom = room,
                 idToken = idToken,
@@ -186,5 +197,30 @@ actual class RoomRepositoryImpl actual constructor(
         } catch (throwable: Throwable) {
             throw throwable
         }
+    }
+
+    override suspend fun getLocalRoomCodes(): List<PreviousRoom> {
+        return syncSphereRoomDatabase.roomQueries.SelectAll().executeAsList().map {
+            PreviousRoom(
+                userName = it.userName,
+                userId = it.userId,
+                roomCode = it.roomCode,
+            )
+        }.reversed()
+    }
+
+    override fun saveIconLocally(image: String) {
+        settings[ICON_KEY] = image
+    }
+
+    override fun getLocalIcon(): String? = settings[ICON_KEY]
+
+    @Suppress("RedundantSuspendModifier")
+    private suspend fun insertRoomIfNecessary(roomCode: String, userName: String, userId: String) {
+        syncSphereRoomDatabase.roomQueries.InsertRoom(
+            roomCode = roomCode,
+            userName = userName,
+            userId = userId,
+        )
     }
 }

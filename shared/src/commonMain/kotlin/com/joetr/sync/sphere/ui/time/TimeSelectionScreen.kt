@@ -18,7 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -42,11 +42,15 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.getScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.joetr.sync.sphere.design.button.PrimaryButton
 import com.joetr.sync.sphere.design.toolbar.DefaultToolbar
 import com.joetr.sync.sphere.ui.ProgressIndicator
 import com.joetr.sync.sphere.ui.pre.collectAsEffect
 import com.joetr.sync.sphere.ui.results.ResultsScreen
 import com.joetr.sync.sphere.util.formatTime
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import androidx.compose.animation.AnimatedVisibility as ColumnAnimatedVisibility
 
 class TimeSelectionScreen(
@@ -76,6 +80,8 @@ class TimeSelectionScreen(
                     navigator.push(
                         ResultsScreen(
                             roomCode = roomCode,
+                            previousUserId = null,
+                            previousUserName = null,
                         ),
                     )
                 }
@@ -132,7 +138,7 @@ class TimeSelectionScreen(
                             )
                         },
                         timeRangeClicked = {
-                            screenModel.switchToTimePicking(it)
+                            screenModel.timeRangeClickedForItem(it)
                         },
                         submitAvailability = {
                             screenModel.submitAvailability(
@@ -181,7 +187,7 @@ class TimeSelectionScreen(
                 onDismiss()
             },
             confirmButton = {
-                Button(
+                PrimaryButton(
                     onClick = {
                         onDismiss()
                     },
@@ -190,7 +196,7 @@ class TimeSelectionScreen(
                 }
             },
             dismissButton = {
-                Button(
+                PrimaryButton(
                     onClick = {
                         tryAgain()
                     },
@@ -214,8 +220,14 @@ class TimeSelectionScreen(
         val startTimeVisible = remember { mutableStateOf(true) }
         val endTimeVisible = remember { mutableStateOf(false) }
 
-        val startTimeState = rememberTimePickerState()
-        val endTimeState = rememberTimePickerState()
+        val now = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+
+        val startTimeState = rememberTimePickerState(
+            initialHour = now.hour,
+        )
+        val endTimeState = rememberTimePickerState(
+            initialHour = now.hour,
+        )
 
         val startTimeHour = remember { mutableStateOf(startTimeState.hour) }
         val startTimeMinute = remember { mutableStateOf(startTimeState.minute) }
@@ -250,6 +262,7 @@ class TimeSelectionScreen(
                         .defaultMinSize(minHeight = 64.dp)
                         .clickable {
                             startTimeVisible.value = startTimeVisible.value.not()
+                            endTimeVisible.value = false
                         },
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically,
@@ -296,6 +309,7 @@ class TimeSelectionScreen(
                         .defaultMinSize(minHeight = 64.dp)
                         .clickable {
                             endTimeVisible.value = endTimeVisible.value.not()
+                            startTimeVisible.value = false
                         },
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically,
@@ -335,7 +349,7 @@ class TimeSelectionScreen(
                 )
             }
 
-            Button(
+            PrimaryButton(
                 enabled = continueButtonEnabled,
                 onClick = {
                     timeSelectedForIndex(
@@ -434,19 +448,35 @@ class TimeSelectionScreen(
                     modifier = Modifier.weight(1.5f).padding(horizontal = 16.dp),
                 ) {
                     Text(dayTimeItem.dayTime.getDisplayText())
-                    Button(
+                    PrimaryButton(
+                        modifier = Modifier.padding(8.dp),
+                        colors = if (dayTimeItem.dayTime is DayTime.AllDay) {
+                            ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.secondary,
+                            )
+                        } else {
+                            ButtonDefaults.buttonColors()
+                        },
                         onClick = {
                             allDayClicked()
                         },
                     ) {
                         Text("All Day")
                     }
-                    Button(
+                    PrimaryButton(
+                        modifier = Modifier.padding(8.dp),
+                        colors = if (dayTimeItem.dayTime is DayTime.Range) {
+                            ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.secondary,
+                            )
+                        } else {
+                            ButtonDefaults.buttonColors()
+                        },
                         onClick = {
                             timeRangeClicked()
                         },
                     ) {
-                        Text("Select Time Range")
+                        Text("Time Range")
                     }
                 }
             }

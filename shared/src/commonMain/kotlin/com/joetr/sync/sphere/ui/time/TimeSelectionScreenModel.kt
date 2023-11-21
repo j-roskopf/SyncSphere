@@ -53,33 +53,22 @@ class TimeSelectionScreenModel(
     }
 
     fun allDayClickedForItem(index: Int) {
-        uiData = uiData.mapIndexed { mapIndex, dayTimeItem ->
-            if (index == mapIndex) {
-                dayTimeItem.copy(
-                    dayTime = DayTime.AllDay,
-                )
+        val currentState = _state.value
+        if (currentState is TimeSelectionState.Content) {
+            val dayTime = currentState.data[index].dayTime
+            if (dayTime is DayTime.AllDay) {
+                // if all day is already there and it's selected again, deselect it
+                updateTimeAtIndex(index, DayTime.NotSelected)
             } else {
-                dayTimeItem
+                updateTimeAtIndex(index, DayTime.AllDay)
             }
+        } else {
+            updateTimeAtIndex(index, DayTime.AllDay)
         }
-        _state.value = TimeSelectionState.Content(
-            data = uiData,
-        )
     }
 
     fun rangeClickedForItem(index: Int, range: DayTime.Range) {
-        uiData = uiData.mapIndexed { mapIndex, dayTimeItem ->
-            if (index == mapIndex) {
-                dayTimeItem.copy(
-                    dayTime = range,
-                )
-            } else {
-                dayTimeItem
-            }
-        }
-        _state.value = TimeSelectionState.Content(
-            data = uiData,
-        )
+        updateTimeAtIndex(index, range)
     }
 
     fun goBackToContentState() {
@@ -88,9 +77,38 @@ class TimeSelectionScreenModel(
         )
     }
 
-    fun switchToTimePicking(index: Int) {
-        _state.value = TimeSelectionState.TimeSelection(
-            index = index,
+    fun timeRangeClickedForItem(index: Int) {
+        val currentState = _state.value
+        if (currentState is TimeSelectionState.Content) {
+            val dayTime = currentState.data[index].dayTime
+            if (dayTime is DayTime.Range) {
+                // if range is already there and it's selected again, deselect it
+                updateTimeAtIndex(index, DayTime.NotSelected)
+            } else {
+                // otherwise go to time selection screen
+                _state.value = TimeSelectionState.TimeSelection(
+                    index = index,
+                )
+            }
+        } else {
+            _state.value = TimeSelectionState.TimeSelection(
+                index = index,
+            )
+        }
+    }
+
+    private fun updateTimeAtIndex(index: Int, dayTime: DayTime) {
+        uiData = uiData.mapIndexed { mapIndex, dayTimeItem ->
+            if (index == mapIndex) {
+                dayTimeItem.copy(
+                    dayTime = dayTime,
+                )
+            } else {
+                dayTimeItem
+            }
+        }
+        _state.value = TimeSelectionState.Content(
+            data = uiData,
         )
     }
 
