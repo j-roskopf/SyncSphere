@@ -28,9 +28,8 @@ actual class RoomRepositoryImpl actual constructor(
     private val crashReporting: CrashReporting,
     private val roomConstants: RoomConstants,
     private val syncSphereRoomDatabase: SyncSphereRoomDatabase,
+    private val settings: Settings,
 ) : RoomRepository {
-
-    private val settings = Settings()
 
     private val firestore = Firebase.firestore
 

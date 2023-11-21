@@ -19,7 +19,7 @@ Sync Sphere is available for Android, iOS, and Desktop
 iOS is published on release via fastlane by creating a tag (release/x.y.z)
 
 ### Android
-Android is currently manually built and uploaded to the Play Store.
+Android is published on release via fastlane by creating a tag (release/x.y.z)
 
 ### Mac Desktop
 Mac desktop is currently not published
@@ -59,6 +59,3 @@ Android -
         storePassword=<stote password>
         storeFile=keystore.jks
       ```
-
-## TODO
-- last visited rooms UI

@@ -83,7 +83,7 @@ jobs:
           echo "keyAlias=${{ secrets.ANDROID_SIGNING_KEY_ALIAS }}" >> androidApp/key.properties
 
       - name: build prod
-        run: ./gradlew :androidApp:bundleRelease
+        run: ./gradlew :androidApp:bundleRelease :androidApp:assembleRelease
         env:
           SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
           SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}

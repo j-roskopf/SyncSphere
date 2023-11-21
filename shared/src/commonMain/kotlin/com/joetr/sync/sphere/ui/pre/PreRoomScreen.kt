@@ -24,10 +24,12 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -254,18 +256,28 @@ class PreRoomScreen : Screen {
                     goToIconSelectionScreen()
                 },
             ) {
-                Image(
-                    painter = painterResource(
-                        userPreferenceIcon ?: "desktop_icon.png",
-                    ),
-                    contentDescription = "Icon",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .conditional(userPreferenceIcon == null, {
-                            clip(CircleShape)
-                        })
-                        .size(128.dp),
-                )
+                Box {
+                    Image(
+                        painter = painterResource(
+                            userPreferenceIcon ?: "desktop_icon.png",
+                        ),
+                        contentDescription = "Icon",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .conditional(userPreferenceIcon == null, {
+                                clip(CircleShape)
+                            })
+                            .size(128.dp),
+                    )
+                    Icon(
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd),
+                        imageVector = Icons.Filled.Edit,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurface,
+                    )
+                }
+
                 if (userPreferenceIcon == null) {
                     Text(
                         modifier = Modifier.padding(top = 8.dp),

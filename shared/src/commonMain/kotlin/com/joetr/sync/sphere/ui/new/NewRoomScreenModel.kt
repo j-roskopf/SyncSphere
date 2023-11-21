@@ -17,7 +17,7 @@ class NewRoomScreenModel(
 ) : ScreenModel {
 
     var room: Room? = null
-    var userPreferenceIcon: String? = null
+    private var userPreferenceIcon: String? = null
     private var selectedDates = emptyList<LocalDate>()
     lateinit var personId: String
 
@@ -29,15 +29,17 @@ class NewRoomScreenModel(
             _state.value = NewRoomState.Loading
 
             runCatching {
-                room = if (joinedRoom != null) {
-                    personId = joinedRoom.id
+                if (room == null) {
+                    room = if (joinedRoom != null) {
+                        personId = joinedRoom.id
 
-                    joinedRoom.room
-                } else {
-                    val room = roomRepository.createRoom(name)
-                    // if we are creating the room, there is only 1 person in it, store their ID
-                    personId = room.people.first().id
-                    room
+                        joinedRoom.room
+                    } else {
+                        val room = roomRepository.createRoom(name)
+                        // if we are creating the room, there is only 1 person in it, store their ID
+                        personId = room.people.first().id
+                        room
+                    }
                 }
 
                 val roomCode = room!!.roomCode
