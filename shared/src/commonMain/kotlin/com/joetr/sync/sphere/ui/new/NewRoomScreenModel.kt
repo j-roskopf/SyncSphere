@@ -1,7 +1,7 @@
 package com.joetr.sync.sphere.ui.new
 
 import cafe.adriel.voyager.core.model.ScreenModel
-import cafe.adriel.voyager.core.model.coroutineScope
+import cafe.adriel.voyager.core.model.screenModelScope
 import com.joetr.sync.sphere.data.RoomRepository
 import com.joetr.sync.sphere.data.model.JoinedRoom
 import com.joetr.sync.sphere.data.model.Room
@@ -25,7 +25,7 @@ class NewRoomScreenModel(
     val state: StateFlow<NewRoomState> = _state
 
     fun init(joinedRoom: JoinedRoom?, name: String) {
-        coroutineScope.launch(coroutineDispatcher) {
+        screenModelScope.launch(coroutineDispatcher) {
             _state.value = NewRoomState.Loading
 
             runCatching {
@@ -55,11 +55,20 @@ class NewRoomScreenModel(
                 )
             }.fold(
                 onSuccess = { flow ->
-                    flow.collect {
+                    flow.collect { room ->
+                        // check if the person has dates already
+                        val personDates = room.people.firstOrNull { person ->
+                            person.id == personId
+                        }?.availability?.map {
+                            LocalDate.parse(it.display)
+                        }
+                        if (!personDates.isNullOrEmpty()) {
+                            selectedDates = personDates
+                        }
                         _state.value = NewRoomState.Content(
-                            roomCode = it.roomCode,
+                            roomCode = room.roomCode,
                             dates = selectedDates,
-                            names = it.people.map { person ->
+                            names = room.people.map { person ->
                                 person.name
                             },
                             userPreferenceIcon = userPreferenceIcon,

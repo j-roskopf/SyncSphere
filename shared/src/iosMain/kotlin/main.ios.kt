@@ -8,6 +8,7 @@ import co.touchlab.crashkios.crashlytics.setCrashlyticsUnhandledExceptionHook
 import com.joetr.sync.sphere.Main
 import com.joetr.sync.sphere.data.BuildConfig
 import com.joetr.sync.sphere.data.BuildConfigImpl
+import com.joetr.sync.sphere.data.Calendar
 import com.joetr.sync.sphere.data.local.DriverFactory
 import com.joetr.sync.sphere.design.theme.AppTheme
 import com.joetr.sync.sphere.initKoin
@@ -20,7 +21,7 @@ fun MainViewController() = ComposeUIViewController(
     },
 ) {
     initCrashlyticsApple()
-    initKoin(modules = listOf(buildConfigModule, sqlDriverModule))
+    initKoin(modules = listOf(buildConfigModule, sqlDriverModule, calendarModule))
     AppTheme {
         Surface {
             Main()
@@ -39,4 +40,8 @@ private val buildConfigModule = module {
 
 private val sqlDriverModule = module {
     single { DriverFactory().createDriver() }
+}
+
+private val calendarModule = module {
+    single { Calendar() }
 }

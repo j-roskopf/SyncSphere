@@ -8,6 +8,7 @@ crashlytics = "0.8.5"
 desugar_jdk_libs = "2.0.4"
 firebaseCommonKtx = "20.4.2"
 firebase = "1.10.3"
+jna = "5.13.0"
 multiplatformSettingsNoArg = "1.1.0"
 spotless = "6.21.0"
 detekt = "1.23.1"
@@ -15,7 +16,7 @@ ktlint = "0.49.1"
 agp = "8.1.3"
 kotlin = "1.9.20"
 detektGradlePlugin = "1.23.1"
-voyager = "1.0.0-rc07"
+voyager = "1.0.0-rc10"
 koin = "3.5.0"
 kotlinxDateTime = "0.4.1"
 kotlinxSerializationJson = "1.6.0"
@@ -43,6 +44,7 @@ firebase-common = { module = "dev.gitlive:firebase-common", version.ref = "fireb
 firebase-crashlytics = { module = "dev.gitlive:firebase-crashlytics", version.ref = "firebase" }
 firebase-firestore = { module = "dev.gitlive:firebase-firestore", version.ref = "firebase" }
 firebase-auth = { module = "dev.gitlive:firebase-auth", version.ref = "firebase" }
+jna = { module = "net.java.dev.jna:jna", version.ref = "jna" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 kotlinx-coroutines-swing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "coroutines" }
 multiplatform-settings-no-arg = { module = "com.russhwolf:multiplatform-settings-no-arg", version.ref = "multiplatformSettingsNoArg" }

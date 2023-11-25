@@ -1,7 +1,7 @@
 package com.joetr.sync.sphere.ui.previous
 
 import cafe.adriel.voyager.core.model.ScreenModel
-import cafe.adriel.voyager.core.model.coroutineScope
+import cafe.adriel.voyager.core.model.screenModelScope
 import com.joetr.sync.sphere.crash.CrashReporting
 import com.joetr.sync.sphere.data.RoomRepository
 import kotlinx.coroutines.CoroutineDispatcher
@@ -19,7 +19,7 @@ class PreviousScreenModel(
     val state: StateFlow<PreviousScreenViewState> = _state
 
     fun init() {
-        coroutineScope.launch(dispatcher) {
+        screenModelScope.launch(dispatcher) {
             kotlin.runCatching {
                 roomRepository.getLocalRoomCodes()
             }.fold(

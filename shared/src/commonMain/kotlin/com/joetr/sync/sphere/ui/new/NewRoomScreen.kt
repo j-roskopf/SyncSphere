@@ -294,12 +294,17 @@ class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
                     modifier = Modifier.padding(8.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    val image = painterResource(
-                        // use user preference icon if available
-                        userPreferenceIcon ?: getImageDataForPosition(index),
-                    )
                     Image(
-                        painter = image,
+                        painter = if (this@NewRoomScreen.name == name) {
+                            painterResource(
+                                // use user preference icon if available
+                                userPreferenceIcon ?: getImageDataForPosition(index),
+                            )
+                        } else {
+                            painterResource(
+                                getImageDataForPosition(index),
+                            )
+                        },
                         contentDescription = "Icon",
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
@@ -331,6 +336,9 @@ class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
 
     private fun monthRange(): ClosedRange<EpicMonth> {
         val localDateNow = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
-        return EpicMonth(localDateNow.year, localDateNow.month)..EpicMonth(MAX_YEAR_TO_DISPLAY, Month.DECEMBER)
+        return EpicMonth(localDateNow.year, localDateNow.month)..EpicMonth(
+            MAX_YEAR_TO_DISPLAY,
+            Month.DECEMBER,
+        )
     }
 }

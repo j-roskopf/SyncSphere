@@ -179,6 +179,17 @@ class ResultsScreen(
                 }
             }
 
+            if (hasUserSubmittedAvailability && previousUserId != null && previousUserName != null) {
+                SecondaryButton(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                    onClick = {
+                        onSubmitAvailability(room, previousUserId, previousUserName)
+                    },
+                ) {
+                    Text("Edit Availability")
+                }
+            }
+
             AnimatedVisibility(
                 visible = room.people.any { person ->
                     person.availability.isNotEmpty()

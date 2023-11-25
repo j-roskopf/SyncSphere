@@ -5,6 +5,7 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.ktx.initialize
 import com.joetr.sync.sphere.data.BuildConfig
 import com.joetr.sync.sphere.data.BuildConfigImpl
+import com.joetr.sync.sphere.data.Calendar
 import com.joetr.sync.sphere.data.local.DriverFactory
 import initCrashlytics
 import org.koin.android.ext.koin.androidContext
@@ -20,6 +21,10 @@ class Application : Application() {
         single { DriverFactory(get()).createDriver() }
     }
 
+    private val calendarModule = module {
+        single { Calendar(get()) }
+    }
+
     override fun onCreate() {
         super.onCreate()
         Firebase.initialize(this)
@@ -28,7 +33,7 @@ class Application : Application() {
             block = {
                 androidContext(this@Application)
             },
-            modules = listOf(buildConfigModule, sqlDriverModule),
+            modules = listOf(buildConfigModule, sqlDriverModule, calendarModule),
         )
         initCrashlytics()
     }
