@@ -20,7 +20,7 @@ sealed interface TimeSelectionState {
 data class DayTimeItem(
     val display: String,
     val dayTime: DayTime,
-)
+) : JvmSerialization
 
 @Serializable
 sealed class DayTime {

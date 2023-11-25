@@ -1,7 +1,7 @@
 package com.joetr.sync.sphere.ui.pre
 
 import cafe.adriel.voyager.core.model.ScreenModel
-import cafe.adriel.voyager.core.model.coroutineScope
+import cafe.adriel.voyager.core.model.screenModelScope
 import com.joetr.sync.sphere.data.RoomRepository
 import com.joetr.sync.sphere.data.model.People
 import com.joetr.sync.sphere.util.displayPlatformName
@@ -32,7 +32,7 @@ class PreScreenModel(
     private lateinit var lastKnownName: String
 
     fun init() {
-        coroutineScope.launch(dispatcher) {
+        screenModelScope.launch(dispatcher) {
             roomRepository.signInAnonymouslyIfNeeded()
 
             userIconPreference = roomRepository.getLocalIcon()
@@ -49,7 +49,7 @@ class PreScreenModel(
     }
 
     fun validateRoomCode(roomCode: String, name: String) {
-        coroutineScope.launch(dispatcher) {
+        screenModelScope.launch(dispatcher) {
             _state.value = PreScreenViewState.Loading
             val roomExists = roomRepository.roomExists(roomCode = roomCode)
             if (roomExists) {
@@ -62,7 +62,7 @@ class PreScreenModel(
     }
 
     fun joinRoom(roomCode: String, name: String) {
-        coroutineScope.launch(dispatcher) {
+        screenModelScope.launch(dispatcher) {
             val room = roomRepository.getRoom(roomCode = roomCode)
             // check if the user is already in the room
             var localUserId = roomRepository.getUserId()
@@ -142,3 +142,8 @@ class PreScreenModel(
         )
     }
 }
+
+/*
+        add to calendar - event name
+        filter on calculated screen
+*/

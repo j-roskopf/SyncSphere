@@ -86,7 +86,11 @@ actual class RoomRepositoryImpl actual constructor(
                     lastUpdatedTimestamp = Clock.System.now().toEpochMilliseconds(),
                 )
 
-                insertRoomIfNecessary(roomCode = room.roomCode, userId = localUserId, userName = name)
+                insertRoomIfNecessary(
+                    roomCode = room.roomCode,
+                    userId = localUserId,
+                    userName = name,
+                )
 
                 firestore.collection(roomConstants.roomCollection()).document(roomCode).set(room)
                 room
@@ -103,7 +107,11 @@ actual class RoomRepositoryImpl actual constructor(
     }
 
     override suspend fun getRoom(roomCode: String): Room {
-        return firestore.collection(roomConstants.roomCollection()).document(roomCode).get().data()
+        return if (oldRoomExists(roomCode)) {
+            firestore.collection(RoomConstants.OLD_ROOM_COLLECTION).document(roomCode).get().data()
+        } else {
+            firestore.collection(roomConstants.roomCollection()).document(roomCode).get().data()
+        }
     }
 
     override suspend fun updateRoom(room: Room, userName: String, userId: String) {
@@ -167,7 +175,11 @@ actual class RoomRepositoryImpl actual constructor(
             withTimeout(
                 DEFAULT_TIMEOUT_MILLIS,
             ) {
-                val roomCollection = firestore.collection(roomConstants.roomCollection()).get()
+                val roomCollection = if (oldRoomExists(roomCode)) {
+                    firestore.collection(RoomConstants.OLD_ROOM_COLLECTION).get()
+                } else {
+                    firestore.collection(roomConstants.roomCollection()).get()
+                }
                 roomCollection.documents.any {
                     it.id == roomCode
                 }
@@ -212,7 +224,8 @@ actual class RoomRepositoryImpl actual constructor(
         runCatching {
             withTimeout(DEFAULT_TIMEOUT_MILLIS) {
                 val room =
-                    firestore.collection(roomConstants.roomCollection()).document(roomCode).get().data<Room>()
+                    firestore.collection(roomConstants.roomCollection()).document(roomCode).get()
+                        .data<Room>()
 
                 firestore.collection(roomConstants.roomCollection()).document(room.roomCode).set(
                     room.copy(

@@ -79,6 +79,7 @@ android {
 dependencies {
     implementation(libs.firebase.common.ktx)
     implementation(libs.koin.android)
+    implementation(libs.kotlinx.datetime)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
 }
 
