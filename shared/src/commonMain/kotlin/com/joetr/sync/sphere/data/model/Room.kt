@@ -9,4 +9,5 @@ data class Room(
     val numberOfPeople: Int,
     val people: List<People>,
     val lastUpdatedTimestamp: Long,
+    val finalizations: List<Finalization> = emptyList(),
 ) : JvmSerialization

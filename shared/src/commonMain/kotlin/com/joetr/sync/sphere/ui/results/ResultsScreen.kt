@@ -67,7 +67,7 @@ class ResultsScreen(
         screenModel.action.collectAsEffect {
             when (it) {
                 is ResultsScreenAction.NavigateToResults -> {
-                    navigator.push(AvailabilityScreen(it.timeRanges))
+                    navigator.push(AvailabilityScreen(data = it.timeRanges, person = it.person, roomCode = roomCode))
                 }
             }
         }
@@ -84,7 +84,7 @@ class ResultsScreen(
                     modifier = Modifier.padding(paddingValues),
                     room = viewState.room,
                     calculateAvailability = {
-                        screenModel.calculateAvailability(it)
+                        screenModel.calculateAvailability(it, roomCode)
                     },
                     hasUserSubmittedAvailability = viewState.hasUserSubmittedAvailability,
                     onSubmitAvailability = { room, previousUserId, previousUserName ->

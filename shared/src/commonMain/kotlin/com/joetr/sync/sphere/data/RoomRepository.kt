@@ -1,9 +1,12 @@
 package com.joetr.sync.sphere.data
 
+import com.joetr.sync.sphere.data.model.People
 import com.joetr.sync.sphere.data.model.Room
 import com.joetr.sync.sphere.ui.previous.data.PreviousRoom
+import com.joetr.sync.sphere.ui.time.DayTime
 import com.joetr.sync.sphere.ui.time.DayTimeItem
 import kotlinx.coroutines.flow.Flow
+import kotlinx.datetime.LocalDate
 
 @Suppress("TooManyFunctions")
 interface RoomRepository {
@@ -33,4 +36,9 @@ interface RoomRepository {
 
     fun saveIconLocally(image: String)
     fun getLocalIcon(): String?
+
+    suspend fun finalize(person: People, roomCode: String, localDate: LocalDate, dayTime: DayTime)
+    suspend fun undoFinalization(person: People, roomCode: String)
+
+    suspend fun deleteRoomLocally(roomCode: String)
 }
