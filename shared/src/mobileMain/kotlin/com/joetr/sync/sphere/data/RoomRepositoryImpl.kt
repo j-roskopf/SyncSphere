@@ -4,9 +4,11 @@ import com.joetr.sync.sphere.SyncSphereRoomDatabase
 import com.joetr.sync.sphere.constants.Dictionary
 import com.joetr.sync.sphere.crash.CrashReporting
 import com.joetr.sync.sphere.data.model.Availability
+import com.joetr.sync.sphere.data.model.Finalization
 import com.joetr.sync.sphere.data.model.People
 import com.joetr.sync.sphere.data.model.Room
 import com.joetr.sync.sphere.ui.previous.data.PreviousRoom
+import com.joetr.sync.sphere.ui.time.DayTime
 import com.joetr.sync.sphere.ui.time.DayTimeItem
 import com.joetr.sync.sphere.util.randomUUID
 import com.russhwolf.settings.Settings
@@ -19,6 +21,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withTimeout
 import kotlinx.datetime.Clock
+import kotlinx.datetime.LocalDate
 
 private const val DEFAULT_TIMEOUT_MILLIS = 10_000L
 
@@ -84,6 +87,7 @@ actual class RoomRepositoryImpl actual constructor(
                         ),
                     ),
                     lastUpdatedTimestamp = Clock.System.now().toEpochMilliseconds(),
+                    finalizations = emptyList(),
                 )
 
                 insertRoomIfNecessary(
@@ -263,6 +267,52 @@ actual class RoomRepositoryImpl actual constructor(
     }
 
     override fun getLocalIcon(): String? = settings[RoomConstants.ICON_KEY]
+
+    override suspend fun finalize(
+        person: People,
+        roomCode: String,
+        localDate: LocalDate,
+        dayTime: DayTime,
+    ) {
+        // get the current room
+        val room = getRoom(roomCode)
+
+        // update room
+        firestore.collection(roomConstants.roomCollection()).document(room.roomCode).set(
+            room.copy(
+                finalizations = room.finalizations + Finalization(
+                    person = person,
+                    availability = Availability(
+                        time = dayTime,
+                        display = localDate.toString(),
+                    ),
+                ),
+                lastUpdatedTimestamp = Clock.System.now().toEpochMilliseconds(),
+            ),
+        )
+    }
+
+    override suspend fun undoFinalization(
+        person: People,
+        roomCode: String,
+    ) {
+        // get the current room
+        val room = getRoom(roomCode)
+
+        // update room
+        firestore.collection(roomConstants.roomCollection()).document(room.roomCode).set(
+            room.copy(
+                finalizations = room.finalizations.filter {
+                    it.person.id != person.id
+                },
+                lastUpdatedTimestamp = Clock.System.now().toEpochMilliseconds(),
+            ),
+        )
+    }
+
+    override suspend fun deleteRoomLocally(roomCode: String) {
+        syncSphereRoomDatabase.roomQueries.DeleteRoom(roomCode)
+    }
 
     override suspend fun getLocalRoomCodes(): List<PreviousRoom> {
         return syncSphereRoomDatabase.roomQueries.SelectAll().executeAsList().map {

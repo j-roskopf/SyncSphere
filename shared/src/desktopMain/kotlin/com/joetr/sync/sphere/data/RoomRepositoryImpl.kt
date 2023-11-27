@@ -9,16 +9,20 @@ import com.joetr.sync.sphere.data.RoomConstants.Companion.NAME_KEY
 import com.joetr.sync.sphere.data.RoomConstants.Companion.ROOM_CODE_KEY
 import com.joetr.sync.sphere.data.RoomConstants.Companion.USER_ID_KEY
 import com.joetr.sync.sphere.data.model.Availability
+import com.joetr.sync.sphere.data.model.Finalization
+import com.joetr.sync.sphere.data.model.People
 import com.joetr.sync.sphere.data.model.Room
 import com.joetr.sync.sphere.ui.previous.data.PreviousRoom
+import com.joetr.sync.sphere.ui.time.DayTime
 import com.joetr.sync.sphere.ui.time.DayTimeItem
 import com.joetr.sync.sphere.util.randomUUID
 import com.russhwolf.settings.Settings
 import com.russhwolf.settings.get
 import com.russhwolf.settings.set
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.datetime.Clock
+import kotlinx.datetime.LocalDate
 
 private const val ID_TOKEN_KEY = "idToken"
 
@@ -30,6 +34,10 @@ actual class RoomRepositoryImpl actual constructor(
     private val syncSphereRoomDatabase: SyncSphereRoomDatabase,
     private val settings: Settings,
 ) : RoomRepository {
+
+    private val roomFlow = MutableSharedFlow<Room>(
+        replay = 1,
+    )
 
     private val dictionary = dictionary
 
@@ -113,15 +121,13 @@ actual class RoomRepositoryImpl actual constructor(
     }
 
     override suspend fun roomUpdates(roomCode: String): Flow<Room> {
-        return flow {
-            emit(
-                firebaseApi.getRoom(
-                    roomCode = roomCode,
-                    idToken = idToken,
-                    roomCollection = roomConstants.roomCollection(),
-                ),
-            )
-        }
+        emitRoom(roomCode)
+        return roomFlow
+    }
+
+    private suspend fun emitRoom(roomCode: String) {
+        val room = getRoom(roomCode)
+        roomFlow.emit(room)
     }
 
     override fun saveRoomCodeLocally(roomCode: String) {
@@ -213,6 +219,59 @@ actual class RoomRepositoryImpl actual constructor(
     }
 
     override fun getLocalIcon(): String? = settings[ICON_KEY]
+
+    override suspend fun finalize(
+        person: People,
+        roomCode: String,
+        localDate: LocalDate,
+        dayTime: DayTime,
+    ) {
+        // get the current room
+        val room = getRoom(roomCode)
+
+        // update room
+        firebaseApi.updateRoom(
+            localRoom = room.copy(
+                finalizations = room.finalizations + Finalization(
+                    person = person,
+                    availability = Availability(
+                        time = dayTime,
+                        display = localDate.toString(),
+                    ),
+                ),
+                lastUpdatedTimestamp = Clock.System.now().toEpochMilliseconds(),
+            ),
+            idToken = idToken,
+            roomCollection = roomConstants.roomCollection(),
+        )
+
+        emitRoom(roomCode)
+    }
+
+    override suspend fun undoFinalization(person: People, roomCode: String) {
+        // get the current room
+        val room = getRoom(roomCode)
+
+        // update room
+        firebaseApi.updateRoom(
+            localRoom = room.copy(
+                finalizations = room.finalizations.filter {
+                    it.person.id != person.id
+                },
+                lastUpdatedTimestamp = Clock.System.now().toEpochMilliseconds(),
+            ),
+            idToken = idToken,
+            roomCollection = roomConstants.roomCollection(),
+        )
+
+        emitRoom(roomCode)
+    }
+
+    override suspend fun deleteRoomLocally(roomCode: String) {
+        syncSphereRoomDatabase.roomQueries.DeleteRoom(
+            roomCode = roomCode,
+        )
+    }
 
     @Suppress("RedundantSuspendModifier")
     private suspend fun insertRoomIfNecessary(roomCode: String, userName: String, userId: String) {

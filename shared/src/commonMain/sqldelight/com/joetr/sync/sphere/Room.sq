@@ -11,3 +11,7 @@ SELECT * FROM Room;
 InsertRoom:
 INSERT OR REPLACE INTO Room(roomCode, userName, userId)
 VALUES (?, ?, ?);
+
+DeleteRoom:
+DELETE FROM Room
+WHERE roomCode = :roomCode;

@@ -30,7 +30,7 @@ val appModule = module {
     factory { NewRoomScreenModel(get(), get(IoDispatcher)) }
     factory { PreviousScreenModel(get(IoDispatcher), get(), get()) }
     factory { TimeSelectionScreenModel(get(), get(IoDispatcher)) }
-    factory { AvailabilityScreenModel(get(), get(IoDispatcher)) }
+    factory { AvailabilityScreenModel(get(), get(IoDispatcher), get(), get()) }
     factory { Settings() }
     single<RoomRepository> { RoomRepositoryImpl(get(), get(), get(), get(), get()) }
     single<Dictionary> { DictionaryImpl }

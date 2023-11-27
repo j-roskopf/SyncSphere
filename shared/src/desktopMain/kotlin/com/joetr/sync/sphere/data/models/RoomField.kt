@@ -9,4 +9,5 @@ data class RoomField(
     @SerialName("lastUpdatedTimestamp") val lastUpdatedTimestamp: IntegerModel,
     @SerialName("roomCode") val roomCode: StringModel,
     @SerialName("people") val people: PeopleArrayModel,
+    @SerialName("finalizations") val finalizations: FinalizationsArrayModel,
 )

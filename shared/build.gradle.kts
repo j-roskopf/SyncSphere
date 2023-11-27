@@ -61,6 +61,8 @@ kotlin {
                 implementation(libs.calendar.compose.datepicker)
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.bundles.sqldelight.common)
+
+                implementation(libs.compose.swipebox.multiplatform)
             }
         }
 

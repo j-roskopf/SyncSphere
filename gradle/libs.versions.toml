@@ -3,6 +3,7 @@ appcompat = "1.6.1"
 activityCompose = "1.8.0"
 calendarComposeDatepicker = "1.0.5"
 calfUi = "0.2.0"
+composeSwipeboxMultiplatform = "1.0.0"
 coreKtx = "1.12.0"
 crashlytics = "0.8.5"
 desugar_jdk_libs = "2.0.4"
@@ -36,6 +37,7 @@ appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat"
 activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
 calendar-compose-datepicker = { module = "io.github.epicarchitect:calendar-compose-datepicker", version.ref = "calendarComposeDatepicker" }
 calf-ui = { module = "com.mohamedrejeb.calf:calf-ui", version.ref = "calfUi" }
+compose-swipebox-multiplatform = { module = "io.github.kevinnzou:compose-swipebox-multiplatform", version.ref = "composeSwipeboxMultiplatform" }
 core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
 crashlytics = { module = "co.touchlab.crashkios:crashlytics", version.ref = "crashlytics" }
 desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }

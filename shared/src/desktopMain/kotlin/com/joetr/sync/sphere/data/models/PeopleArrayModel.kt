@@ -4,12 +4,38 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class PeopleArrayModel(
-    @SerialName("arrayValue") val arrayValue: ArrayValue,
+data class FinalizationsArrayModel(
+    @SerialName("arrayValue") val finalizationsArrayValue: FinalizationsArrayValue,
 )
 
 @Serializable
-data class ArrayValue(
+data class FinalizationsArrayValue(
+    @SerialName("values") val values: List<FinalizationValue> = emptyList(),
+)
+
+@Serializable
+data class FinalizationValue(
+    @SerialName("mapValue") val mapValue: FinalizationMapValue,
+)
+
+@Serializable
+data class FinalizationMapValue(
+    @SerialName("fields") val fields: FinalizationFields,
+)
+
+@Serializable
+data class FinalizationFields(
+    @SerialName("person") val person: PeopleValues,
+    @SerialName("availability") val availabilityValues: AvailabilityValues,
+)
+
+@Serializable
+data class PeopleArrayModel(
+    @SerialName("arrayValue") val arrayValue: PeopleArrayValues,
+)
+
+@Serializable
+data class PeopleArrayValues(
     @SerialName("values") val values: List<PeopleValues>,
 )
 

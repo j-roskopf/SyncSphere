@@ -81,18 +81,28 @@ class ResultsScreenModel(
         }
     }
 
-    fun calculateAvailability(people: List<People>) {
+    fun calculateAvailability(people: List<People>, roomCode: String) {
         screenModelScope.launch(coroutineDispatcher) {
             _state.emit(ResultsScreenState.Loading)
-            val timeRanges = availabilityCalculator.findOverlappingTime(people)
-            val uiModel = timeRanges.mapValues {
-                it.value.first().second
+            val localId = roomRepository.getUserId()
+            if (localId == null) {
+                _state.emit(ResultsScreenState.Error)
+            } else {
+                val person = people.first {
+                    it.id == localId
+                }
+                val timeRanges = availabilityCalculator.findOverlappingTime(people)
+                val uiModel = timeRanges.mapValues {
+                    it.value.first().second
+                }
+                _action.emit(
+                    ResultsScreenAction.NavigateToResults(
+                        timeRanges = uiModel,
+                        person = person,
+                        roomCode = roomCode,
+                    ),
+                )
             }
-            _action.emit(
-                ResultsScreenAction.NavigateToResults(
-                    uiModel,
-                ),
-            )
         }
     }
 }

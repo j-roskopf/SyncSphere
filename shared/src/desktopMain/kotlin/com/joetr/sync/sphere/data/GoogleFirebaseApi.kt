@@ -2,9 +2,9 @@ package com.joetr.sync.sphere.data
 
 import com.joetr.sync.sphere.data.RoomConstants.Companion.OLD_ROOM_COLLECTION
 import com.joetr.sync.sphere.data.model.Availability
+import com.joetr.sync.sphere.data.model.Finalization
 import com.joetr.sync.sphere.data.model.People
 import com.joetr.sync.sphere.data.model.Room
-import com.joetr.sync.sphere.data.models.ArrayValue
 import com.joetr.sync.sphere.data.models.AvailabilityArrayValues
 import com.joetr.sync.sphere.data.models.AvailabilityFieldValue
 import com.joetr.sync.sphere.data.models.AvailabilityMapValue
@@ -12,9 +12,15 @@ import com.joetr.sync.sphere.data.models.AvailabilityTimeFieldsValue
 import com.joetr.sync.sphere.data.models.AvailabilityTimeMapValue
 import com.joetr.sync.sphere.data.models.AvailabilityTimeModel
 import com.joetr.sync.sphere.data.models.AvailabilityValues
+import com.joetr.sync.sphere.data.models.FinalizationFields
+import com.joetr.sync.sphere.data.models.FinalizationMapValue
+import com.joetr.sync.sphere.data.models.FinalizationValue
+import com.joetr.sync.sphere.data.models.FinalizationsArrayModel
+import com.joetr.sync.sphere.data.models.FinalizationsArrayValue
 import com.joetr.sync.sphere.data.models.FirebaseSignIn
 import com.joetr.sync.sphere.data.models.IntegerModel
 import com.joetr.sync.sphere.data.models.PeopleArrayModel
+import com.joetr.sync.sphere.data.models.PeopleArrayValues
 import com.joetr.sync.sphere.data.models.PeopleMapValueFields
 import com.joetr.sync.sphere.data.models.PeopleMapValues
 import com.joetr.sync.sphere.data.models.PeopleValues
@@ -45,7 +51,7 @@ private const val BASE_URL =
 
 private const val IOS_FIREBASE_API_KEY = "AIzaSyCPlNmTVYxBOG7kTriSr74pKqK8cyvVJLo"
 
-@Suppress("RethrowCaughtException")
+@Suppress("RethrowCaughtException", "TooManyFunctions")
 class GoogleFirebaseApi {
 
     @OptIn(ExperimentalSerializationApi::class)
@@ -104,7 +110,7 @@ class GoogleFirebaseApi {
                 roomCode,
             ),
             people = PeopleArrayModel(
-                arrayValue = ArrayValue(
+                arrayValue = PeopleArrayValues(
                     values = listOf(
                         PeopleValues(
                             mapValue = PeopleMapValues(
@@ -126,7 +132,13 @@ class GoogleFirebaseApi {
                     ),
                 ),
             ),
+            finalizations = FinalizationsArrayModel(
+                finalizationsArrayValue = FinalizationsArrayValue(
+                    values = emptyList(),
+                ),
+            ),
         )
+
         val roomDocumentField = RoomDocumentField(
             fields = room,
         )
@@ -194,69 +206,20 @@ class GoogleFirebaseApi {
                 this.roomCode,
             ),
             people = PeopleArrayModel(
-                arrayValue = ArrayValue(
+                arrayValue = PeopleArrayValues(
                     values = this.people.map { localPerson ->
-                        PeopleValues(
-                            mapValue = PeopleMapValues(
-                                fields = PeopleMapValueFields(
-                                    name = StringModel(
-                                        localPerson.name,
-                                    ),
-                                    id = StringModel(
-                                        localPerson.id,
-                                    ),
-                                    availability = RemoteAvailability(
-                                        values = AvailabilityArrayValues(
-                                            values = localPerson.availability.map { localAvailability ->
-                                                AvailabilityValues(
-                                                    mapValue = AvailabilityMapValue(
-                                                        fields = AvailabilityFieldValue(
-                                                            display = StringModel(
-                                                                localAvailability.display,
-                                                            ),
-                                                            time = AvailabilityTimeModel(
-                                                                AvailabilityTimeMapValue(
-                                                                    fields = AvailabilityTimeFieldsValue(
-                                                                        type = StringModel(
-                                                                            localAvailability.time::class.qualifiedName!!,
-                                                                        ),
-                                                                        endTimeHour = if (localAvailability.time is DayTime.Range) {
-                                                                            IntegerModel(
-                                                                                localAvailability.time.endTimeHour.toString(),
-                                                                            )
-                                                                        } else {
-                                                                            null
-                                                                        },
-                                                                        endTimeMinute = if (localAvailability.time is DayTime.Range) {
-                                                                            IntegerModel(
-                                                                                localAvailability.time.endTimeMinute.toString(),
-                                                                            )
-                                                                        } else {
-                                                                            null
-                                                                        },
-                                                                        startTimeMinute = if (localAvailability.time is DayTime.Range) {
-                                                                            IntegerModel(
-                                                                                localAvailability.time.startTimeMinute.toString(),
-                                                                            )
-                                                                        } else {
-                                                                            null
-                                                                        },
-                                                                        startTimeHour = if (localAvailability.time is DayTime.Range) {
-                                                                            IntegerModel(
-                                                                                localAvailability.time.startTimeHour.toString(),
-                                                                            )
-                                                                        } else {
-                                                                            null
-                                                                        },
-                                                                    ),
-                                                                ),
-                                                            ),
-                                                        ),
-                                                    ),
-                                                )
-                                            },
-                                        ),
-                                    ),
+                        localPerson.toPeopleValues()
+                    },
+                ),
+            ),
+            finalizations = FinalizationsArrayModel(
+                finalizationsArrayValue = FinalizationsArrayValue(
+                    values = this.finalizations.map {
+                        FinalizationValue(
+                            mapValue = FinalizationMapValue(
+                                fields = FinalizationFields(
+                                    person = it.person.toPeopleValues(),
+                                    availabilityValues = it.availability.toAvailabilityValues(),
                                 ),
                             ),
                         )
@@ -272,43 +235,129 @@ class GoogleFirebaseApi {
             roomCode = this.roomCode.stringValue,
             numberOfPeople = this.numberOfPeople.integerValue.toInt(),
             people = this.people.arrayValue.values.map { people ->
-                People(
-                    availability = people.mapValue.fields.availability.values.values?.map { availability ->
-                        Availability(
-                            display = availability.mapValue.fields.display.stringValue,
-                            time = when (
-                                availability.mapValue.fields.time.mapValue.fields.type.stringValue.substringAfterLast(
-                                    ".",
-                                )
-                            ) {
-                                DayTime.AllDay::class.simpleName -> DayTime.AllDay
-                                DayTime.NotSelected::class.simpleName -> DayTime.NotSelected
-                                DayTime.Range::class.simpleName -> DayTime.Range(
-                                    startTimeHour = availability.mapValue.fields.time.mapValue.fields.startTimeHour!!.integerValue.toInt(),
-                                    startTimeMinute = availability.mapValue.fields.time.mapValue.fields.startTimeMinute!!.integerValue.toInt(),
-                                    endTimeHour = availability.mapValue.fields.time.mapValue.fields.endTimeHour!!.integerValue.toInt(),
-                                    endTimeMinute = availability.mapValue.fields.time.mapValue.fields.endTimeMinute!!.integerValue.toInt(),
-                                )
-
-                                else -> DayTime.NotSelected
-                            },
-                        )
-                    } ?: emptyList(),
-                    name = people.mapValue.fields.name.stringValue,
-                    id = people.mapValue.fields.id.stringValue,
-                )
+                people.toPeople()
             },
             lastUpdatedTimestamp = this.lastUpdatedTimestamp.integerValue.toLong(),
+            finalizations = this.finalizations.finalizationsArrayValue.values.map {
+                Finalization(
+                    person = it.mapValue.fields.person.toPeople(),
+                    availability = it.mapValue.fields.availabilityValues.toAvailability(),
+                )
+            },
         )
     }
 
     suspend fun signInAnonymously(): String {
-        val url = "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=$IOS_FIREBASE_API_KEY"
+        val url =
+            "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=$IOS_FIREBASE_API_KEY"
         try {
             val response: FirebaseSignIn = client.post(url).body()
             return response.idToken
         } catch (throwable: Throwable) {
             throw throwable
         }
+    }
+
+    private fun Availability.toAvailabilityValues(): AvailabilityValues {
+        return AvailabilityValues(
+            mapValue = AvailabilityMapValue(
+                fields = AvailabilityFieldValue(
+                    display = StringModel(
+                        this.display,
+                    ),
+                    time = AvailabilityTimeModel(
+                        AvailabilityTimeMapValue(
+                            fields = AvailabilityTimeFieldsValue(
+                                type = StringModel(
+                                    this.time::class.qualifiedName!!,
+                                ),
+                                endTimeHour = if (this.time is DayTime.Range) {
+                                    IntegerModel(
+                                        this.time.endTimeHour.toString(),
+                                    )
+                                } else {
+                                    null
+                                },
+                                endTimeMinute = if (this.time is DayTime.Range) {
+                                    IntegerModel(
+                                        this.time.endTimeMinute.toString(),
+                                    )
+                                } else {
+                                    null
+                                },
+                                startTimeMinute = if (this.time is DayTime.Range) {
+                                    IntegerModel(
+                                        this.time.startTimeMinute.toString(),
+                                    )
+                                } else {
+                                    null
+                                },
+                                startTimeHour = if (this.time is DayTime.Range) {
+                                    IntegerModel(
+                                        this.time.startTimeHour.toString(),
+                                    )
+                                } else {
+                                    null
+                                },
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+        )
+    }
+
+    private fun People.toPeopleValues(): PeopleValues {
+        return PeopleValues(
+            mapValue = PeopleMapValues(
+                fields = PeopleMapValueFields(
+                    name = StringModel(
+                        this.name,
+                    ),
+                    id = StringModel(
+                        this.id,
+                    ),
+                    availability = RemoteAvailability(
+                        values = AvailabilityArrayValues(
+                            values = this.availability.map { localAvailability ->
+                                localAvailability.toAvailabilityValues()
+                            },
+                        ),
+                    ),
+                ),
+            ),
+        )
+    }
+
+    private fun AvailabilityValues.toAvailability(): Availability {
+        return Availability(
+            display = this.mapValue.fields.display.stringValue,
+            time = when (
+                this.mapValue.fields.time.mapValue.fields.type.stringValue.substringAfterLast(
+                    ".",
+                )
+            ) {
+                DayTime.AllDay::class.simpleName -> DayTime.AllDay
+                DayTime.NotSelected::class.simpleName -> DayTime.NotSelected
+                DayTime.Range::class.simpleName -> DayTime.Range(
+                    startTimeHour = this.mapValue.fields.time.mapValue.fields.startTimeHour!!.integerValue.toInt(),
+                    startTimeMinute = this.mapValue.fields.time.mapValue.fields.startTimeMinute!!.integerValue.toInt(),
+                    endTimeHour = this.mapValue.fields.time.mapValue.fields.endTimeHour!!.integerValue.toInt(),
+                    endTimeMinute = this.mapValue.fields.time.mapValue.fields.endTimeMinute!!.integerValue.toInt(),
+                )
+
+                else -> DayTime.NotSelected
+            },
+        )
+    }
+
+    private fun PeopleValues.toPeople(): People {
+        return People(
+            availability = this.mapValue.fields.availability.values.values?.map { availability ->
+                availability.toAvailability()
+            } ?: emptyList(),
+            name = this.mapValue.fields.name.stringValue,
+            id = this.mapValue.fields.id.stringValue,
+        )
     }
 }

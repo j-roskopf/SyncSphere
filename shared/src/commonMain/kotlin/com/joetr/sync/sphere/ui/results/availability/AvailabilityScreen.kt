@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.Divider
@@ -29,12 +30,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.lifecycle.LifecycleEffect
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.getScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.joetr.sync.sphere.data.model.Finalization
+import com.joetr.sync.sphere.data.model.People
 import com.joetr.sync.sphere.design.button.PrimaryButton
 import com.joetr.sync.sphere.design.theme.conditional
 import com.joetr.sync.sphere.design.toolbar.DefaultToolbar
@@ -49,6 +53,8 @@ import org.jetbrains.compose.resources.painterResource
 
 class AvailabilityScreen(
     val data: Map<String, DayTime>,
+    val person: People,
+    val roomCode: String,
 ) : Screen {
 
     @Composable
@@ -58,7 +64,11 @@ class AvailabilityScreen(
 
         LifecycleEffect(
             onStarted = {
-                screenModel.init(data)
+                screenModel.init(
+                    inputData = data,
+                    roomCode = roomCode,
+                    person = person,
+                )
             },
         )
 
@@ -71,16 +81,39 @@ class AvailabilityScreen(
         ) { paddingValues ->
             AnimatedContent(
                 targetState = viewState,
+                contentKey = {
+                    it.key
+                },
             ) { targetState ->
                 when (targetState) {
                     is AvailabilityScreenState.Content -> AvailabilityState(
                         modifier = Modifier.padding(paddingValues),
                         data = targetState.data,
-                    ) { localDate, dayTime ->
-                        screenModel.addToCalendar(localDate, dayTime)
-                    }
+                        finalizations = targetState.finalizations,
+                        addToCalendar = { localDate, dayTime ->
+                            screenModel.addToCalendar(localDate, dayTime)
+                        },
+                        finalize = { localDate, dayTime ->
+                            screenModel.finalize(person, roomCode, localDate, dayTime)
+                        },
+                        namesThatNeedToFinalize = targetState.namesThatNeedToFinalize,
+                        hasUserSubmittedFinalization = targetState.hasUserSubmittedFinalization,
+                        undoFinalization = {
+                            screenModel.undoFinalization(
+                                person = person,
+                                roomCode = roomCode,
+                            )
+                        },
+                        finalDate = targetState.finalDate,
+                    )
 
                     is AvailabilityScreenState.Loading -> LoadingState(
+                        modifier = Modifier.padding(
+                            paddingValues,
+                        ),
+                    )
+
+                    AvailabilityScreenState.Error -> ErrorState(
                         modifier = Modifier.padding(
                             paddingValues,
                         ),
@@ -91,16 +124,39 @@ class AvailabilityScreen(
     }
 
     @Composable
+    @Suppress("LongParameterList")
     private fun AvailabilityState(
         modifier: Modifier = Modifier,
         data: Map<DayStatus, List<Pair<String, DayTime>>>,
         addToCalendar: (LocalDate, DayTime) -> Unit,
+        finalize: (LocalDate, DayTime) -> Unit,
+        undoFinalization: () -> Unit,
+        finalizations: Map<String, List<Finalization>>,
+        namesThatNeedToFinalize: Map<String, List<String>>,
+        hasUserSubmittedFinalization: Boolean,
+        finalDate: String?,
     ) {
         Column(
             modifier = modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            LazyColumn {
+            LazyColumn(
+                modifier = Modifier.weight(1f),
+            ) {
+                item {
+                    val text = if (finalDate != null) {
+                        "Finalized Date: $finalDate"
+                    } else if (hasUserSubmittedFinalization) {
+                        "You Have Finalized A Date!"
+                    } else {
+                        "Finalize A Date"
+                    }
+                    Text(
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        text = text,
+                        style = MaterialTheme.typography.headlineMedium,
+                    )
+                }
                 val daysDoWorkEntry = data[DayStatus.DAY_WORKS]!!
 
                 daysDoWorkEntry.onEachIndexed { index, entry ->
@@ -109,6 +165,10 @@ class AvailabilityScreen(
                             displayDay = entry.first,
                             dayTime = entry.second,
                             addToCalendar = addToCalendar,
+                            finalize = finalize,
+                            finalizations = finalizations,
+                            namesThatNeedToFinalize = namesThatNeedToFinalize,
+                            hasUserSubmittedFinalization = hasUserSubmittedFinalization,
                         )
 
                         if (index != daysDoWorkEntry.size - 1) {
@@ -133,6 +193,10 @@ class AvailabilityScreen(
                             displayDay = entry.first,
                             dayTime = entry.second,
                             addToCalendar = addToCalendar,
+                            finalize = finalize,
+                            finalizations = finalizations,
+                            namesThatNeedToFinalize = namesThatNeedToFinalize,
+                            hasUserSubmittedFinalization = hasUserSubmittedFinalization,
                         )
 
                         if (index != daysDoNotWorkEntry.size - 1) {
@@ -141,16 +205,35 @@ class AvailabilityScreen(
                     }
                 }
             }
+
+            AnimatedVisibility(
+                visible = hasUserSubmittedFinalization,
+            ) {
+                Divider(modifier = Modifier.padding(horizontal = 16.dp))
+
+                PrimaryButton(
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                    onClick = {
+                        undoFinalization()
+                    },
+                ) {
+                    Text("Undo Finalization")
+                }
+            }
         }
     }
 
     @OptIn(ExperimentalResourceApi::class)
     @Composable
-    @Suppress("MagicNumber")
+    @Suppress("MagicNumber", "LongMethod", "CyclomaticComplexMethod")
     private fun AvailabilityDayItem(
         displayDay: String,
         dayTime: DayTime,
         addToCalendar: (LocalDate, DayTime) -> Unit,
+        finalize: (LocalDate, DayTime) -> Unit,
+        finalizations: Map<String, List<Finalization>>,
+        namesThatNeedToFinalize: Map<String, List<String>>,
+        hasUserSubmittedFinalization: Boolean,
     ) {
         val isActionRowVisible = remember { mutableStateOf(false) }
         val shouldDisplayActionRow = dayTime is DayTime.AllDay || dayTime is DayTime.Range
@@ -177,18 +260,38 @@ class AvailabilityScreen(
                     is DayTime.Range -> "partial_availability.png"
                 }
 
-                Image(
-                    painter = painterResource(image),
-                    contentDescription = null,
-                    modifier = Modifier.size(32.dp),
-                )
+                if (namesThatNeedToFinalize[displayDay]?.isEmpty() == true && shouldDisplayActionRow) {
+                    // everyone has finalized
+                    Icon(
+                        imageVector = Icons.Default.Check,
+                        contentDescription = null,
+                        modifier = Modifier.size(32.dp),
+                        tint = MaterialTheme.colorScheme.primary,
+                    )
+                } else {
+                    Image(
+                        painter = painterResource(image),
+                        contentDescription = null,
+                        modifier = Modifier.size(32.dp),
+                    )
+                }
 
                 Spacer(modifier = Modifier.size(8.dp))
 
-                Text(
+                Column(
                     modifier = Modifier.weight(1.5f),
-                    text = displayDay,
-                )
+                ) {
+                    Text(
+                        text = displayDay,
+                    )
+                    if (finalizations.containsKey(displayDay)) {
+                        val size = finalizations[displayDay]!!.size
+                        val qualifierText = if (size == 1) "vote" else "votes"
+                        if (finalizations[displayDay]?.isNotEmpty() == true) {
+                            Text("$size $qualifierText")
+                        }
+                    }
+                }
 
                 val text = when (dayTime) {
                     is DayTime.AllDay -> "This day works for everyone all day"
@@ -213,19 +316,63 @@ class AvailabilityScreen(
                 AnimatedVisibility(
                     visible = isActionRowVisible.value,
                 ) {
-                    PrimaryButton(
-                        modifier = Modifier.padding(16.dp),
-                        onClick = {
-                            val availability = LocalDate.parse(displayDay)
-                            addToCalendar(availability, dayTime)
-                        },
+                    Column(
+                        horizontalAlignment = Alignment.Start,
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Event,
-                            contentDescription = null,
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text("Add To Calendar")
+                        PrimaryButton(
+                            modifier = Modifier.padding(vertical = 8.dp),
+                            onClick = {
+                                val availability = LocalDate.parse(displayDay)
+                                addToCalendar(availability, dayTime)
+                            },
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Event,
+                                contentDescription = null,
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text("Add To Calendar")
+                        }
+
+                        if (hasUserSubmittedFinalization.not()) {
+                            PrimaryButton(
+                                modifier = Modifier.padding(vertical = 8.dp),
+                                onClick = {
+                                    val availability = LocalDate.parse(displayDay)
+                                    finalize(availability, dayTime)
+                                },
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Check,
+                                    contentDescription = null,
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("Finalize")
+                            }
+                        }
+
+                        if (finalizations.containsKey(displayDay)) {
+                            if (namesThatNeedToFinalize[displayDay]?.isEmpty() == true) {
+                                Text("Finalized by everyone")
+                            } else {
+                                Text(
+                                    "Finalized by: ${
+                                        finalizations[displayDay]!!.joinToString(separator = ", ") {
+                                            it.person.name
+                                        }
+                                    }",
+                                )
+                            }
+
+                            if (namesThatNeedToFinalize[displayDay]?.isNotEmpty() == true) {
+                                Text(
+                                    namesThatNeedToFinalize[displayDay]!!.joinToString(separator = ", ") +
+                                        " still need to finalize.",
+                                )
+                            }
+                        } else {
+                            Text("Date has not been finalized by anyone")
+                        }
                     }
                 }
             }
@@ -239,6 +386,26 @@ class AvailabilityScreen(
             contentAlignment = Alignment.Center,
         ) {
             ProgressIndicator()
+        }
+    }
+
+    @Composable
+    private fun ErrorState(
+        modifier: Modifier = Modifier,
+    ) {
+        Box(
+            modifier = modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center,
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Text(
+                    style = MaterialTheme.typography.displayMedium,
+                    text = "Something went wrong \uD83D\uDE41",
+                    textAlign = TextAlign.Center,
+                )
+            }
         }
     }
 }

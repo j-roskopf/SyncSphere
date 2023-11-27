@@ -20,7 +20,29 @@ class PreviousScreenModel(
 
     fun init() {
         screenModelScope.launch(dispatcher) {
-            kotlin.runCatching {
+            runCatching {
+                roomRepository.getLocalRoomCodes()
+            }.fold(
+                onSuccess = {
+                    if (it.isEmpty()) {
+                        _state.value = PreviousScreenViewState.Empty
+                    } else {
+                        _state.value = PreviousScreenViewState.Content(it)
+                    }
+                },
+                onFailure = {
+                    crashReporting.recordException(it)
+                    _state.value = PreviousScreenViewState.Error
+                },
+            )
+        }
+    }
+
+    fun deleteRoom(roomCode: String) {
+        screenModelScope.launch(dispatcher) {
+            runCatching {
+                roomRepository.deleteRoomLocally(roomCode)
+
                 roomRepository.getLocalRoomCodes()
             }.fold(
                 onSuccess = {
