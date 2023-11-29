@@ -16,12 +16,6 @@ subprojects {
 }
 
 tasks {
-    /**
-     * The detektAll tasks enables parallel usage for detekt so if this project
-     * expands to multi module support, detekt can continue to run quickly.
-     *
-     * https://proandroiddev.com/how-to-use-detekt-in-a-multi-module-android-project-6781937fbef2
-     */
     val detektAll by registering(io.gitlab.arturbosch.detekt.Detekt::class) {
         parallel = true
         setSource(files(projectDir))
@@ -35,7 +29,6 @@ tasks {
     }
 
     val detektGenerateBaseline by registering(io.gitlab.arturbosch.detekt.DetektCreateBaselineTask::class) {
-        description = "Custom DETEKT build to build baseline for all modules"
         baseline.set(file("$rootDir/config/detekt/baseline.xml"))
         setSource(files(projectDir))
         config.setFrom(files("$rootDir/config/detekt/detekt.yml"))

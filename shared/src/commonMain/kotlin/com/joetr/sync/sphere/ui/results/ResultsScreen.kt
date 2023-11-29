@@ -30,6 +30,7 @@ import com.joetr.sync.sphere.data.model.People
 import com.joetr.sync.sphere.data.model.Room
 import com.joetr.sync.sphere.design.button.PrimaryButton
 import com.joetr.sync.sphere.design.button.SecondaryButton
+import com.joetr.sync.sphere.design.button.debouncedClick
 import com.joetr.sync.sphere.design.toolbar.DefaultToolbar
 import com.joetr.sync.sphere.design.toolbar.backOrNull
 import com.joetr.sync.sphere.ui.ProgressIndicator
@@ -171,7 +172,7 @@ class ResultsScreen(
             if (hasUserSubmittedAvailability.not() && previousUserId != null && previousUserName != null) {
                 SecondaryButton(
                     modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-                    onClick = {
+                    onClick = debouncedClick {
                         onSubmitAvailability(room, previousUserId, previousUserName)
                     },
                 ) {
@@ -182,7 +183,7 @@ class ResultsScreen(
             if (hasUserSubmittedAvailability && previousUserId != null && previousUserName != null) {
                 SecondaryButton(
                     modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-                    onClick = {
+                    onClick = debouncedClick {
                         onSubmitAvailability(room, previousUserId, previousUserName)
                     },
                 ) {
@@ -197,7 +198,7 @@ class ResultsScreen(
             ) {
                 PrimaryButton(
                     modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-                    onClick = {
+                    onClick = debouncedClick {
                         calculateAvailability(room.people)
                     },
                 ) {

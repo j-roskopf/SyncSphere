@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.joetr.sync.sphere.design.button.PrimaryButton
+import com.joetr.sync.sphere.design.button.debouncedClick
 
 @Composable
 fun TimeSelectionButtons(
@@ -35,7 +36,7 @@ fun TimeSelectionButtons(
             }.not(),
         ) {
             PrimaryButton(
-                onClick = {
+                onClick = debouncedClick {
                     noPreferenceOnTime()
                 },
                 modifier = Modifier
@@ -59,7 +60,7 @@ fun TimeSelectionButtons(
             },
         ) {
             PrimaryButton(
-                onClick = {
+                onClick = debouncedClick {
                     submitAvailability()
                 },
                 modifier = Modifier

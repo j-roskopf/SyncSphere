@@ -32,7 +32,7 @@ iOS -
 [Fastlane](https://medium.com/revelo-tech/setting-up-automatic-ios-release-with-fastlane-and-match-on-ci-cd-server-16c3f1d79bc5)
 1. Github repo with certificates (MATCH_GIT_BASIC_AUTHORIZATION, MATCH_PASSWORD)
 2. App Store Connect API Key, Issuer ID, and Key ID
-
+3. `openssl base64 < path/to/key.p8 | tr -d '\n' | pbcopy`
 
 Android -
 [Fastlane](https://docs.fastlane.tools/actions/upload_to_play_store/)
@@ -59,3 +59,6 @@ Android -
         storePassword=<stote password>
         storeFile=keystore.jks
       ```
+
+## Mockups
+https://studio.app-mockup.com/
