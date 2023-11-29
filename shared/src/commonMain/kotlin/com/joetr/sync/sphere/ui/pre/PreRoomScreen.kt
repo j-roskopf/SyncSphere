@@ -57,6 +57,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.joetr.sync.sphere.data.model.JoinedRoom
 import com.joetr.sync.sphere.design.button.PrimaryButton
+import com.joetr.sync.sphere.design.button.debouncedClick
 import com.joetr.sync.sphere.design.theme.conditional
 import com.joetr.sync.sphere.ui.ProgressIndicator
 import com.joetr.sync.sphere.ui.icon.IconSelectionScreen
@@ -305,7 +306,7 @@ class PreRoomScreen : Screen {
 
                 PrimaryButton(
                     modifier = Modifier.padding(16.dp),
-                    onClick = {
+                    onClick = debouncedClick {
                         goToNewRoomScreen()
                     },
                 ) {
@@ -364,7 +365,7 @@ class PreRoomScreen : Screen {
                 )
                 PrimaryButton(
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp).fillMaxWidth(),
-                    onClick = {
+                    onClick = debouncedClick {
                         goToPreviousRoomsScreen()
                     },
                 ) {

@@ -7,6 +7,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -40,6 +42,7 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import com.joetr.sync.sphere.data.model.Finalization
 import com.joetr.sync.sphere.data.model.People
 import com.joetr.sync.sphere.design.button.PrimaryButton
+import com.joetr.sync.sphere.design.button.debouncedClick
 import com.joetr.sync.sphere.design.theme.conditional
 import com.joetr.sync.sphere.design.toolbar.DefaultToolbar
 import com.joetr.sync.sphere.design.toolbar.backOrNull
@@ -213,7 +216,7 @@ class AvailabilityScreen(
 
                 PrimaryButton(
                     modifier = Modifier.fillMaxWidth().padding(16.dp),
-                    onClick = {
+                    onClick = debouncedClick {
                         undoFinalization()
                     },
                 ) {
@@ -223,7 +226,7 @@ class AvailabilityScreen(
         }
     }
 
-    @OptIn(ExperimentalResourceApi::class)
+    @OptIn(ExperimentalResourceApi::class, ExperimentalLayoutApi::class)
     @Composable
     @Suppress("MagicNumber", "LongMethod", "CyclomaticComplexMethod")
     private fun AvailabilityDayItem(
@@ -319,44 +322,48 @@ class AvailabilityScreen(
                     Column(
                         horizontalAlignment = Alignment.Start,
                     ) {
-                        PrimaryButton(
-                            modifier = Modifier.padding(vertical = 8.dp),
-                            onClick = {
-                                val availability = LocalDate.parse(displayDay)
-                                addToCalendar(availability, dayTime)
-                            },
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Event,
-                                contentDescription = null,
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text("Add To Calendar")
-                        }
-
-                        if (hasUserSubmittedFinalization.not()) {
+                        FlowRow {
                             PrimaryButton(
-                                modifier = Modifier.padding(vertical = 8.dp),
-                                onClick = {
+                                modifier = Modifier.padding(8.dp),
+                                onClick = debouncedClick {
                                     val availability = LocalDate.parse(displayDay)
-                                    finalize(availability, dayTime)
+                                    addToCalendar(availability, dayTime)
                                 },
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.Check,
+                                    imageVector = Icons.Default.Event,
                                     contentDescription = null,
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
-                                Text("Finalize")
+                                Text("Add To Calendar")
+                            }
+
+                            if (hasUserSubmittedFinalization.not()) {
+                                PrimaryButton(
+                                    modifier = Modifier.padding(8.dp),
+                                    onClick = debouncedClick {
+                                        val availability = LocalDate.parse(displayDay)
+                                        finalize(availability, dayTime)
+                                    },
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Check,
+                                        contentDescription = null,
+                                    )
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text("Finalize")
+                                }
                             }
                         }
 
+                        val textModifier = Modifier.padding(horizontal = 8.dp)
                         if (finalizations.containsKey(displayDay)) {
                             if (namesThatNeedToFinalize[displayDay]?.isEmpty() == true) {
-                                Text("Finalized by everyone")
+                                Text(modifier = textModifier, text = "Finalized by everyone")
                             } else {
                                 Text(
-                                    "Finalized by: ${
+                                    modifier = textModifier,
+                                    text = "Finalized by: ${
                                         finalizations[displayDay]!!.joinToString(separator = ", ") {
                                             it.person.name
                                         }
@@ -366,12 +373,17 @@ class AvailabilityScreen(
 
                             if (namesThatNeedToFinalize[displayDay]?.isNotEmpty() == true) {
                                 Text(
-                                    namesThatNeedToFinalize[displayDay]!!.joinToString(separator = ", ") +
-                                        " still need to finalize.",
+                                    text = namesThatNeedToFinalize[displayDay]!!.joinToString(
+                                        separator = ", ",
+                                    ) + " still need to finalize.",
+                                    modifier = textModifier,
                                 )
                             }
                         } else {
-                            Text("Date has not been finalized by anyone")
+                            Text(
+                                text = "Date has not been finalized by anyone",
+                                modifier = textModifier,
+                            )
                         }
                     }
                 }

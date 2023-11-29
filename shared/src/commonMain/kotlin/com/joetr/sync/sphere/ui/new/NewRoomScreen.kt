@@ -39,6 +39,7 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import com.joetr.sync.sphere.crash.CrashReporting
 import com.joetr.sync.sphere.data.model.JoinedRoom
 import com.joetr.sync.sphere.design.button.PrimaryButton
+import com.joetr.sync.sphere.design.button.debouncedClick
 import com.joetr.sync.sphere.design.toolbar.DefaultToolbar
 import com.joetr.sync.sphere.design.toolbar.backOrNull
 import com.joetr.sync.sphere.ui.ProgressIndicator
@@ -52,6 +53,7 @@ import epicarchitect.calendar.compose.datepicker.state.EpicDatePickerState
 import epicarchitect.calendar.compose.datepicker.state.rememberEpicDatePickerState
 import epicarchitect.calendar.compose.pager.config.rememberEpicCalendarPagerConfig
 import kotlinx.datetime.Clock
+import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.Month
 import kotlinx.datetime.TimeZone
@@ -220,7 +222,7 @@ class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
             ) {
                 PrimaryButton(
                     modifier = Modifier.fillMaxWidth(),
-                    onClick = {
+                    onClick = debouncedClick {
                         // go to time selection screen
                         navigateToTimeSelectionScreen(
                             selectedDates.map {
@@ -247,6 +249,7 @@ class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
                 pagerConfig = rememberEpicCalendarPagerConfig(
                     basisConfig = rememberBasisEpicCalendarConfig(
                         displayDaysOfAdjacentMonths = false,
+                        columnWidth = 42.dp,
                     ),
                 ),
                 selectionContentColor = MaterialTheme.colorScheme.onPrimary,
@@ -274,6 +277,19 @@ class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
 
             EpicDatePicker(
                 state = state,
+                dayOfWeekContent = {
+                    val text = when (it) {
+                        DayOfWeek.MONDAY -> "M"
+                        DayOfWeek.TUESDAY -> "Tu"
+                        DayOfWeek.WEDNESDAY -> "W"
+                        DayOfWeek.THURSDAY -> "Th"
+                        DayOfWeek.FRIDAY -> "F"
+                        DayOfWeek.SATURDAY -> "Sa"
+                        DayOfWeek.SUNDAY -> "Su"
+                        else -> throw IllegalArgumentException("What day of week is this?")
+                    }
+                    Text(text)
+                },
             )
         }
 
