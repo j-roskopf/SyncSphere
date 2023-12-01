@@ -3,7 +3,9 @@
   <h1>Sync Sphere</h1>
 </div>
 
-Sync Sphere is a work in progress
+Are you tired of endless group chats and email threads trying to plan a simple get-together? Sync Sphere is here to streamline your social planning with ease and efficiency.
+
+Create a Room, Share, and Sync!
 
 ## Download 📦
 
