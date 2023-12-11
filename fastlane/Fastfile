@@ -15,8 +15,8 @@ platform :ios do
       use_automatic_signing: false,
       path: 'iosApp/iosApp.xcodeproj',
       targets: 'iosApp',
-      profile_name: 'match AppStore com.joetr.sync.sphere',
-      profile_uuid: 'de173048-3d3d-4075-98f2-7e73f292bf86'
+      profile_name: 'match AppStore com.joetr.sync.sphere 1702266498',
+      profile_uuid: '5d46089a-9f2e-4ca5-bbd1-3d2b049a170b'
     )
     update_code_signing_settings(
       use_automatic_signing: false,
@@ -48,8 +48,8 @@ platform :ios do
       use_automatic_signing: false,
       path: 'iosApp/iosApp.xcodeproj',
       targets: 'iosApp',
-      profile_name: 'match AppStore com.joetr.sync.sphere',
-      profile_uuid: 'de173048-3d3d-4075-98f2-7e73f292bf86'
+      profile_name: 'match AppStore com.joetr.sync.sphere 1702266498',
+      profile_uuid: '5d46089a-9f2e-4ca5-bbd1-3d2b049a170b'
     )
     update_code_signing_settings(
       use_automatic_signing: false,
