@@ -1,7 +1,5 @@
 #!/bin/zsh
 
-# pre-commit file to be used in conjunction with the walgreens gradle plugin. This will be executed before commit and will execute `spotlessApply` on staged files
-
 # Workaround for SourceTree / other Git GUI users (https://community.atlassian.com/t5/Bitbucket-questions/SourceTree-Hook-failing-because-paths-don-t-seem-to-be-set/qaq-p/274792)
 source ~/.zshrc
 
