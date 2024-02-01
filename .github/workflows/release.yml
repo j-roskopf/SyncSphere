@@ -139,6 +139,8 @@ jobs:
         with:
           cache-disabled: true
 
+      - run: brew install swiftlint
+
       - name: Build iOS application
         run: bundle exec fastlane ios release
 
