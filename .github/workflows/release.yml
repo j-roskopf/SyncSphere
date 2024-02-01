@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   code-style:
-    runs-on: macos-latest
+    runs-on: macos-14
     timeout-minutes: 60
 
     steps:
@@ -43,7 +43,7 @@ jobs:
 
   android:
     needs: [code-style]
-    runs-on: ubuntu-latest
+    runs-on: macos-14
     timeout-minutes: 60
     env:
       GOOGLE_PLAY_API_CREDENTIALS: ${{ secrets.GOOGLE_PLAY_API_CREDENTIALS }}
@@ -107,7 +107,7 @@ jobs:
           path: androidApp/build/outputs/
 
   ios:
-    runs-on: macos-13
+    runs-on: macos-14
     needs: [code-style]
     timeout-minutes: 60
     env:
