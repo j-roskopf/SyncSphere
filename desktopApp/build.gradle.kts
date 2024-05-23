@@ -4,6 +4,7 @@ plugins {
     kotlin("multiplatform")
     id("org.jetbrains.compose")
     id("com.joetr.sync.sphere.root")
+    alias(libs.plugins.compose.compiler)
 }
 
 kotlin {

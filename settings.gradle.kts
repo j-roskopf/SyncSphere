@@ -1,4 +1,4 @@
-rootProject.name = "Sync Sphere"
+rootProject.name = "SyncSphere"
 
 include(":androidApp")
 include(":shared")

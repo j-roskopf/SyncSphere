@@ -23,6 +23,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Send
@@ -61,6 +62,7 @@ import com.joetr.sync.sphere.design.button.debouncedClick
 import com.joetr.sync.sphere.design.theme.conditional
 import com.joetr.sync.sphere.ui.ProgressIndicator
 import com.joetr.sync.sphere.ui.icon.IconSelectionScreen
+import com.joetr.sync.sphere.ui.icon.data.toDrawableRes
 import com.joetr.sync.sphere.ui.new.NewRoomScreen
 import com.joetr.sync.sphere.ui.previous.PreviousRoomScreen
 import kotlinx.coroutines.flow.Flow
@@ -68,8 +70,11 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
+import syncsphere.shared.generated.resources.Res
+import syncsphere.shared.generated.resources.desktop_icon
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
@@ -177,7 +182,7 @@ class PreRoomScreen : Screen {
                             IconSelectionScreen(),
                         )
                     },
-                    userPreferenceIcon = state.userIconPreference,
+                    userPreferenceIcon = state.userIconPreference.toDrawableRes(),
                 )
             }
 
@@ -229,7 +234,7 @@ class PreRoomScreen : Screen {
         nameText: String,
         onNameTextChange: (String) -> Unit,
         goToIconSelectionScreen: () -> Unit,
-        userPreferenceIcon: String?,
+        userPreferenceIcon: DrawableResource?,
     ) {
         val focusManager = LocalFocusManager.current
         val coroutineScope = rememberCoroutineScope()
@@ -260,7 +265,7 @@ class PreRoomScreen : Screen {
                 Box {
                     Image(
                         painter = painterResource(
-                            userPreferenceIcon ?: "desktop_icon.png",
+                            userPreferenceIcon ?: Res.drawable.desktop_icon,
                         ),
                         contentDescription = "Icon",
                         contentScale = ContentScale.Crop,
@@ -350,7 +355,7 @@ class PreRoomScreen : Screen {
                     modifier = Modifier.defaultMinSize(minWidth = 48.dp, minHeight = 48.dp),
                     content = {
                         Icon(
-                            Icons.Default.Send,
+                            Icons.AutoMirrored.Default.Send,
                             contentDescription = null,
                         )
                     },

@@ -19,10 +19,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.KeyboardArrowRight
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -57,6 +58,10 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
+import syncsphere.shared.generated.resources.Res
+import syncsphere.shared.generated.resources.full_availability
+import syncsphere.shared.generated.resources.no_availability
+import syncsphere.shared.generated.resources.partial_availability
 
 class AvailabilityScreen(
     val data: Map<String, DayTime>,
@@ -179,7 +184,7 @@ class AvailabilityScreen(
                         )
 
                         if (index != daysDoWorkEntry.size - 1) {
-                            Divider(modifier = Modifier.padding(horizontal = 8.dp))
+                            HorizontalDivider(modifier = Modifier.padding(horizontal = 8.dp))
                         }
                     }
                 }
@@ -207,7 +212,7 @@ class AvailabilityScreen(
                         )
 
                         if (index != daysDoNotWorkEntry.size - 1) {
-                            Divider(modifier = Modifier.padding(horizontal = 8.dp))
+                            HorizontalDivider(modifier = Modifier.padding(horizontal = 8.dp))
                         }
                     }
                 }
@@ -216,7 +221,7 @@ class AvailabilityScreen(
             AnimatedVisibility(
                 visible = hasUserSubmittedFinalization,
             ) {
-                Divider(modifier = Modifier.padding(horizontal = 16.dp))
+                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
 
                 PrimaryButton(
                     modifier = Modifier.fillMaxWidth().padding(16.dp),
@@ -274,9 +279,9 @@ class AvailabilityScreen(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 val image = when (dayTime) {
-                    is DayTime.AllDay -> "full_availability.png"
-                    is DayTime.NotSelected -> "no_availability.png"
-                    is DayTime.Range -> "partial_availability.png"
+                    is DayTime.AllDay -> Res.drawable.full_availability
+                    is DayTime.NotSelected -> Res.drawable.no_availability
+                    is DayTime.Range -> Res.drawable.partial_availability
                 }
 
                 if (namesThatNeedToFinalize[displayDay]?.isEmpty() == true && shouldDisplayActionRow) {
@@ -325,7 +330,7 @@ class AvailabilityScreen(
 
                 if (shouldDisplayActionRow) {
                     Icon(
-                        imageVector = Icons.Default.KeyboardArrowRight,
+                        imageVector = Icons.AutoMirrored.Default.KeyboardArrowRight,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.graphicsLayer {
