@@ -18,7 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -44,6 +44,7 @@ import com.joetr.sync.sphere.design.toolbar.DefaultToolbar
 import com.joetr.sync.sphere.design.toolbar.backOrNull
 import com.joetr.sync.sphere.ui.ProgressIndicator
 import com.joetr.sync.sphere.ui.icon.data.ImageProvider
+import com.joetr.sync.sphere.ui.icon.data.toDrawableRes
 import com.joetr.sync.sphere.ui.time.TimeSelectionScreen
 import epicarchitect.calendar.compose.basis.EpicMonth
 import epicarchitect.calendar.compose.basis.config.rememberBasisEpicCalendarConfig
@@ -58,7 +59,7 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.Month
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
-import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import org.koin.mp.KoinPlatform.getKoin
 
@@ -120,7 +121,7 @@ class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
                         },
                         selectedDates = targetState.dates,
                         names = targetState.names,
-                        userPreferenceIcon = targetState.userPreferenceIcon,
+                        userPreferenceIcon = targetState.userPreferenceIcon.toDrawableRes(),
                     )
 
                     is NewRoomState.Loading -> LoadingState(
@@ -181,7 +182,7 @@ class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
         navigateToTimeSelectionScreen: (List<String>) -> Unit,
         addDates: (List<LocalDate>) -> Unit,
         selectedDates: List<LocalDate>,
-        userPreferenceIcon: String?,
+        userPreferenceIcon: DrawableResource?,
     ) {
         Column(
             modifier = modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
@@ -194,12 +195,12 @@ class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
                     text = "Code: $roomCode",
                     style = MaterialTheme.typography.headlineMedium,
                 )
-                Divider(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
+                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
                 Text(
                     text = "You: $name",
                     style = MaterialTheme.typography.headlineSmall,
                 )
-                Divider(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
+                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
             }
 
             ContentStateAvatars(
@@ -207,7 +208,7 @@ class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
                 userPreferenceIcon = userPreferenceIcon,
             )
 
-            Divider(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
+            HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
 
             DatePicker(
                 selectedDates = selectedDates,
@@ -299,9 +300,9 @@ class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
         }
     }
 
-    @OptIn(ExperimentalLayoutApi::class, ExperimentalResourceApi::class)
+    @OptIn(ExperimentalLayoutApi::class)
     @Composable
-    private fun ContentStateAvatars(names: List<String>, userPreferenceIcon: String?) {
+    private fun ContentStateAvatars(names: List<String>, userPreferenceIcon: DrawableResource?) {
         FlowRow(
             modifier = Modifier.fillMaxWidth(),
         ) {
@@ -335,7 +336,7 @@ class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
         }
     }
 
-    private fun getImageDataForPosition(index: Int): String {
+    private fun getImageDataForPosition(index: Int): DrawableResource {
         val listOfImages = ImageProvider.images()
         return listOfImages[index % listOfImages.size]
     }

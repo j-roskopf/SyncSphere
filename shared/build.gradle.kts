@@ -6,6 +6,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization")
     id("co.touchlab.crashkios.crashlyticslink") version libs.versions.crashlytics.get()
     id("app.cash.sqldelight") version libs.versions.sqlDelight.get()
+    alias(libs.plugins.compose.compiler)
 }
 
 kotlin {
@@ -28,8 +29,10 @@ kotlin {
 
     targets.configureEach {
         compilations.configureEach {
-            compilerOptions.configure {
-                freeCompilerArgs.add("-Xexpect-actual-classes")
+            compileTaskProvider.configure {
+                compilerOptions {
+                    freeCompilerArgs.add("-Xexpect-actual-classes")
+                }
             }
         }
     }
@@ -136,7 +139,7 @@ android {
 
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     sourceSets["main"].res.srcDirs("src/androidMain/res")
-    sourceSets["main"].resources.srcDirs("src/commonMain/resources")
+    sourceSets["main"].resources.srcDirs("src/commonMain/composeResources")
 
     defaultConfig {
         minSdk = (findProperty("android.minSdk") as String).toInt()
@@ -159,4 +162,9 @@ sqldelight {
         }
         linkSqlite.set(true)
     }
+}
+
+compose.resources {
+    publicResClass = true
+    generateResClass = always
 }

@@ -17,7 +17,7 @@ fun main() = application {
 
     Window(
         title = "Sync Sphere",
-        icon = painterResource("desktop_icon.png"),
+        icon = painterResource("icon/desktop_icon.png"),
         onCloseRequest = {
             exitApplication()
         },

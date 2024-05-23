@@ -30,6 +30,7 @@ import com.joetr.sync.sphere.design.toolbar.DefaultToolbar
 import com.joetr.sync.sphere.design.toolbar.backOrNull
 import com.joetr.sync.sphere.ui.ProgressIndicator
 import com.joetr.sync.sphere.ui.icon.data.IconSelection
+import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
 
@@ -80,7 +81,7 @@ class IconSelectionScreen : Screen {
     private fun ContentState(
         modifier: Modifier = Modifier,
         images: List<IconSelection>,
-        imageSelected: (String) -> Unit,
+        imageSelected: (DrawableResource) -> Unit,
     ) {
         LazyVerticalGrid(
             modifier = modifier.fillMaxSize(),
@@ -97,7 +98,7 @@ class IconSelectionScreen : Screen {
 
     @OptIn(ExperimentalResourceApi::class)
     @Composable
-    private fun ImageItem(image: IconSelection, imageSelected: (String) -> Unit) {
+    private fun ImageItem(image: IconSelection, imageSelected: (DrawableResource) -> Unit) {
         Box(
             contentAlignment = Alignment.Center,
         ) {

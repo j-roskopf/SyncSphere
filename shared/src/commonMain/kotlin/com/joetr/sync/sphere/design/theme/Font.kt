@@ -3,20 +3,14 @@ package com.joetr.sync.sphere.design.theme
 import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
+import org.jetbrains.compose.resources.Font
+import syncsphere.shared.generated.resources.Res
+import syncsphere.shared.generated.resources.poppins_regular
 
 val openSansRegular: FontFamily
     @Composable
     get() {
-        return FontFamily(
-            font(
-                "Poppins",
-                "poppins_regular",
-                FontWeight.Normal,
-                FontStyle.Normal,
-            ),
-        )
+        return FontFamily(Font(Res.font.poppins_regular))
     }
 
 val AppTypography: Typography
