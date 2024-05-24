@@ -14,7 +14,7 @@ multiplatformSettingsNoArg = "1.1.0"
 spotless = "6.25.0"
 detekt = "1.23.1"
 ktlint = "0.49.1"
-agp = "8.4.1"
+agp = "8.3.0"
 kotlin = "2.0.0"
 detektGradlePlugin = "1.23.1"
 voyager = "1.0.0"
@@ -42,7 +42,7 @@ compose-swipebox-multiplatform = { module = "io.github.kevinnzou:compose-swipebo
 core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
 crashlytics = { module = "co.touchlab.crashkios:crashlytics", version.ref = "crashlytics" }
 desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
-firebase-common-ktx = { module = "com.google.firebase:firebase-common-ktx", version.ref = "firebaseCommonKtx" }
+firebase-common-google = { module = "com.google.firebase:firebase-common", version.ref = "firebaseCommonKtx" }
 firebase-common = { module = "dev.gitlive:firebase-common", version.ref = "firebase" }
 firebase-crashlytics = { module = "dev.gitlive:firebase-crashlytics", version.ref = "firebase" }
 firebase-firestore = { module = "dev.gitlive:firebase-firestore", version.ref = "firebase" }
