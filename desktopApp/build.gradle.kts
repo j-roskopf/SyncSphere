@@ -29,12 +29,23 @@ compose.desktop {
         nativeDistributions {
             modules("java.naming")
 
+            outputBaseDir.set(layout.buildDirectory.asFile.get().resolve("release"))
+
             targetFormats(TargetFormat.Dmg, TargetFormat.Pkg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "Sync Sphere"
             packageVersion = "1.4.3"
 
             macOS {
                 iconFile.set(project.file("src/jvmMain/resources/icon/desktop_icon.icns"))
+                bundleID = "com.joetr.sync.sphere.mac"
+                signing {
+                    sign.set(true)
+                    identity.set("Joseph Roskopf")
+                }
+                notarization {
+                    appleID.set("joebrothehobo@gmail.com")
+                    password.set("@keychain:NOTARIZATION_PASSWORD")
+                }
             }
             windows {
                 iconFile.set(project.file("src/jvmMain/resources/icon/desktop_icon.ico"))
