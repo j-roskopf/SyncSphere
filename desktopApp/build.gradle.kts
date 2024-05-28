@@ -45,7 +45,7 @@ compose.desktop {
 
                 signing {
                     sign.set(true)
-                    identity.set("Joseph Roskopf")
+                    identity.set("3rd Party Mac Developer Installer: Joseph Roskopf")
                 }
 
                 notarization {
