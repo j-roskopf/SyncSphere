@@ -33,9 +33,16 @@ compose.desktop {
 
             outputBaseDir.set(layout.buildDirectory.asFile.get().resolve("release"))
 
+            nativeDistributions {
+                if (isAppStoreRelease) {
+                    appResourcesRootDir.set(project.layout.projectDirectory.dir("resources"))
+                }
+                modules("java.sql")
+            }
+
             targetFormats(TargetFormat.Dmg, TargetFormat.Pkg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "Sync Sphere"
-            packageVersion = "1.4.3"
+            packageVersion = "1.4.4"
 
             macOS {
                 iconFile.set(project.file("src/jvmMain/resources/icon/desktop_icon.icns"))
