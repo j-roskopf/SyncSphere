@@ -20,6 +20,7 @@ jobs:
       - name: Setup environment
         uses: ./.github/actions/setup-gradle
 
+      # Export all as .p12
       - name: Import Mac App Distribution and Installer certificate
         uses: apple-actions/import-codesign-certs@v3
         with:
@@ -70,26 +71,6 @@ jobs:
           name: reports
           path: |
             **/build/compose/logs/*  
-
-      - name: Notarization
-        run: |
-          xcrun notarytool submit "$RELEASE_PATH" --apple-id $APPLE_ID_NOTARIZATION --password $NOTARIZATION_PWD --team-id $APPSTORE_TEAM_ID --wait
-          xcrun stapler staple "$RELEASE_PATH"
-        env:
-          APPLE_ID_NOTARIZATION: ${{ secrets.APPLE_ID_NOTARIZATION }}
-          APPSTORE_TEAM_ID: ${{ secrets.APPSTORE_TEAM_ID }}
-          NOTARIZATION_PWD: ${{ secrets.NOTARIZATION_PWD }}
-          RELEASE_PATH: ${{ env.RELEASE_PATH }}
-
-      - name: Upload binaries to release
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ${{ env.RELEASE_PATH }}
-          tag: ${{ env.TAG }}
-          overwrite: true
-          draft: true
-          body: "Release ${{ env.VERSION }}"
 
       - uses: Apple-Actions/upload-testflight-build@v1
         with:
