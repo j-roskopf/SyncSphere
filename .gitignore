@@ -110,6 +110,7 @@ gradle.xml
 ios-app/Tivi/.idea/*
 .fleet
 
+*.provisionprofile
 
 # Do not commit plain-text release keys
 app-release.jks

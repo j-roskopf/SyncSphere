@@ -40,6 +40,9 @@ compose.desktop {
             macOS {
                 iconFile.set(project.file("src/jvmMain/resources/icon/desktop_icon.icns"))
                 bundleID = "com.joetr.sync.sphere.mac"
+
+                appStore = isAppStoreRelease
+
                 signing {
                     sign.set(true)
                     identity.set("Joseph Roskopf")
