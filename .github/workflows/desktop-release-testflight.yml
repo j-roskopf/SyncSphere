@@ -44,8 +44,8 @@ jobs:
       - name: Create path variables
         id: path_variables
         run: |
-          tag=$(git describe --tags --abbrev=0 --match "release/*")
-          version=$(echo "$tag" | sed 's/release\///')
+          tag=$(git describe --tags --abbrev=0 --match "desktop-release/*")
+          version=$(echo "$tag" | sed 's/desktop-release\///')
           name="Sync Sphere-${version}.pkg"
           path="desktopApp/build/release/main/pkg/${name}"
           echo "TAG=$tag" >> $GITHUB_ENV
