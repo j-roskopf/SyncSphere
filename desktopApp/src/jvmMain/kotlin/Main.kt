@@ -17,10 +17,6 @@ fun main() = application {
     if (isSandboxed) {
         val resourcesPath = System.getProperty("compose.application.resources.dir")
 
-        // jna
-        System.setProperty("jna.nounpack", "true")
-        System.setProperty("jna.boot.library.path", resourcesPath)
-
         // sqlite-jdbc
         System.setProperty("org.sqlite.lib.path", resourcesPath)
         System.setProperty("org.sqlite.lib.name", "libsqlitejdbc.dylib")
