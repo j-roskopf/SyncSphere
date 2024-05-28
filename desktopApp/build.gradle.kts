@@ -47,6 +47,7 @@ compose.desktop {
                     sign.set(true)
                     identity.set("Joseph Roskopf")
                 }
+
                 notarization {
                     appleID.set("joebrothehobo@gmail.com")
                     password.set("@keychain:NOTARIZATION_PASSWORD")
@@ -63,9 +64,11 @@ compose.desktop {
                     entitlementsFile.set(project.file("default.entitlements"))
                 }
             }
+
             windows {
                 iconFile.set(project.file("src/jvmMain/resources/icon/desktop_icon.ico"))
             }
+
             linux {
                 iconFile.set(project.file("src/jvmMain/resources/icon/desktop_icon.png"))
             }

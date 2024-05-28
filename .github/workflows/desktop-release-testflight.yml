@@ -1,4 +1,4 @@
-name: Desktop MacOS Release Github
+name: Desktop MacOS Release Testflight
 
 on:
   push:
@@ -20,11 +20,10 @@ jobs:
       - name: Setup environment
         uses: ./.github/actions/setup-gradle
 
-      # Developer ID Application
-      - name: Import signing certificate
+      - name: Import Mac App Distribution and Installer certificate
         uses: apple-actions/import-codesign-certs@v3
         with:
-          p12-file-base64: ${{ secrets.CERTIFICATES_P12 }}
+          p12-file-base64: ${{ secrets.MAC_APP_DISTRIBUTION_INSTALLER_CERTIFICATE }}
           p12-password: ${{ secrets.CERTIFICATES_PASSWORD }}
 
       - name: Create Embedded Provision Profile
@@ -46,8 +45,8 @@ jobs:
         run: |
           tag=$(git describe --tags --abbrev=0 --match "release/*")
           version=$(echo "$tag" | sed 's/release\///')
-          name="Sync Sphere-${version}.dmg"
-          path="desktopApp/build/release/main/dmg/${name}"
+          name="Sync Sphere-${version}.pkg"
+          path="desktopApp/build/release/main/pkg/${name}"
           echo "TAG=$tag" >> $GITHUB_ENV
           echo "VERSION=$version" >> $GITHUB_ENV
           echo "RELEASE_PATH=$path" >> $GITHUB_ENV
@@ -61,8 +60,8 @@ jobs:
           SENTRY_DNS: ${{ secrets.SENTRY_DNS }}
           VERSION: ${{ env.VERSION }}
 
-      - name: Create DMG
-        run: ./gradlew :desktopApp:packageDmg
+      - name: Create PKG
+        run: ./gradlew :desktopApp:packagePkg -PmacOsAppStoreRelease=true
         
       - name: Upload reports
         if: failure()
