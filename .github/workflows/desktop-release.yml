@@ -62,7 +62,7 @@ jobs:
           VERSION: ${{ env.VERSION }}
 
       - name: Create PKG
-        run: ./gradlew :desktopApp:packagePkg
+        run: ./gradlew :desktopApp:packagePkg -PmacOsAppStoreRelease=true
         
       - name: Upload reports
         if: failure()

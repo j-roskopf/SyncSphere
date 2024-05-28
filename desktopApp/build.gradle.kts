@@ -26,6 +26,8 @@ compose.desktop {
     application {
         mainClass = "MainKt"
 
+        val isAppStoreRelease = project.property("macOsAppStoreRelease").toString().toBoolean()
+
         nativeDistributions {
             modules("java.naming")
 
@@ -45,6 +47,17 @@ compose.desktop {
                 notarization {
                     appleID.set("joebrothehobo@gmail.com")
                     password.set("@keychain:NOTARIZATION_PASSWORD")
+                }
+
+                minimumSystemVersion = "12.0"
+
+                if (isAppStoreRelease) {
+                    entitlementsFile.set(project.file("entitlements.plist"))
+                    runtimeEntitlementsFile.set(project.file("runtime-entitlements.plist"))
+                    provisioningProfile.set(project.file("embedded.provisionprofile"))
+                    runtimeProvisioningProfile.set(project.file("runtime.provisionprofile"))
+                } else {
+                    entitlementsFile.set(project.file("default.entitlements"))
                 }
             }
             windows {
