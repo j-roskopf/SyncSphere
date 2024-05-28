@@ -27,20 +27,6 @@ jobs:
           p12-file-base64: ${{ secrets.CERTIFICATES_P12 }}
           p12-password: ${{ secrets.CERTIFICATES_PASSWORD }}
 
-      - name: Create Embedded Provision Profile
-        run: |
-          echo "$EMBEDDED_PROVISION" > desktopApp/embedded.provisionprofile.b64
-          base64 -d -i desktopApp/embedded.provisionprofile.b64 > desktopApp/embedded.provisionprofile
-        env:
-          EMBEDDED_PROVISION: ${{ secrets.EMBEDDED_PROVISION }}
-
-      - name: Create Runtime Provision Profile
-        run: |
-          echo "$RUNTIME_PROVISION" > desktopApp/runtime.provisionprofile.b64
-          base64 -d -i desktopApp/runtime.provisionprofile.b64 > desktopApp/runtime.provisionprofile
-        env:
-          RUNTIME_PROVISION: ${{ secrets.RUNTIME_PROVISION }}
-
       - name: Create path variables
         id: path_variables
         run: |
@@ -91,11 +77,3 @@ jobs:
           overwrite: true
           draft: true
           body: "Release ${{ env.VERSION }}"
-
-      - uses: Apple-Actions/upload-testflight-build@v1
-        with:
-          app-type: 'osx'
-          app-path: ${{ env.RELEASE_PATH }}
-          issuer-id: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
-          api-key-id: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
-          api-private-key: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY }}
