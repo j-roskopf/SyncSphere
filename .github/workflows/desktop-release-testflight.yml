@@ -77,5 +77,5 @@ jobs:
           app-type: 'osx'
           app-path: ${{ env.RELEASE_PATH }}
           issuer-id: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
-          api-key-id: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
-          api-private-key: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY }}
+          api-key-id: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID_SYNC_SPHERE }}
+          api-private-key: ${{ secrets.SYNC_SPHERE_APP_STORE_CONNECT_PRIVATE_KEY }}
