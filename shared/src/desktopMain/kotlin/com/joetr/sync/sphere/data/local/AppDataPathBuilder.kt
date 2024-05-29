@@ -6,10 +6,10 @@ internal object AppDataPathBuilder {
 
     private val appDataPath = when {
         System.getProperty("os.name").contains("Mac", true) -> {
-            "${System.getProperty("user.home")}/Library/Application Support/FeedFlow"
+            "${System.getProperty("user.home")}/Library/Application Support/SyncSphere"
         }
         System.getProperty("os.name").contains("windows", true) -> {
-            "${System.getProperty("user.home")}\\AppData\\Local\\FeedFlow"
+            "${System.getProperty("user.home")}\\AppData\\Local\\SyncSphere"
         }
         else -> {
             error("This type OS not implemented")

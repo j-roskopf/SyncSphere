@@ -33,7 +33,7 @@ class PreScreenModel(
 
     fun init() {
         screenModelScope.launch(dispatcher) {
-            // roomRepository.signInAnonymouslyIfNeeded()
+            roomRepository.signInAnonymouslyIfNeeded()
 
             userIconPreference = roomRepository.getLocalIcon()
 
