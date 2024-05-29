@@ -42,7 +42,7 @@ compose.desktop {
 
             targetFormats(TargetFormat.Dmg, TargetFormat.Pkg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "Sync Sphere"
-            packageVersion = "1.4.9"
+            packageVersion = "1.5.0"
 
             macOS {
                 iconFile.set(project.file("src/jvmMain/resources/icon/desktop_icon.icns"))
