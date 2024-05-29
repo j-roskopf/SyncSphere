@@ -42,13 +42,17 @@ compose.desktop {
 
             targetFormats(TargetFormat.Dmg, TargetFormat.Pkg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "Sync Sphere"
-            packageVersion = "1.4.8"
+            packageVersion = "1.4.9"
 
             macOS {
                 iconFile.set(project.file("src/jvmMain/resources/icon/desktop_icon.icns"))
                 bundleID = "com.joetr.sync.sphere.mac"
 
                 appStore = isAppStoreRelease
+
+                infoPlist {
+                    extraKeysRawXml = macExtraPlistKeys
+                }
 
                 signing {
                     sign.set(true)
@@ -86,3 +90,9 @@ compose.desktop {
 tasks.withType<JavaExec>().configureEach {
     systemProperty("syncSphereDebug", System.getProperty("syncSphereDebug"))
 }
+
+val macExtraPlistKeys: String
+    get() = """
+        <key>ITSAppUsesNonExemptEncryption</key>
+        <false/>
+    """.trimIndent()
