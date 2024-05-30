@@ -62,7 +62,6 @@ actual class RoomRepositoryImpl actual constructor(
 
     override suspend fun signInAnonymouslyIfNeeded() {
         idToken = firebaseApi.signInAnonymously()
-        settings[ID_TOKEN_KEY] = idToken
     }
 
     override suspend fun createRoom(name: String): Room {
