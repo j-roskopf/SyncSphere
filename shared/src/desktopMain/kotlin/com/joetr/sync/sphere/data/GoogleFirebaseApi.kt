@@ -50,7 +50,7 @@ import kotlinx.serialization.json.Json
 private val client = HttpClient {
     defaultRequest {
         url("https://firestore.googleapis.com/v1/projects/syncsphere-37dca/databases/(default)/documents/")
-        // contentType(ContentType.Application.Json)
+        contentType(ContentType.Application.Json)
     }
     install(ContentNegotiation) {
         json(

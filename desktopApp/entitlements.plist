@@ -20,6 +20,7 @@
     <string>LVCF4PVSY3.com.joetr.sync.sphere.mac</string>
     <key>com.apple.developer.team-identifier</key>
     <string>LVCF4PVSY3</string>
-    <!-- Add additional entitlements here, for example for network or hardware access. -->
+    <key>com.apple.security.network.client</key>
+    <true/>
 </dict>
 </plist>
