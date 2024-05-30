@@ -76,7 +76,7 @@ class NewRoomScreenModel(
                     }
                 },
                 onFailure = {
-                    _state.value = NewRoomState.Error(it.message ?: "empty")
+                    _state.value = NewRoomState.Error(it.cause.toString())
                 },
             )
         }
