@@ -46,16 +46,11 @@ import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 
-private const val BASE_URL =
-    "https://firestore.googleapis.com/v1/projects/syncsphere-37dca/databases/(default)/documents/"
-
-private const val IOS_FIREBASE_API_KEY = "AIzaSyCPlNmTVYxBOG7kTriSr74pKqK8cyvVJLo"
-
 @OptIn(ExperimentalSerializationApi::class)
 private val client = HttpClient {
     defaultRequest {
-        url(BASE_URL)
-        contentType(ContentType.Application.Json)
+        url("https://firestore.googleapis.com/v1/projects/syncsphere-37dca/databases/(default)/documents/")
+        // contentType(ContentType.Application.Json)
     }
     install(ContentNegotiation) {
         json(
@@ -248,7 +243,7 @@ class GoogleFirebaseApi {
     suspend fun signInAnonymously(): String {
         return withTimeout(10000L) {
             val url =
-                "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=$IOS_FIREBASE_API_KEY"
+                "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyCPlNmTVYxBOG7kTriSr74pKqK8cyvVJLo"
             try {
                 val response: FirebaseSignIn = client.post(url).body()
                 response.idToken
