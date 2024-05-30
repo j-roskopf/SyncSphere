@@ -137,6 +137,7 @@ class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
                                     name = name,
                                 )
                             },
+                            error = targetState.message,
                         )
                     }
                 }
@@ -148,6 +149,7 @@ class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
     private fun ErrorState(
         modifier: Modifier = Modifier,
         tryAgain: () -> Unit,
+        error: String,
     ) {
         Box(
             modifier = modifier.fillMaxSize(),
