@@ -60,8 +60,9 @@ actual class RoomRepositoryImpl actual constructor(
         )
     }
 
+    @Suppress("MaxLineLength")
     override suspend fun signInAnonymouslyIfNeeded() {
-        // idToken = firebaseApi.signInAnonymously()
+        idToken = "eyJhbGciOiJSUzI1NiIsImtpZCI6IjVkNjE3N2E5Mjg2ZDI1Njg0NTI2OWEzMTM2ZDNmNjY0MjZhNGQ2NDIiLCJ0eXAiOiJKV1QifQ.eyJwcm92aWRlcl9pZCI6ImFub255bW91cyIsImlzcyI6Imh0dHBzOi8vc2VjdXJldG9rZW4uZ29vZ2xlLmNvbS9zeW5jc3BoZXJlLTM3ZGNhIiwiYXVkIjoic3luY3NwaGVyZS0zN2RjYSIsImF1dGhfdGltZSI6MTcxNzA5NDc1NCwidXNlcl9pZCI6IjNPcm5zZG1KVFhiT1dmcGhsNjVsaUYyV3BGUzIiLCJzdWIiOiIzT3Juc2RtSlRYYk9XZnBobDY1bGlGMldwRlMyIiwiaWF0IjoxNzE3MDk0NzU0LCJleHAiOjE3MTcwOTgzNTQsImZpcmViYXNlIjp7ImlkZW50aXRpZXMiOnt9LCJzaWduX2luX3Byb3ZpZGVyIjoiYW5vbnltb3VzIn19.RynlWeyuVpyXJXvkYHi3trv5vVWMbh5A0pYbgX8czvQWajJS7Y9_DyIrfehE8nbKp-eaK5SYpJ9ZQr1s7rWaSSDO4uyGQU-M45RMiyUlqs8Oq8czvxJe39opgMgtxQImNt7jWrSezNO8cDOg56Njd9qKBABaSV9OIMDUtFh35tnCr4wjWQY9WQpmpgRl3IZrdZNujOqwoKDBrJnR_yTlF8qi6bQH8Rs9SDdQ5N0StOd7GdGL-KeJ9znVU4vV_uG0QdIkJFe93iK-AA4agIwjnO0UajDK25P9c73wsk894_FV5W-aNWDIGSg9OtqqL3GQTPf0xuKh29Fv-9nYcDwPbg"
     }
 
     override suspend fun createRoom(name: String): Room {
