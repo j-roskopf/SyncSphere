@@ -160,7 +160,7 @@ class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
             ) {
                 Text(
                     style = MaterialTheme.typography.displayMedium,
-                    text = "Something went wrong \uD83D\uDE41",
+                    text = "Something went wrong $error",
                     textAlign = TextAlign.Center,
                 )
 
