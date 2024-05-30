@@ -51,28 +51,26 @@ private const val BASE_URL =
 
 private const val IOS_FIREBASE_API_KEY = "AIzaSyCPlNmTVYxBOG7kTriSr74pKqK8cyvVJLo"
 
+@OptIn(ExperimentalSerializationApi::class)
+private val client = HttpClient {
+    defaultRequest {
+        url(BASE_URL)
+        contentType(ContentType.Application.Json)
+    }
+    install(ContentNegotiation) {
+        json(
+            Json {
+                prettyPrint = true
+                ignoreUnknownKeys = true
+                explicitNulls = false
+                encodeDefaults = false
+            },
+        )
+    }
+}
+
 @Suppress("RethrowCaughtException", "TooManyFunctions")
 class GoogleFirebaseApi {
-
-    @OptIn(ExperimentalSerializationApi::class)
-    private val client by lazy {
-        HttpClient {
-            defaultRequest {
-                url(BASE_URL)
-                contentType(ContentType.Application.Json)
-            }
-            install(ContentNegotiation) {
-                json(
-                    Json {
-                        prettyPrint = true
-                        ignoreUnknownKeys = true
-                        explicitNulls = false
-                        encodeDefaults = false
-                    },
-                )
-            }
-        }
-    }
 
     suspend fun updateRoom(localRoom: Room, idToken: String, roomCollection: String) {
         val room = localRoom.toRoomField()
