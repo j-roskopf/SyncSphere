@@ -43,6 +43,7 @@ import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
+import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 
@@ -247,14 +248,17 @@ class GoogleFirebaseApi {
         )
     }
 
+    @Suppress("MagicNumber")
     suspend fun signInAnonymously(): String {
-        val url =
-            "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=$IOS_FIREBASE_API_KEY"
-        try {
-            val response: FirebaseSignIn = client.post(url).body()
-            return response.idToken
-        } catch (throwable: Throwable) {
-            throw throwable
+        return withTimeout(10000L) {
+            val url =
+                "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=$IOS_FIREBASE_API_KEY"
+            try {
+                val response: FirebaseSignIn = client.post(url).body()
+                response.idToken
+            } catch (throwable: Throwable) {
+                throw throwable
+            }
         }
     }
 
