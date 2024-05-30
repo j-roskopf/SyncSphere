@@ -34,7 +34,6 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
-import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.patch
@@ -58,7 +57,6 @@ class GoogleFirebaseApi {
     @OptIn(ExperimentalSerializationApi::class)
     private val client by lazy {
         HttpClient {
-            install(Logging)
             defaultRequest {
                 url(BASE_URL)
                 contentType(ContentType.Application.Json)
