@@ -13,6 +13,15 @@ private const val WINDOW_MIN_WIDTH = 700
 private const val WINDOW_MIN_HEIGHT = 1000
 
 fun main() = application {
+    val isSandboxed = System.getenv("APP_SANDBOX_CONTAINER_ID") != null
+    if (isSandboxed) {
+        val resourcesPath = System.getProperty("compose.application.resources.dir")
+
+        // sqlite-jdbc
+        System.setProperty("org.sqlite.lib.path", resourcesPath)
+        System.setProperty("org.sqlite.lib.name", "libsqlitejdbc.dylib")
+    }
+
     initKoin(modules = listOf(buildConfigModule, sqlDriverModule, calendarModule))
 
     Window(

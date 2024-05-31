@@ -21,10 +21,10 @@ jobs:
         uses: gradle/wrapper-validation-action@v1
 
       - name: set up JDK
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
-          java-version: 17
+          java-version: 18
 
       - uses: gradle/gradle-build-action@v2
         with:
@@ -55,10 +55,10 @@ jobs:
         uses: gradle/wrapper-validation-action@v1
 
       - name: set up JDK
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
-          java-version: 17
+          java-version: 18
 
       - uses: ruby/setup-ruby@v1
         with:
@@ -115,10 +115,10 @@ jobs:
         uses: gradle/wrapper-validation-action@v1
 
       - name: set up JDK
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
-          java-version: 17
+          java-version: 18
 
       - uses: ruby/setup-ruby@v1
         with:
@@ -161,17 +161,24 @@ jobs:
         uses: gradle/wrapper-validation-action@v1
 
       - name: set up JDK
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
-          java-version: 17
+          java-version: 18
 
       - uses: gradle/gradle-build-action@v2
         with:
           cache-disabled: true
 
+      # Developer ID Application
+      - name: Import signing certificate
+        uses: apple-actions/import-codesign-certs@v3
+        with:
+          p12-file-base64: ${{ secrets.CERTIFICATES_P12 }}
+          p12-password: ${{ secrets.CERTIFICATES_PASSWORD }}
+
       - name: Build Desktop App
-        run: ./gradlew :desktopApp:packageDmg
+        run: ./gradlew :desktopApp:packageDmg -PmacOsAppStoreRelease=false
 
       - name: Upload build outputs
         if: always()
