@@ -43,6 +43,12 @@ Android -
 1. Keystore, alias, alias password, keystore password
 2. Google Play Services JSON account credentials
 
+Mac -
+[Native distributions & local execution](https://github.com/JetBrains/compose-multiplatform/blob/master/tutorials/Native_distributions_and_local_execution/README.md#native-distributions--local-execution)
+[Signing and notarizing distributions for macOS](https://github.com/JetBrains/compose-multiplatform/blob/master/tutorials/Signing_and_notarization_on_macOS/README.md)
+[Publishing to Github Actions](https://www.marcogomiero.com/posts/2024/kmp-ci-macos-appstore/)
+[Publishing to Mac App Store](https://www.marcogomiero.com/posts/2024/compose-macos-app-store/)
+
 ```
 ./gradlew clean spotlessApply detektAll :androidApp:build :desktopApp:packageDistributionForCurrentOS && bundle exec fastlane ios build
 ```
