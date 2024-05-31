@@ -170,8 +170,15 @@ jobs:
         with:
           cache-disabled: true
 
+      # Developer ID Application
+      - name: Import signing certificate
+        uses: apple-actions/import-codesign-certs@v3
+        with:
+          p12-file-base64: ${{ secrets.CERTIFICATES_P12 }}
+          p12-password: ${{ secrets.CERTIFICATES_PASSWORD }}
+
       - name: Build Desktop App
-        run: ./gradlew :desktopApp:packageDmg
+        run: ./gradlew :desktopApp:packageDmg -PmacOsAppStoreRelease=false
 
       - name: Upload build outputs
         if: always()
