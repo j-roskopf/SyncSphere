@@ -34,6 +34,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
+import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.patch
@@ -42,30 +43,37 @@ import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
-import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 
-@OptIn(ExperimentalSerializationApi::class)
-private val client = HttpClient {
-    defaultRequest {
-        url("https://firestore.googleapis.com/v1/projects/syncsphere-37dca/databases/(default)/documents/")
-        contentType(ContentType.Application.Json)
-    }
-    install(ContentNegotiation) {
-        json(
-            Json {
-                prettyPrint = true
-                ignoreUnknownKeys = true
-                explicitNulls = false
-                encodeDefaults = false
-            },
-        )
-    }
-}
+private const val BASE_URL =
+    "https://firestore.googleapis.com/v1/projects/syncsphere-37dca/databases/(default)/documents/"
+
+private const val IOS_FIREBASE_API_KEY = "AIzaSyCPlNmTVYxBOG7kTriSr74pKqK8cyvVJLo"
 
 @Suppress("RethrowCaughtException", "TooManyFunctions")
 class GoogleFirebaseApi {
+
+    @OptIn(ExperimentalSerializationApi::class)
+    private val client by lazy {
+        HttpClient {
+            install(Logging)
+            defaultRequest {
+                url(BASE_URL)
+                contentType(ContentType.Application.Json)
+            }
+            install(ContentNegotiation) {
+                json(
+                    Json {
+                        prettyPrint = true
+                        ignoreUnknownKeys = true
+                        explicitNulls = false
+                        encodeDefaults = false
+                    },
+                )
+            }
+        }
+    }
 
     suspend fun updateRoom(localRoom: Room, idToken: String, roomCollection: String) {
         val room = localRoom.toRoomField()
@@ -239,17 +247,14 @@ class GoogleFirebaseApi {
         )
     }
 
-    @Suppress("MagicNumber")
     suspend fun signInAnonymously(): String {
-        return withTimeout(10000L) {
-            val url =
-                "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyCPlNmTVYxBOG7kTriSr74pKqK8cyvVJLo"
-            try {
-                val response: FirebaseSignIn = client.post(url).body()
-                response.idToken
-            } catch (throwable: Throwable) {
-                throw throwable
-            }
+        val url =
+            "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=$IOS_FIREBASE_API_KEY"
+        try {
+            val response: FirebaseSignIn = client.post(url).body()
+            return response.idToken
+        } catch (throwable: Throwable) {
+            throw throwable
         }
     }
 

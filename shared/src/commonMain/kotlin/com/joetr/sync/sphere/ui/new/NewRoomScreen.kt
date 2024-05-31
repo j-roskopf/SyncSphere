@@ -137,7 +137,6 @@ class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
                                     name = name,
                                 )
                             },
-                            error = targetState.message,
                         )
                     }
                 }
@@ -149,7 +148,6 @@ class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
     private fun ErrorState(
         modifier: Modifier = Modifier,
         tryAgain: () -> Unit,
-        error: String,
     ) {
         Box(
             modifier = modifier.fillMaxSize(),
@@ -160,7 +158,7 @@ class NewRoomScreen(val joinedRoom: JoinedRoom?, val name: String) : Screen {
             ) {
                 Text(
                     style = MaterialTheme.typography.displayMedium,
-                    text = "Something went wrong $error",
+                    text = "Something went wrong \uD83D\uDE41",
                     textAlign = TextAlign.Center,
                 )
 

@@ -11,7 +11,7 @@ sealed interface NewRoomState {
             get() = 1
     }
 
-    data class Error(val message: String) : NewRoomState {
+    data object Error : NewRoomState {
         override val key: Int
             get() = 2
     }

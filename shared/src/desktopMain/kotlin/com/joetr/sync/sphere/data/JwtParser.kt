@@ -14,7 +14,7 @@ class JwtParser {
         if (jwtToken.isEmpty()) return true
 
         val payload = getPayload(jwtToken)
-        val exp = payload["exp"]?.toString()?.toLong()
+        val exp = payload?.get("exp")?.toString()?.toLong()
         return if (exp == null) {
             true
         } else {
@@ -28,12 +28,18 @@ class JwtParser {
      * @param jwt REQUIRED: valid JSON Web Token as String.
      * @return payload as a JSONObject.
      */
-    private fun getPayload(jwt: String): JsonObject {
-        validateJWT(jwt)
-        val payload = jwt.split("\\.".toRegex()).toTypedArray()[PAYLOAD]
-        val sectionDecoded = java.util.Base64.getDecoder().decode(payload)
-        val jwtSection = String(sectionDecoded, StandardCharsets.UTF_8)
-        return Json.decodeFromString<JsonObject>(jwtSection)
+    @Suppress("SwallowedException")
+    private fun getPayload(jwt: String): JsonObject? {
+        try {
+            validateJWT(jwt)
+            val payload = jwt.split("\\.".toRegex()).toTypedArray()[PAYLOAD]
+            val sectionDecoded = java.util.Base64.getDecoder().decode(payload)
+            val jwtSection = String(sectionDecoded, StandardCharsets.UTF_8)
+            return Json.decodeFromString<JsonObject>(jwtSection)
+        } catch (e: Exception) {
+            // swallowed for now
+        }
+        return null
     }
 
     /**
