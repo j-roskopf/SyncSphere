@@ -219,7 +219,7 @@ class TimeSelectionScreen(
         continueButtonEnabled: Boolean,
     ) {
         val startTimeVisible = remember { mutableStateOf(true) }
-        val endTimeVisible = remember { mutableStateOf(false) }
+        val endTimeVisible = remember { mutableStateOf(true) }
 
         val now = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
 
