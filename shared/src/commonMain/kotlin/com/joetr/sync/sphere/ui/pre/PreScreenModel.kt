@@ -142,8 +142,3 @@ class PreScreenModel(
         )
     }
 }
-
-/*
-        add to calendar - event name
-        filter on calculated screen
-*/
