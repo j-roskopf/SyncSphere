@@ -9,7 +9,7 @@ actual class Calendar {
     actual fun addToCalendar(localDate: LocalDate, dayTime: DayTime) {
         if (Platform.isMac()) {
             // todo joer figure out how to add parameters
-            Runtime.getRuntime().exec("open -a Calendar.app")
+            Runtime.getRuntime().exec("open -a Calendar")
         } else if (Platform.isWindows()) {
             // todo joer figure out how to open calendar on windows
         } else if (Platform.isLinux()) {
