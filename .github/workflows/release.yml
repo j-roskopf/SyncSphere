@@ -1,4 +1,4 @@
-name: Release
+name: Mobile (Android / iOS) Release
 
 on:
   push:

@@ -377,7 +377,7 @@ class AvailabilityScreen(
                                     contentDescription = null,
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
-                                Text("Add To Calendar")
+                                Text("Open Calendar")
                             }
 
                             if (hasUserSubmittedFinalization.not()) {
