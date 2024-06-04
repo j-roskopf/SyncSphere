@@ -66,8 +66,8 @@ class TimeSelectionScreen(
         val screenModel = getScreenModel<TimeSelectionScreenModel>()
         val viewState = screenModel.state.collectAsState().value
         val navigator = LocalNavigator.currentOrThrow
-        var continueButtonEnabled = remember { mutableStateOf(false) }
-        var displayErrorDialog = remember { mutableStateOf(false) }
+        val continueButtonEnabled = remember { mutableStateOf(false) }
+        val displayErrorDialog = remember { mutableStateOf(false) }
 
         LifecycleEffect(
             onStarted = {

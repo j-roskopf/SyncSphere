@@ -17,12 +17,13 @@ actual class Calendar {
      *
      * https://stackoverflow.com/a/53151074
      */
-    actual fun addToCalendar(localDate: LocalDate, dayTime: DayTime) {
+    actual fun addToCalendar(localDate: LocalDate, dayTime: DayTime): Boolean {
         val localDateSeconds = localDate.atStartOfDayIn(
             TimeZone.currentSystemDefault(),
         ).epochSeconds - JAN_1_2000_OFFSET_SECONDS
         // "calshow: wants the number of seconds since jan 1st 2000
         UIApplication.sharedApplication().openURL(NSURL(string = "calshow:$localDateSeconds"))
+        return true
     }
 
     /**
