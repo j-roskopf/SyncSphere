@@ -4,5 +4,5 @@ import com.joetr.sync.sphere.ui.time.DayTime
 import kotlinx.datetime.LocalDate
 
 expect class Calendar {
-    fun addToCalendar(localDate: LocalDate, dayTime: DayTime)
+    fun addToCalendar(localDate: LocalDate, dayTime: DayTime): Boolean
 }

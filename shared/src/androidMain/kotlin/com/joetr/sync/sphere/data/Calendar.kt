@@ -11,7 +11,7 @@ import kotlinx.datetime.toInstant
 
 actual class Calendar(private val context: Context) {
 
-    actual fun addToCalendar(localDate: LocalDate, dayTime: DayTime) {
+    actual fun addToCalendar(localDate: LocalDate, dayTime: DayTime): Boolean {
         val intent = Intent(Intent.ACTION_EDIT)
         intent.type = "vnd.android.cursor.item/event"
         if (dayTime is DayTime.AllDay) {
@@ -59,5 +59,7 @@ actual class Calendar(private val context: Context) {
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
 
         context.startActivity(intent)
+
+        return true
     }
 }

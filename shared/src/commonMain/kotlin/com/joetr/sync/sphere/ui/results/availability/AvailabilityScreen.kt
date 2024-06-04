@@ -23,6 +23,7 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -51,6 +52,7 @@ import com.joetr.sync.sphere.design.theme.conditional
 import com.joetr.sync.sphere.design.toolbar.DefaultToolbar
 import com.joetr.sync.sphere.design.toolbar.backOrNull
 import com.joetr.sync.sphere.ui.ProgressIndicator
+import com.joetr.sync.sphere.ui.pre.collectAsEffect
 import com.joetr.sync.sphere.ui.results.availability.data.DayStatus
 import com.joetr.sync.sphere.ui.time.DayTime
 import com.joetr.sync.sphere.ui.time.getDisplayText
@@ -83,6 +85,22 @@ class AvailabilityScreen(
                 )
             },
         )
+
+        val displayErrorDialog = remember { mutableStateOf(false) }
+
+        screenModel.action.collectAsEffect {
+            when (it) {
+                AvailabilityScreenAction.AddToCalendarError -> displayErrorDialog.value = true
+            }
+        }
+
+        if (displayErrorDialog.value) {
+            ErrorDialog(
+                onDismiss = {
+                    displayErrorDialog.value = false
+                },
+            )
+        }
 
         Scaffold(
             topBar = {
@@ -443,5 +461,28 @@ class AvailabilityScreen(
                 )
             }
         }
+    }
+
+    @Composable
+    private fun ErrorDialog(
+        onDismiss: () -> Unit,
+    ) {
+        AlertDialog(
+            onDismissRequest = {
+                onDismiss()
+            },
+            title = {
+                Text("An error occurred")
+            },
+            confirmButton = {
+                PrimaryButton(
+                    onClick = {
+                        onDismiss()
+                    },
+                ) {
+                    Text("Okay")
+                }
+            },
+        )
     }
 }

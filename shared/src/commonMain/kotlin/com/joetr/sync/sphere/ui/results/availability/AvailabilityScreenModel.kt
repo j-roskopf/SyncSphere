@@ -12,7 +12,9 @@ import com.joetr.sync.sphere.ui.results.availability.data.DayStatus
 import com.joetr.sync.sphere.ui.time.DayTime
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
@@ -26,6 +28,9 @@ class AvailabilityScreenModel(
 
     private val _state = MutableStateFlow<AvailabilityScreenState>(AvailabilityScreenState.Loading)
     val state: StateFlow<AvailabilityScreenState> = _state
+
+    private val _action = MutableSharedFlow<AvailabilityScreenAction>()
+    val action: SharedFlow<AvailabilityScreenAction> = _action
 
     /**
      * @param inputData map of display date to availability
@@ -169,7 +174,13 @@ class AvailabilityScreenModel(
     }
 
     fun addToCalendar(localDate: LocalDate, dayTime: DayTime) {
-        calendar.addToCalendar(localDate, dayTime)
+        val result = calendar.addToCalendar(localDate, dayTime)
+        if (result.not()) {
+            screenModelScope.launch(coroutineDispatcher) {
+                // an error occurred
+                _action.emit(AvailabilityScreenAction.AddToCalendarError)
+            }
+        }
     }
 
     /**
@@ -198,6 +209,3 @@ private data class AvailabilityScreenModelData(
     val uiData: Map<DayStatus, List<Pair<String, DayTime>>>,
     val roomFlow: Flow<Room>,
 )
-
-// todo joer test old rooms with finalizations
-// todo joer test finalizations with exact same name
