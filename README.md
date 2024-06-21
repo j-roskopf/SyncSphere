@@ -7,6 +7,8 @@ Are you tired of endless group chats and email threads trying to plan a simple g
 
 Create a Room, Share, and Sync!
 
+[![CI](https://github.com/j-roskopf/SyncSphere/actions/workflows/build.yml/badge.svg)](https://github.com/j-roskopf/SyncSphere/actions/workflows/build.yml)
+
 ## Download 📦
 
 Sync Sphere is available for Android, iOS, and Desktop
