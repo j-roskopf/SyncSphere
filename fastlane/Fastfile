@@ -3,7 +3,6 @@ platform :ios do
   lane :lint do
     swiftlint(
       mode: :lint,
-      path: "iosApp/iosApp",
       strict: true,
       raise_if_swiftlint_error: true
     )
