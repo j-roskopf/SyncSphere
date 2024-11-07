@@ -8,7 +8,7 @@ Are you tired of endless group chats and email threads trying to plan a simple g
 Create a Room, Share, and Sync!
 
 [![CI](https://github.com/j-roskopf/SyncSphere/actions/workflows/build.yml/badge.svg)](https://github.com/j-roskopf/SyncSphere/actions/workflows/build.yml)
-[![Hits-of-Code](https://hitsofcode.com/github/j-roskopf/SyncSphere)](https://hitsofcode.com/github/j-roskopf/SyncSphere/view)
+[![Hits-of-Code](https://hitsofcode.com/github/j-roskopf/SyncSphere?branch=main)](https://hitsofcode.com/github/j-roskopf/SyncSphere/view?branch=main)
 
 
 
